@@ -1,3 +1,5 @@
+//this is an example program that uses BitMRC to send an receive messages
+
 #pragma once
 
 #include <cstdio>
