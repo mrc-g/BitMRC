@@ -14,7 +14,7 @@ public:
 	//convert to string
 	string toString();
 
-	//generate from string
+	//append from string
 	void ustring::fromString(string from);
 
 	//append a unsigned char or int8
