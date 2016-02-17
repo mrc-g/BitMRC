@@ -18,6 +18,10 @@ public:
 
 	PubAddr(const PubAddr &that);
 
+	void operator=(const PubAddr &that);
+
+	bool operator==(const PubAddr &that);
+
 	//address with the BM-
 	bool loadAddr(ustring address);
 

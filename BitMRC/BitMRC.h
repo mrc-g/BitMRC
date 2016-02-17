@@ -13,23 +13,29 @@ class BitMRC;
 class BitMRC
 {
 public:
+
+	struct message
+	{
+		ustring from;
+		ustring to;
+		ustring info;
+	};
+
 	BitMRC();
 	~BitMRC();
 	vector<NodeConnection*> Nodes;
-	vector<PubAddr*> PubAddresses;
-	vector<Addr*> PrivAddresses;
-	vector<sTag> Hashes;
+	vector<PubAddr> PubAddresses;
+	vector<Addr> PrivAddresses;
 
 	Queue<NodeConnection*> new_ip; //do not delete manually
-	Queue<PubAddr*> new_pubKey; //do not delete manually the key added here
-	Queue<Addr*> new_PrivKey; //same as above
-	Queue<sTag> new_hashes;
+	Queue<PubAddr> new_pubKey; //do not delete manually the key added here
+	Queue<Addr> new_PrivKey; //same as above
 
 	Queue<Packet> new_packets;
 
 	Queue<ustring> messages;
 	
-	hash_table sharedObj;
+	hash_table<ustring> sharedObj;
 
 	std::mutex mutex_priv;
 	std::mutex mutex_pub;
@@ -37,7 +43,7 @@ public:
 
 	void start();
 
-	void getPubKey(PubAddr &address);
+	void getPubKey(PubAddr address);
 
 	void sendMessage(ustring message, PubAddr toAddr, Addr fromAddr);
 

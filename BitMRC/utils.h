@@ -378,6 +378,7 @@ class Queue
   std::condition_variable cond_;
 };
 
+template<typename T>
 class hash_table
 {
 private:
@@ -388,7 +389,7 @@ public:
 	typedef struct linked_node_struct
 	{
 		ustring hash;
-		ustring info;
+		T info;
 		struct linked_node_struct *next;
 	}linked_node;
 
@@ -420,7 +421,7 @@ public:
 	// 0 if present so not insert
 	// 1 if first with this hash
 	// 2 if not first
-	int insert(ustring info, ustring hash)
+	int insert(T info, ustring hash)
 	{
 		int i = hash_f(hash);
 
@@ -463,7 +464,7 @@ public:
 		}
 	}
 
-	ustring searchByHash(ustring hash)
+	T searchByHash(ustring hash)
 	{
 		int i = hash_f(hash);
 		std::unique_lock<std::mutex> mlock(mutex_);
@@ -478,16 +479,47 @@ public:
 			cur = cur->next;
 		}
 		mlock.unlock();
-		ustring ret;
+		T ret;
 		return ret;
 	}
 
-	int hash_f(ustring info)
+	//update an element
+	//return:	1 if present
+	//			0 else
+	int updateByHash(ustring hash, T info)
 	{
-		int intLength = info.length() / 4;
+		int i = hash_f(hash);
+		std::unique_lock<std::mutex> mlock(mutex_);
+		linked_node * cur = this->Table[i];
+		linked_node * prec = NULL;
+		while (cur != NULL)
+		{
+			if (cur->hash == hash)
+			{
+				cur->info = info;
+				mlock.unlock();
+				return 1;
+			}
+			prec = cur;
+			cur = cur->next;
+			
+		}
+
+		prec->next = new linked_node;
+		prec->next->info = info;
+		prec->next->hash = hash;
+		prec->next->next = NULL;
+
+		mlock.unlock();
+		return 0;
+	}
+
+	int hash_f(ustring hash)
+	{
+		int intLength = hash.length() / 4;
 		long sum = 0;
 		for (int j = 0; j < intLength; j++) {
-			char *c = (char*)info.substr(j * 4, (j * 4) + 4).c_str();
+			char *c = (char*)hash.substr(j * 4, (j * 4) + 4).c_str();
 			long mult = 1;
 			for (int k = 0; k < 4; k++) {
 				sum += c[k] * mult;
@@ -495,9 +527,9 @@ public:
 			}
 		}
 
-		char *c = (char*)info.substr(intLength * 4).c_str();
+		char *c = (char*)hash.substr(intLength * 4).c_str();
 		long mult = 1;
-		for (unsigned int k = 0; k < (info.length()-(intLength * 4)); k++) {
+		for (unsigned int k = 0; k < (hash.length()-(intLength * 4)); k++) {
 			sum += c[k] * mult;
 			mult *= 256;
 		}

@@ -24,9 +24,8 @@ BitMRC::~BitMRC()
 	this->running = false;
 	
 	this->new_ip.push(new NodeConnection(this));
-	this->new_pubKey.push(new PubAddr());
-	this->new_PrivKey.push(new Addr());
-	this->new_hashes.push(sTag());
+	this->new_pubKey.push(PubAddr());
+	this->new_PrivKey.push(Addr());
 	this->new_packets.push(Packet());
 
 	if (this->thread_new_ip.joinable())
@@ -57,18 +56,7 @@ BitMRC::~BitMRC()
 	//important: clear thread first then clear data
 	this->Nodes.clear();
 
-	for (unsigned int i = 0; i < PubAddresses.size(); i++)
-	{
-		if (PubAddresses[i] != NULL)
-			delete PubAddresses[i];
-	}
 	this->PubAddresses.clear(); 
-
-	for (unsigned int i = 0; i < PrivAddresses.size(); i++)
-	{
-		if (PrivAddresses[i] != NULL)
-			delete PrivAddresses[i];
-	}
 	this->PrivAddresses.clear();
 }
 
@@ -78,7 +66,6 @@ void BitMRC::start()
 	this->thread_new_ip = thread(&BitMRC::listen_ips, this);
 	this->thread_new_PrivKey = thread(&BitMRC::listen_privkeys, this);
 	this->thread_new_PubKey = thread(&BitMRC::listen_pubkeys, this);
-	this->thread_new_hashes = thread(&BitMRC::listen_hashes, this);
 	this->thread_new_packets = thread(&BitMRC::listen_packets, this);
 }
 
@@ -96,8 +83,23 @@ void BitMRC::listen_privkeys()
 {
 	while (this->running)
 	{
-		Addr* tmp = this->new_PrivKey.pop();
-		this->PrivAddresses.push_back(tmp);
+		Addr tmp = this->new_PrivKey.pop();
+		if (!tmp.getAddress().empty())
+		{
+			bool find = false;
+			unsigned int i = 0;
+			while (i < this->PrivAddresses.size() && !find)
+			{
+				if (this->PrivAddresses[i] == tmp)
+				{
+					this->PrivAddresses[i] = tmp;
+					find = true;
+				}
+				i++;
+			}
+			if (!find)
+				this->PrivAddresses.push_back(tmp);
+		}
 	}
 }
 
@@ -105,17 +107,23 @@ void BitMRC::listen_pubkeys()
 {
 	while (this->running)
 	{
-		PubAddr* tmp = this->new_pubKey.pop();
-		this->PubAddresses.push_back(tmp);
-	}
-}
-
-void BitMRC::listen_hashes()
-{
-	while (this->running)
-	{
-		sTag tmp = this->new_hashes.pop();
-		this->Hashes.push_back(tmp);
+		PubAddr tmp = this->new_pubKey.pop();
+		if (!tmp.getAddress().empty())
+		{
+			bool find = false;
+			unsigned int i = 0;
+			while(i < this->PubAddresses.size() && !find)
+			{
+				if (this->PubAddresses[i] == tmp)
+				{
+					this->PubAddresses[i] = tmp;
+					find = true;
+				}
+				i++;
+			}
+			if(!find)
+				this->PubAddresses.push_back(tmp);
+		}
 	}
 }
 
@@ -131,19 +139,19 @@ void BitMRC::listen_packets()
 	}
 }
 
-void BitMRC::getPubKey(PubAddr &address)
+void BitMRC::getPubKey(PubAddr address)
 {
 	int find = false;
 	unsigned int i = 0;
 	while(i < this->PubAddresses.size() && !find)
 	{
-		if (this->PubAddresses[i]->getVersion() == address.getVersion()) //check same version
+		if (this->PubAddresses[i].getVersion() == address.getVersion()) //check same version
 		{
 			if (address.getVersion() >= 4)
 			{
-				if (this->PubAddresses[i]->getTag() == address.getTag())
+				if (this->PubAddresses[i].getTag() == address.getTag())
 				{
-					if (!this->PubAddresses[i]->waitingPubKey()) //check if we already have the pubkeys
+					if (!this->PubAddresses[i].waitingPubKey()) //check if we already have the pubkeys
 						return; //we already have it!
 					else
 						find = true; //continue we need to request it
@@ -151,9 +159,9 @@ void BitMRC::getPubKey(PubAddr &address)
 			}
 			else
 			{
-				if (this->PubAddresses[i]->getRipe() == address.getRipe())
+				if (this->PubAddresses[i].getRipe() == address.getRipe())
 				{
-					if (!this->PubAddresses[i]->waitingPubKey()) //check if we already have the pubkeys
+					if (!this->PubAddresses[i].waitingPubKey()) //check if we already have the pubkeys
 						return; // we already have it!
 					else
 						find = true; //continue we need to request it
@@ -166,7 +174,7 @@ void BitMRC::getPubKey(PubAddr &address)
 	{
 		for (int i = 0; i < this->sharedObj.Dim; i++)
 		{
-			hash_table::linked_node * cur = this->sharedObj.Table[i];
+			hash_table<ustring>::linked_node * cur = this->sharedObj.Table[i];
 			while (cur != NULL)
 			{
 				
@@ -180,7 +188,7 @@ void BitMRC::getPubKey(PubAddr &address)
 					{
 						address.decodeFromObj(pubkey);
 
-						this->PubAddresses.push_back(&address);
+						this->new_pubKey.push(address); //update it
 						return;
 					}
 				}
@@ -198,7 +206,7 @@ void BitMRC::getPubKey(PubAddr &address)
 	obj.encodeObject();
 
 	if(!find) //add the pubkey only if is not already present
-		this->new_pubKey.push(&address);
+		this->new_pubKey.push(address);
 
 	time_t ltime = std::time(nullptr);
 	time_t TTL = 60 * 60;
@@ -382,7 +390,6 @@ void BitMRC::sendObj(object obj)
 	ustring hash = doubleHash(obj.message_payload);
 
 	memcpy(tag.ch, hash.c_str(), 32);
-	this->new_hashes.push(tag);
 }
 
 bool BitMRC::decryptMsg(packet_msg msg)
@@ -395,7 +402,7 @@ bool BitMRC::decryptMsg(packet_msg msg)
 	{
 		try
 		{
-			recovered = this->PrivAddresses[i]->decode(msg.objectPayload, this->PrivAddresses[i]->getPrivEncryptionKey());
+			recovered = this->PrivAddresses[i].decode(msg.objectPayload, this->PrivAddresses[i].getPrivEncryptionKey());
 			decryptionSuccess = true;
 		}catch(...)
 		{
@@ -559,12 +566,12 @@ void BitMRC::load(string path)
 	try {
 		while (!feof(kFile))
 		{
-			Addr * tmp = new Addr;
+			Addr tmp;
 			ustring Address = reader.getVarUstring();
 			ustring privE = reader.getVarUstring();
 			ustring privS = reader.getVarUstring();
-			tmp->loadAddr(Address);
-			if (!tmp->loadKeys(tmp->getPubOfPriv(privE), tmp->getPubOfPriv(privS), privE, privS, tmp->getStream(), tmp->getVersion())) //todo create a simpler function
+			tmp.loadAddr(Address);
+			if (!tmp.loadKeys(tmp.getPubOfPriv(privE), tmp.getPubOfPriv(privS), privE, privS, tmp.getStream(), tmp.getVersion())) //todo create a simpler function
 				continue;
 			this->new_PrivKey.push(tmp);
 		}
@@ -590,7 +597,7 @@ void BitMRC::save(string path)
 		writer.setFile(pFile);
 		for (int i = 0; i < this->sharedObj.Dim; i++)
 		{
-			hash_table::linked_node * cur = this->sharedObj.Table[i];
+			hash_table<ustring>::linked_node * cur = this->sharedObj.Table[i];
 			while (cur != NULL)
 			{
 				writer.writeUstring(cur->hash);
@@ -601,9 +608,9 @@ void BitMRC::save(string path)
 		writer.setFile(kFile);
 		for (unsigned int i = 0; i < this->PrivAddresses.size(); i++)
 		{
-			writer.writeVarUstring(this->PrivAddresses[i]->getAddress());
-			writer.writeVarUstring(this->PrivAddresses[i]->getPrivEncryptionKey());
-			writer.writeVarUstring(this->PrivAddresses[i]->getPrivSigningKey());
+			writer.writeVarUstring(this->PrivAddresses[i].getAddress());
+			writer.writeVarUstring(this->PrivAddresses[i].getPrivEncryptionKey());
+			writer.writeVarUstring(this->PrivAddresses[i].getPrivSigningKey());
 		}
 	}
 	catch (...)

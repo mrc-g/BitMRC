@@ -6,7 +6,7 @@ int main()
 {
 
 	ustring addre;
-	addre.fromString(string("BM-2cV1F1Ae2V5DtvTYhnNw81gvTyttH2SBYx")); //just a test address
+	addre.fromString(string("BM-2cUwUoj9YKoxsZMKT7C5N46tC1KTdUQZpH")); //just a test address
 	PubAddr address;
 	bool loaded = address.loadAddr(addre);
 
@@ -17,8 +17,9 @@ int main()
 	bitmrc.start();
 
 	bitmrc.getPubKey(address);
-
-	while (address.waitingPubKey())
+	while (bitmrc.PubAddresses.size() == 0)
+		Sleep(100);
+	while (bitmrc.PubAddresses[0].waitingPubKey())
 		Sleep(100);
 
 	while (1)
@@ -31,19 +32,23 @@ int main()
 		{
 			if (bitmrc.PrivAddresses.size() == 0)
 			{
-				Addr *privateAddr = new Addr;
-				privateAddr->generateRandom();
-				Addr *privateAddr2 = new Addr;
-				privateAddr2->generateRandom();
+				Addr privateAddr;
+				privateAddr.generateRandom();
+				Addr privateAddr2;
+				privateAddr2.generateRandom();
 
 				bitmrc.new_PrivKey.push(privateAddr);
 				bitmrc.new_PrivKey.push(privateAddr2);
 			}
 
+			while (bitmrc.PrivAddresses.size() == 0)
+				Sleep(100);
+
 			file_ustring data;
 			data.setFile(stdin);
 			ustring msg = data.getUstring(4);
-			bitmrc.sendMessage(msg, address, *bitmrc.PrivAddresses[0]);
+			bitmrc.sendMessage(msg, bitmrc.PubAddresses[0], bitmrc.PrivAddresses[0]);
+			printf("messaggio inviato");
 		}
 	}
 

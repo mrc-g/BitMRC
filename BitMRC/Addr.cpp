@@ -23,6 +23,31 @@ PubAddr::PubAddr(const PubAddr &that)
 	this->tagE = that.tagE;
 }
 
+void PubAddr::operator=(const PubAddr & that)
+{
+	this->pubSigningKey = that.pubSigningKey;
+	this->pubEncryptionKey = that.pubEncryptionKey;
+	this->empty = that.empty;
+
+	this->extra_bytes = that.extra_bytes;
+	this->nonce_trials = that.nonce_trials;
+
+	this->version = that.version;
+	this->stream = that.stream;
+	this->ripe = that.ripe;
+
+	this->address = that.address;
+	this->tag = that.tag;
+	this->tagE = that.tagE;
+}
+
+bool PubAddr::operator==(const PubAddr & that)
+{
+	if (this->address == that.address)
+		return true;
+	return false;
+}
+
 bool PubAddr::loadAddr(ustring address)
 {
 	this->address = address;

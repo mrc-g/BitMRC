@@ -240,7 +240,8 @@ void NodeConnection::Listener()
 			
 			packet.getCommand(this->Socket);
 
-			printf("%s\n", packet.command);
+			printf("%s\n", packet.command); //this printf are not really thread save, and they are only needed for debug
+
 			if (!strcmp(packet.command, "pong")) //just a keep alive
 			{
 				packet.sendData(this->Socket); //resending it
@@ -343,10 +344,10 @@ void NodeConnection::Listener()
 						
 						for (unsigned int i = 0; i < this->bitmrc->PrivAddresses.size(); i++)
 						{
-							ustring tag = this->bitmrc->PrivAddresses[i]->getTag();
+							ustring tag = this->bitmrc->PrivAddresses[i].getTag();
 							if (getpubkey.tag == tag)
 							{
-								this->bitmrc->sendObj(this->bitmrc->PrivAddresses[i]->encodePubKey());
+								this->bitmrc->sendObj(this->bitmrc->PrivAddresses[i].encodePubKey());
 							}
 						}
 					}
@@ -355,15 +356,14 @@ void NodeConnection::Listener()
 						packet_pubkey pubkey(obj);
 						for (unsigned int i = 0; i < this->bitmrc->PubAddresses.size(); i++)
 						{
-							if (!this->bitmrc->PubAddresses.operator[](i)->waitingPubKey())
+							if (!this->bitmrc->PubAddresses[i].waitingPubKey())
 								continue;
-							ustring tag = this->bitmrc->PubAddresses.operator[](i)->getTag();
+							ustring tag = this->bitmrc->PubAddresses[i].getTag();
 							if (pubkey.tag == tag)
-							{//debug received the pubkey we have
-								this->bitmrc->PubAddresses.operator[](i)->decodeFromObj(pubkey);
+							{
+								this->bitmrc->PubAddresses[i].decodeFromObj(pubkey);
 							}
 						}
-						//todo decrypt
 					}
 					else if (obj.objectType == type_msg)
 					{
