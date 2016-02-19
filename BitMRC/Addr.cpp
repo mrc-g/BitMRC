@@ -7,6 +7,8 @@ PubAddr::PubAddr()
 
 PubAddr::PubAddr(const PubAddr &that)
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(that.mutex_);
+	std::unique_lock<std::shared_timed_mutex> mlock2(this->mutex_);
 	this->pubSigningKey = that.pubSigningKey;
 	this->pubEncryptionKey = that.pubEncryptionKey;
 	this->empty = that.empty;
@@ -21,10 +23,13 @@ PubAddr::PubAddr(const PubAddr &that)
 	this->address = that.address;
 	this->tag = that.tag;
 	this->tagE = that.tagE;
+	mlock2.unlock();
 }
 
 void PubAddr::operator=(const PubAddr & that)
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(that.mutex_);
+	std::unique_lock<std::shared_timed_mutex> mlock2(this->mutex_);
 	this->pubSigningKey = that.pubSigningKey;
 	this->pubEncryptionKey = that.pubEncryptionKey;
 	this->empty = that.empty;
@@ -39,10 +44,13 @@ void PubAddr::operator=(const PubAddr & that)
 	this->address = that.address;
 	this->tag = that.tag;
 	this->tagE = that.tagE;
+	mlock2.unlock();
 }
 
 bool PubAddr::operator==(const PubAddr & that)
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(that.mutex_);
+	std::shared_lock<std::shared_timed_mutex> mlock2(this->mutex_);
 	if (this->address == that.address)
 		return true;
 	return false;
@@ -50,8 +58,6 @@ bool PubAddr::operator==(const PubAddr & that)
 
 bool PubAddr::loadAddr(ustring address)
 {
-	this->address = address;
-
 	unsigned int i = 0;
 	string BM = address.getString(3, i);
 	if (strncmp(BM.c_str(), "BM-", 3) != 0)
@@ -95,8 +101,11 @@ bool PubAddr::loadAddr(ustring address)
 
 	i = 0;
 	
-	this->version = (int)buffer.getVarInt_B(i);
-	this->stream = (int)buffer.getVarInt_B(i);
+	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);
+	this->address = address;
+
+	int tmp_vers = (int)buffer.getVarInt_B(i);
+	int tmp_stream = (int)buffer.getVarInt_B(i);
 	
 	ustring tmp_ripe = buffer.getRest(i);
 
@@ -105,6 +114,9 @@ bool PubAddr::loadAddr(ustring address)
 
 	if (tmp_ripe.length() < 4)
 		return false; //too short
+
+	this->version = tmp_vers;
+	this->stream = tmp_stream;
 
 	while (tmp_ripe.length() != 20) //todo add function prepend
 	{
@@ -131,13 +143,13 @@ bool PubAddr::loadAddr(ustring address)
 	this->tag.append(&(digest2[32]), 32);
 
 	this->empty = true;
-
+	mlock.unlock();
 	return true;
 }
 
 bool PubAddr::loadKeys(ustring Skey, ustring Ekey, int nonce, int extra)
 {
-	std::unique_lock<std::mutex> mlock(this->mutex_);
+	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	this->extra_bytes = extra;
 	this->nonce_trials = nonce;
 
@@ -246,8 +258,9 @@ ustring PubAddr::decode(ustring data, ustring privK)
 	SecByteBlock pubB(pubK.c_str(), dhB.PublicKeyLength());
 
 	if (dhA.AgreedValueLength() != dhB.AgreedValueLength())
+	{
 		throw runtime_error("Shared shared size mismatch");
-
+	}
 	SecByteBlock sharedA(dhA.AgreedValueLength()), sharedB(dhB.AgreedValueLength());
 
 	if (!dhA.Agree(sharedA, privA, pubB))
@@ -485,11 +498,13 @@ ustring PubAddr::buildAddressFromKeys(ustring Skey, ustring Ekey, int stream, in
 
 ustring PubAddr::getPubEncryptionKey()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->pubEncryptionKey;
 }
 
 ustring PubAddr::getPubSigningKey()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->pubSigningKey;
 }
 
@@ -521,47 +536,66 @@ ustring PubAddr::getPubOfPriv(ustring priv)
 
 int PubAddr::getNonce()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->nonce_trials;
 }
 int PubAddr::getExtra()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->extra_bytes;
 }
 
 int PubAddr::getVersion()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->version;
 }
 
 int PubAddr::getStream()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->stream;
 }
 
 ustring PubAddr::getRipe()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->ripe;
 }
 
 ustring PubAddr::getAddress()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->address;
 }
 
 bool PubAddr::waitingPubKey()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->empty;
 }
 
 ustring PubAddr::getTag()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->tag;
 }
 
 ustring PubAddr::getTagE()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->tagE;
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -575,6 +609,8 @@ Addr::Addr()
 
 Addr::Addr(const Addr &that)
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(that.mutex_);
+	std::unique_lock<std::shared_timed_mutex> mlock2(this->mutex_);
 	this->pubSigningKey = that.pubSigningKey;
 	this->privSigningKey = that.privSigningKey;
 
@@ -593,6 +629,7 @@ Addr::Addr(const Addr &that)
 	this->address = that.address;
 	this->tag = that.tag;
 	this->tagE = that.tagE;
+	mlock2.unlock();
 }
 
 bool Addr::generateRandom()
@@ -688,7 +725,7 @@ bool Addr::generateRandom()
 
 bool Addr::loadKeys(ustring pubE, ustring pubS, ustring privE, ustring privS, int stream, int version)
 {
-	std::unique_lock<std::mutex> mlock(this->mutex_);
+	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	this->extra_bytes = 1000;
 	this->nonce_trials = 1000;
 
@@ -757,16 +794,19 @@ bool Addr::loadKeys(ustring pubE, ustring pubS, ustring privE, ustring privS, in
 	this->empty = false;
 
 	this->address = this->buildAddressFromKeys(this->pubSigningKey, this->pubEncryptionKey, stream, version);
-
-	if (!this->loadAddr(this->address))
-		return false;
-
 	mlock.unlock();
+	if (!this->loadAddr(this->address))
+	{
+		
+		return false;
+	}
+
 	return true;
 }
 
 packet_pubkey Addr::encodePubKey()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	packet_pubkey pubkey;
 	time_t ltime = std::time(nullptr);
 	time_t TTL = 60 * 60;
@@ -863,20 +903,24 @@ packet_pubkey Addr::encodePubKey()
 
 ustring Addr::getPrivEncryptionKey()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->privEncryptionKey;
 }
 
 ustring Addr::getPrivSigningKey()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->privSigningKey;
 }
 
 ustring Addr::getPubEncryptionKey()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->pubEncryptionKey;
 }
 
 ustring Addr::getPubSigningKey()
 {
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->pubSigningKey;
 }

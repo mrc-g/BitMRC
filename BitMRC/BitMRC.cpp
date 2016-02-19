@@ -91,10 +91,7 @@ void BitMRC::listen_privkeys()
 			while (i < this->PrivAddresses.size() && !find)
 			{
 				if (this->PrivAddresses[i] == tmp)
-				{
-					this->PrivAddresses[i] = tmp;
 					find = true;
-				}
 				i++;
 			}
 			if (!find)
@@ -115,10 +112,7 @@ void BitMRC::listen_pubkeys()
 			while(i < this->PubAddresses.size() && !find)
 			{
 				if (this->PubAddresses[i] == tmp)
-				{
-					this->PubAddresses[i] = tmp;
 					find = true;
-				}
 				i++;
 			}
 			if(!find)
@@ -188,7 +182,7 @@ void BitMRC::getPubKey(PubAddr address)
 					{
 						address.decodeFromObj(pubkey);
 
-						this->new_pubKey.push(address); //update it
+						this->new_pubKey.push(address);
 						return;
 					}
 				}

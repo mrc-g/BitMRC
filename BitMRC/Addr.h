@@ -67,7 +67,7 @@ protected:
 	ustring pubEncryptionKey;
 
 	//for async save of the key
-	std::mutex mutex_;
+	mutable std::shared_timed_mutex mutex_;
 
 	//true if not known the keys
 	//false if known
