@@ -24,3 +24,5 @@ But it cannot:
 + It doesn't read/decrypt the messages already in the invenctory.
 + Can handle only v4 address and pubkey
 + It doesn't use ack at all
++ It doesn't propagate inventory elements
++ It doesn't mitagate attack (like waiting for sending ack or other things but for now is not needed as it doesn's use ack)
