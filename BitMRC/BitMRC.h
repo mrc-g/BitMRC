@@ -24,12 +24,10 @@ public:
 	BitMRC();
 	~BitMRC();
 	vector<NodeConnection*> Nodes;
-	vector<PubAddr> PubAddresses;
-	vector<Addr> PrivAddresses;
+	vector<PubAddr> PubAddresses; //do not add manually use saveAddr
+	vector<Addr> PrivAddresses; //same as above
 
 	Queue<NodeConnection*> new_ip; //do not delete manually
-	Queue<PubAddr> new_pubKey; //do not delete manually the key added here
-	Queue<Addr> new_PrivKey; //same as above
 
 	Queue<Packet> new_packets;
 
@@ -39,7 +37,7 @@ public:
 
 	std::mutex mutex_priv;
 	std::mutex mutex_pub;
-	std::mutex mutex_hash;
+	//std::mutex mutex_hash;
 
 	void start();
 
@@ -51,21 +49,21 @@ public:
 
 	bool decryptMsg(packet_msg msg);
 
-	void generateKey();
+	//generate n deterministic address with the passphrase
+	void generateDeterministicAddr(ustring passphrase, int n);
+
+	void saveAddr(PubAddr address);
+	void saveAddr(Addr address);
 
 	void connectNode();
 
 	thread thread_new_ip;
-	thread thread_new_PubKey;
-	thread thread_new_PrivKey;
 	thread thread_new_hashes;
 	thread thread_new_packets;
 
 	bool running;
 
 	void listen_ips();
-	void listen_pubkeys();
-	void listen_privkeys();
 	void listen_hashes();
 	void listen_packets();
 

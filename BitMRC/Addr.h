@@ -98,8 +98,13 @@ public:
 
 	packet_pubkey encodePubKey();
 
-	//load everything random
+	//generate everything random
 	bool generateRandom();
+
+	//generate from a passphrase and a starting nonce just to know in what point of the deterministic generation we are.
+	//return the new nonce.
+	//if the new nonce is the same passed then failed.
+	int generateDeterministic(ustring passphrase, int nonce);
 
 	//with prefix 0x04
 	ustring getPrivEncryptionKey();

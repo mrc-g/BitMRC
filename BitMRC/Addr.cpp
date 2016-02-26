@@ -723,6 +723,114 @@ bool Addr::generateRandom()
 	return true;
 }
 
+int Addr::generateDeterministic(ustring passphrase, int nonce)
+{
+	int nonce_old = nonce;
+	int stream = 1;
+	int version = 4;
+
+	OID CURVE = secp256k1();
+	AutoSeededRandomPool rng;
+
+
+	ECIES<ECP>::PrivateKey privE, privS;
+
+	ustring pubSKey;
+	ustring pubEKey;
+
+	string encoded;
+	size_t len;
+
+	byte digest2[CryptoPP::RIPEMD160::DIGESTSIZE];
+
+	int zeros = 0;
+	do
+	{
+		CryptoPP::SHA512 hash;
+		byte digest[CryptoPP::SHA512::DIGESTSIZE];
+
+		ustring passP = passphrase;
+		passP.appendVarInt_B(nonce++);
+		
+		hash.CalculateDigest(digest, (byte*)passP.c_str(), passP.size());
+		
+		Integer x;
+		x.Decode(digest, 32); //first 32 bytes
+		privS.Initialize(CURVE, x);
+
+		passP = passphrase;
+		passP.appendVarInt_B(nonce++);
+
+		hash.CalculateDigest(digest, (byte*)passP.c_str(), passP.size());
+		
+		x.Decode(digest, 32);
+		privE.Initialize(CURVE, x);
+
+		ECIES<ECP>::PublicKey pubE, pubS;
+		privE.MakePublicKey(pubE);
+		privS.MakePublicKey(pubS);
+
+		encoded.clear();
+		len = pubE.GetPublicElement().x.MinEncodedSize();
+		pubE.GetPublicElement().x.Encode(StringSink(encoded).Ref(), len);
+
+		len = pubE.GetPublicElement().y.MinEncodedSize();
+		pubE.GetPublicElement().y.Encode(StringSink(encoded).Ref(), len);
+
+		pubEKey.clear();
+		pubEKey += 0x04;
+		pubEKey.fromString(encoded);
+
+
+		encoded.clear();
+		len = pubS.GetPublicElement().x.MinEncodedSize();
+		pubS.GetPublicElement().x.Encode(StringSink(encoded).Ref(), len);
+
+		len = pubS.GetPublicElement().y.MinEncodedSize();
+		pubS.GetPublicElement().y.Encode(StringSink(encoded).Ref(), len);
+
+		pubSKey.clear();
+		pubSKey += 0x04;
+		pubSKey.fromString(encoded);
+
+
+		memset(digest, 0, SHA512::DIGESTSIZE);
+
+		ustring buffer;
+		buffer += pubSKey;
+		buffer += pubEKey;
+
+		hash.CalculateDigest(digest, (byte*)buffer.c_str(), buffer.length());
+
+		CryptoPP::RIPEMD160 hash2;
+		memset(digest2, 0x00, 20);
+		hash2.CalculateDigest(digest2, digest, sizeof digest);
+
+
+		while (digest2[zeros] == 0x00)
+			zeros++;
+	} while (zeros == 0);
+
+	encoded.clear();
+	len = privE.GetPrivateExponent().MinEncodedSize();
+	privE.GetPrivateExponent().Encode(StringSink(encoded).Ref(), len);
+
+	ustring privEKey;
+	privEKey.fromString(encoded);
+
+	encoded.clear();
+	len = privS.GetPrivateExponent().MinEncodedSize();
+	privS.GetPrivateExponent().Encode(StringSink(encoded).Ref(), len);
+
+	ustring privSKey;
+	privSKey.fromString(encoded);
+
+	if (!this->loadKeys(pubEKey, pubSKey, privEKey, privSKey, stream, version))
+		return nonce_old;
+
+	return nonce;
+}
+
 bool Addr::loadKeys(ustring pubE, ustring pubS, ustring privE, ustring privS, int stream, int version)
 {
 	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);

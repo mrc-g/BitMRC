@@ -24,18 +24,10 @@ BitMRC::~BitMRC()
 	this->running = false;
 	
 	this->new_ip.push(new NodeConnection(this));
-	this->new_pubKey.push(PubAddr());
-	this->new_PrivKey.push(Addr());
 	this->new_packets.push(Packet());
 
 	if (this->thread_new_ip.joinable())
 		this->thread_new_ip.join();
-
-	if (this->thread_new_PrivKey.joinable())
-		this->thread_new_PrivKey.join();
-
-	if (this->thread_new_PubKey.joinable())
-		this->thread_new_PubKey.join();
 
 	if (this->thread_new_hashes.joinable())
 		this->thread_new_hashes.join();
@@ -64,8 +56,6 @@ void BitMRC::start()
 {
 	this->running = true;
 	this->thread_new_ip = thread(&BitMRC::listen_ips, this);
-	this->thread_new_PrivKey = thread(&BitMRC::listen_privkeys, this);
-	this->thread_new_PubKey = thread(&BitMRC::listen_pubkeys, this);
 	this->thread_new_packets = thread(&BitMRC::listen_packets, this);
 }
 
@@ -76,48 +66,6 @@ void BitMRC::listen_ips()
 		NodeConnection* tmp = this->new_ip.pop();
 		this->Nodes.push_back(tmp);
 		this->Nodes[this->Nodes.size() - 1]->Start();
-	}
-}
-
-void BitMRC::listen_privkeys()
-{
-	while (this->running)
-	{
-		Addr tmp = this->new_PrivKey.pop();
-		if (!tmp.getAddress().empty())
-		{
-			bool find = false;
-			unsigned int i = 0;
-			while (i < this->PrivAddresses.size() && !find)
-			{
-				if (this->PrivAddresses[i] == tmp)
-					find = true;
-				i++;
-			}
-			if (!find)
-				this->PrivAddresses.push_back(tmp);
-		}
-	}
-}
-
-void BitMRC::listen_pubkeys()
-{
-	while (this->running)
-	{
-		PubAddr tmp = this->new_pubKey.pop();
-		if (!tmp.getAddress().empty())
-		{
-			bool find = false;
-			unsigned int i = 0;
-			while(i < this->PubAddresses.size() && !find)
-			{
-				if (this->PubAddresses[i] == tmp)
-					find = true;
-				i++;
-			}
-			if(!find)
-				this->PubAddresses.push_back(tmp);
-		}
 	}
 }
 
@@ -182,7 +130,7 @@ void BitMRC::getPubKey(PubAddr address)
 					{
 						address.decodeFromObj(pubkey);
 
-						this->new_pubKey.push(address);
+						this->saveAddr(address);
 						return;
 					}
 				}
@@ -200,7 +148,7 @@ void BitMRC::getPubKey(PubAddr address)
 	obj.encodeObject();
 
 	if(!find) //add the pubkey only if is not already present
-		this->new_pubKey.push(address);
+		this->saveAddr(address);
 
 	time_t ltime = std::time(nullptr);
 	time_t TTL = 60 * 60;
@@ -505,6 +453,67 @@ bool BitMRC::decryptMsg(packet_msg msg)
 	return decryptionSuccess && signatureSuccess;
 }
 
+void BitMRC::generateDeterministicAddr(ustring passphrase, int n)
+{
+	int nonce = 0;
+	int i = 0;
+	while(i<n)
+	{
+		Addr address;
+
+		int nonce_old = nonce;
+		nonce = address.generateDeterministic(passphrase, nonce);
+
+		if (nonce == nonce_old)
+			continue;
+
+		this->saveAddr(address);
+		i++;
+	}
+}
+
+void BitMRC::saveAddr(PubAddr address)
+{
+	std::unique_lock<std::mutex> mlock(this->mutex_pub);
+
+	if (!address.getAddress().empty())
+	{
+		bool find = false;
+		unsigned int i = 0;
+		while (i < this->PubAddresses.size() && !find)
+		{
+			if (this->PubAddresses[i] == address)
+				find = true;
+			i++;
+		}
+		if (!find)
+			this->PubAddresses.push_back(address);
+	}
+
+	mlock.unlock();
+}
+
+void BitMRC::saveAddr(Addr address)
+{
+	std::unique_lock<std::mutex> mlock(this->mutex_priv);
+
+	if (!address.getAddress().empty())
+	{
+		bool find = false;
+		unsigned int i = 0;
+		while (i < this->PrivAddresses.size() && !find)
+		{
+			if (this->PrivAddresses[i] == address)
+				find = true;
+			i++;
+		}
+		if (!find)
+			this->PrivAddresses.push_back(address);
+	}
+
+	mlock.unlock();
+}
+
 
 
 
@@ -567,7 +576,7 @@ void BitMRC::load(string path)
 			tmp.loadAddr(Address);
 			if (!tmp.loadKeys(tmp.getPubOfPriv(privE), tmp.getPubOfPriv(privS), privE, privS, tmp.getStream(), tmp.getVersion())) //todo create a simpler function
 				continue;
-			this->new_PrivKey.push(tmp);
+			this->saveAddr(tmp);
 		}
 	}
 	catch (...)

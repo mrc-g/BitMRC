@@ -17,8 +17,9 @@ int main()
 	bitmrc.start();
 
 	bitmrc.getPubKey(address);
-	while (bitmrc.PubAddresses.size() == 0)
-		Sleep(100);
+
+	//no need to wait address to be added: now is sync
+
 	while (bitmrc.PubAddresses[0].waitingPubKey())
 		Sleep(100);
 
@@ -32,23 +33,33 @@ int main()
 		{
 			if (bitmrc.PrivAddresses.size() == 0)
 			{
-				Addr privateAddr;
-				privateAddr.generateRandom();
-				Addr privateAddr2;
-				privateAddr2.generateRandom();
-
-				bitmrc.new_PrivKey.push(privateAddr);
-				bitmrc.new_PrivKey.push(privateAddr2);
+				printf("No private address\n");
+				continue;
 			}
 
-			while (bitmrc.PrivAddresses.size() == 0)
-				Sleep(100);
-
-			file_ustring data;
-			data.setFile(stdin);
-			ustring msg = data.getUstring(4);
+			ustring msg;
+			scanf("%s", command);
+			msg.fromString(command);
 			bitmrc.sendMessage(msg, bitmrc.PubAddresses[0], bitmrc.PrivAddresses[0]);
 			printf("messaggio inviato");
+		}
+		else if (!strcmp("generate", command))
+		{
+			scanf("%s", command);
+			if (!strcmp("deterministic", command))
+			{
+				scanf("%s", command);
+				ustring pass;
+				pass.fromString(command);
+				bitmrc.generateDeterministicAddr(pass, 1);
+			}
+			else if (!strcmp("random", command))
+			{
+				Addr privateAddr;
+				privateAddr.generateRandom();
+
+				bitmrc.saveAddr(privateAddr);
+			}
 		}
 	}
 
