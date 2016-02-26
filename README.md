@@ -11,6 +11,7 @@ At this stage it can:
 + Save/load private addresses.
 + Save/load blocks.
 + Generate random addresses.
++ Generate deterministic addresses.
 + Connect to nodes.
 + Accept all the packets type.
 + Decrypt/encrypt and sign everything 
