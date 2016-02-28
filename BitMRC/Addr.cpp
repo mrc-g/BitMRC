@@ -448,6 +448,20 @@ ustring PubAddr::buildAddressFromKeys(ustring Skey, ustring Ekey, int stream, in
 	byte digest1[CryptoPP::SHA512::DIGESTSIZE];
 
 	ustring buffer;
+	if (Skey.size() == 64)
+	{
+		ustring tmp = Skey;
+		Skey.clear();
+		Skey += 0x04;
+		Skey += tmp;
+	}
+	if (Ekey.size() == 64)
+	{
+		ustring tmp = Ekey;
+		Ekey.clear();
+		Ekey += 0x04;
+		Ekey += tmp;
+	}
 	buffer += Skey;
 	buffer += Ekey;
 

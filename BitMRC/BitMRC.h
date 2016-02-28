@@ -19,6 +19,15 @@ public:
 		ustring from;
 		ustring to;
 		ustring info;
+
+		ustring signature;
+
+		bool operator==(const message &that)
+		{
+			if (((that.from == this->from) && (that.to == this->to)) && (that.info == this->info) && (that.signature == this->signature))
+				return true;
+			return false;
+		}
 	};
 
 	BitMRC();
@@ -27,17 +36,17 @@ public:
 	vector<PubAddr> PubAddresses; //do not add manually use saveAddr
 	vector<Addr> PrivAddresses; //same as above
 
-	Queue<NodeConnection*> new_ip; //do not delete manually
-
 	Queue<Packet> new_packets;
 
-	Queue<ustring> messages;
+	Queue<message> new_messages; //the new messages not already stored in messages will be there
+
+	hash_table<message> messages;
 	
 	hash_table<ustring> sharedObj;
 
-	std::mutex mutex_priv;
-	std::mutex mutex_pub;
-	//std::mutex mutex_hash;
+	std::shared_timed_mutex mutex_priv;
+	std::shared_timed_mutex mutex_pub;
+	std::shared_timed_mutex mutex_nodes;
 
 	void start();
 
@@ -55,15 +64,13 @@ public:
 	void saveAddr(PubAddr address);
 	void saveAddr(Addr address);
 
-	void connectNode();
+	void connectNode(NodeConnection *node);
 
-	thread thread_new_ip;
 	thread thread_new_hashes;
 	thread thread_new_packets;
 
 	bool running;
 
-	void listen_ips();
 	void listen_hashes();
 	void listen_packets();
 

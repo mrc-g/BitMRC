@@ -20,7 +20,9 @@ NodeConnection::NodeConnection(string ip, string port, BitMRC *self)
 {
 	this->Ip = ip;
 	this->Port = port;
-	
+
+	this->state = 0;
+
 	this->wsaInit = WSAStartup(MAKEWORD(2,2), &this->wsaData);
 
 	this->Socket = INVALID_SOCKET;
@@ -86,8 +88,9 @@ bool NodeConnection::setTimeout(int t)
 		return false;
 
 	int e = setsockopt(Socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&t, sizeof(int));
-	if (e == SOCKET_ERROR) {
-        wprintf(L"getsockopt for SO_RCVTIMEO failed with error: %u\n", WSAGetLastError());
+	if (e == SOCKET_ERROR)
+	{
+        //wprintf(L"getsockopt for SO_RCVTIMEO failed with error: %u\n", WSAGetLastError());
 		return false;
     }
 	return true;
@@ -113,20 +116,23 @@ bool NodeConnection::Connect()
 
     // Resolve the server address and port
 	iResult = getaddrinfo(this->Ip.c_str(), this->Port.c_str(), &hints, &result);
-    if ( iResult != 0 ) {
-        printf("getaddrinfo failed with error: %d\n", iResult);
+    if ( iResult != 0 )
+	{
+        //printf("getaddrinfo failed with error: %d\n", iResult);
         WSACleanup();
         return false;
     }
 
     // Attempt to connect to an address until one succeeds
-    for(ptr=result; ptr != NULL ;ptr=ptr->ai_next) {
+    for(ptr=result; ptr != NULL ;ptr=ptr->ai_next)
+	{
 
         // Create a SOCKET for connecting to server
         Socket = socket(ptr->ai_family, ptr->ai_socktype, 
             ptr->ai_protocol);
-        if (Socket == INVALID_SOCKET) {
-            printf("socket failed with error: %ld\n", WSAGetLastError());
+        if (Socket == INVALID_SOCKET)
+		{
+            //printf("socket failed with error: %ld\n", WSAGetLastError());
 			freeaddrinfo(result);
             WSACleanup();
             return false;
@@ -137,7 +143,8 @@ bool NodeConnection::Connect()
 		//const char *string = inet_ntop(ptr->ai_addr->sa_family, get_in_addr((struct sockaddr *)ptr->ai_addr), buffer, sizeof(buffer));
 		//printf("%s", buffer);
         iResult = connect( Socket, ptr->ai_addr, (int)ptr->ai_addrlen);
-        if (iResult == SOCKET_ERROR) {
+        if (iResult == SOCKET_ERROR)
+		{
 			closesocket(Socket);
             Socket = INVALID_SOCKET;
             continue;
@@ -147,12 +154,13 @@ bool NodeConnection::Connect()
 
     freeaddrinfo(result);
 
-    if (Socket == INVALID_SOCKET) {
-        printf("Unable to connect to server!\n");
+    if (Socket == INVALID_SOCKET)
+	{
+        //printf("Unable to connect to server!\n");
         WSACleanup();
         return false;
     }
-	printf("Connected: %s!\n",this->Ip.c_str());
+	//printf("Connected: %s!\n",this->Ip.c_str());
 	this->state = 1;
 
 	this->thread_sender = thread(&NodeConnection::Sender, this);
@@ -240,7 +248,7 @@ void NodeConnection::Listener()
 			
 			packet.getCommand(this->Socket);
 
-			printf("%s\n", packet.command); //this printf are not really thread save, and they are only needed for debug
+			//printf("%s\n", packet.command); //this printf are not really thread save, and they are only needed for debug
 
 			if (!strcmp(packet.command, "pong")) //just a keep alive
 			{
@@ -285,14 +293,14 @@ void NodeConnection::Listener()
 						sprintf(buf,"%i.%i.%i.%i", addr.addr_list[i].IPv6_4[12], addr.addr_list[i].IPv6_4[13], addr.addr_list[i].IPv6_4[14], addr.addr_list[i].IPv6_4[15]);
 						string ip(buf);
 
-						printf("%s\n",buf);
+						//printf("%s\n",buf);
 
 						sprintf(buf, "%i", addr.addr_list[i].port);
 						string port(buf);
 
 						NodeConnection *tmp_node= new NodeConnection(ip,port, this->bitmrc);
 
-						this->bitmrc->new_ip.push(tmp_node);
+						this->bitmrc->connectNode(tmp_node);
 					}	
 				}
 			}else if(!strcmp(packet.command,"inv"))
@@ -311,10 +319,6 @@ void NodeConnection::Listener()
 					{
 						needed.inventory.push_back(inv.inventory[i]);
 					}
-					else
-					{//debug
-						int asdhasdasd = 1;
-					}
 				}
 				if (!needed.inventory.empty())
 				{
@@ -325,8 +329,23 @@ void NodeConnection::Listener()
 			}else if(!strcmp(packet.command,"getdata"))
 			{
 				packet_getdata getdata(packet);
-				//send if have this obj
 
+				for (unsigned int i = 0; i < getdata.inventory.size(); i++)
+				{
+					ustring tag;
+					for (int j = 0; j < 32; j++)
+					{
+						tag += getdata.inventory[i].ch[j];
+					}
+					ustring ObjPayload = this->bitmrc->sharedObj.searchByHash(tag);
+					if (!ObjPayload.empty())
+					{
+						object obj;
+						obj.message_payload = ObjPayload;
+						obj.setChecksum_Lenght_Magic();
+						Packets.push(obj);
+					}
+				}
 			}else if(!strcmp(packet.command,"object"))
 			{
 				object obj(packet);
@@ -369,7 +388,9 @@ void NodeConnection::Listener()
 					{
 						packet_msg msg(obj);
 						if (this->bitmrc->decryptMsg(msg))
-							printf("Message accepted\n");
+						{
+							//printf("Message accepted\n");
+						}
 					}
 					else if (obj.objectType == type_broadcast)
 					{

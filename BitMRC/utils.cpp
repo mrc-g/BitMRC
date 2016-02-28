@@ -663,7 +663,7 @@ unsigned char socket_ustring::getInt8()
 		throw CONNECTION_CLOSED;
     else
 	{
-		printf("recv failed with error: %d\n", WSAGetLastError());
+		//printf("recv failed with error: %d\n", WSAGetLastError());
 		throw CONNECTION_ERROR;
 	}
 }

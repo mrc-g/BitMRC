@@ -326,7 +326,20 @@ public:
 	vector<sTag>	inventory;
 
 	//decodes data
-	void decodeData(){}
+	void decodeData()
+	{
+		unsigned int i = 0;
+		__int64 size = this->message_payload.getVarInt_B(i);
+		for (int j = 0; j < size; j++)
+		{
+			sTag tag;
+			for (int k = 0; k < 32; k++)
+			{
+				tag.ch[k] = this->message_payload.getInt8(i);
+			}
+			inventory.push_back(tag);
+		}
+	}
 
 	void encodeData()
 	{

@@ -2,6 +2,8 @@
 #ifndef _UTILS 
 #define _UTILS
 
+
+#include <shared_mutex>
 #include <cstdio>
 #include <cstring>
 #include <vector>
@@ -381,11 +383,10 @@ class Queue
 template<typename T>
 class hash_table
 {
-private:
-	std::mutex mutex_;
 public:
 	
-	
+	std::shared_timed_mutex mutex_;
+
 	typedef struct linked_node_struct
 	{
 		ustring hash;
@@ -397,14 +398,16 @@ public:
 	int Dim;
 	hash_table()
 	{
+		std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);
 		Dim = 100771;
 		this->Table = new linked_node*[this->Dim];
 		memset(this->Table, NULL, sizeof(linked_node*) * this->Dim);
+		mlock.unlock();
 	}
 
 	~hash_table()
 	{
-		std::unique_lock<std::mutex> mlock(mutex_);
+		std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);
 		for (int i = 0; i < this->Dim; i++)
 		{
 			hash_table::linked_node * cur = this->Table[i];
@@ -425,7 +428,7 @@ public:
 	{
 		int i = hash_f(hash);
 
-		std::unique_lock<std::mutex> mlock(mutex_);
+		std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);
 		linked_node * cur = this->Table[i];
 		if (cur == NULL)
 		{
@@ -467,7 +470,7 @@ public:
 	T searchByHash(ustring hash)
 	{
 		int i = hash_f(hash);
-		std::unique_lock<std::mutex> mlock(mutex_);
+		std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);
 		linked_node * cur = this->Table[i];
 		while (cur != NULL)
 		{
@@ -489,7 +492,7 @@ public:
 	int updateByHash(ustring hash, T info)
 	{
 		int i = hash_f(hash);
-		std::unique_lock<std::mutex> mlock(mutex_);
+		std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);
 		linked_node * cur = this->Table[i];
 		linked_node * prec = NULL;
 		while (cur != NULL)

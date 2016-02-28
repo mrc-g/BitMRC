@@ -3,19 +3,20 @@
 BitMRC::BitMRC()
 {
 	//known nodes stream 1
-	this->new_ip.push(new NodeConnection("5.45.99.75", "8444", this));
-	this->new_ip.push(new NodeConnection("75.167.159.54", "8444", this));
-	this->new_ip.push(new NodeConnection("95.165.168.168", "8444", this));
-	this->new_ip.push(new NodeConnection("85.180.139.241", "8444", this));
-	this->new_ip.push(new NodeConnection("158.222.211.81", "8080", this));
-	this->new_ip.push(new NodeConnection("178.62.12.187", "8448", this));
-	this->new_ip.push(new NodeConnection("24.188.198.204", "8111", this));
-	this->new_ip.push(new NodeConnection("109.147.204.113", "1195", this));
-	this->new_ip.push(new NodeConnection("178.11.46.221", "8444", this));
-	this->new_ip.push(new NodeConnection("79.215.196.101", "8444", this));
-	this->new_ip.push(new NodeConnection("190.244.108.137", "8444", this));
-	this->new_ip.push(new NodeConnection("198.244.103.16", "8445", this));
-	this->new_ip.push(new NodeConnection("127.0.0.1", "8444", this));
+	this->connectNode(new NodeConnection("5.45.99.75", "8444", this));
+	this->connectNode(new NodeConnection("75.167.159.54", "8444", this));
+	this->connectNode(new NodeConnection("95.165.168.168", "8444", this));
+	this->connectNode(new NodeConnection("85.180.139.241", "8444", this));
+	this->connectNode(new NodeConnection("158.222.211.81", "8080", this));
+	this->connectNode(new NodeConnection("178.62.12.187", "8448", this));
+	this->connectNode(new NodeConnection("24.188.198.204", "8111", this));
+	this->connectNode(new NodeConnection("109.147.204.113", "1195", this));
+	this->connectNode(new NodeConnection("178.11.46.221", "8444", this));
+	this->connectNode(new NodeConnection("79.215.196.101", "8444", this));
+	this->connectNode(new NodeConnection("190.244.108.137", "8444", this));
+	this->connectNode(new NodeConnection("198.244.103.16", "8445", this));
+	this->connectNode(new NodeConnection("127.0.0.1", "8444", this));
+
 	this->load("save");
 }
 
@@ -23,11 +24,7 @@ BitMRC::~BitMRC()
 {
 	this->running = false;
 	
-	this->new_ip.push(new NodeConnection(this));
 	this->new_packets.push(Packet());
-
-	if (this->thread_new_ip.joinable())
-		this->thread_new_ip.join();
 
 	if (this->thread_new_hashes.joinable())
 		this->thread_new_hashes.join();
@@ -55,17 +52,17 @@ BitMRC::~BitMRC()
 void BitMRC::start()
 {
 	this->running = true;
-	this->thread_new_ip = thread(&BitMRC::listen_ips, this);
 	this->thread_new_packets = thread(&BitMRC::listen_packets, this);
 }
 
-void BitMRC::listen_ips()
+void BitMRC::connectNode(NodeConnection *node)
 {
-	while (this->running)
+	if (node != NULL)
 	{
-		NodeConnection* tmp = this->new_ip.pop();
-		this->Nodes.push_back(tmp);
+		std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_nodes);
+		this->Nodes.push_back(node);
 		this->Nodes[this->Nodes.size() - 1]->Start();
+		mlock.unlock();
 	}
 }
 
@@ -116,6 +113,7 @@ void BitMRC::getPubKey(PubAddr address)
 	{
 		for (int i = 0; i < this->sharedObj.Dim; i++)
 		{
+			std::shared_lock<std::shared_timed_mutex> mlock(this->sharedObj.mutex_);
 			hash_table<ustring>::linked_node * cur = this->sharedObj.Table[i];
 			while (cur != NULL)
 			{
@@ -137,6 +135,7 @@ void BitMRC::getPubKey(PubAddr address)
 
 				cur = cur->next;
 			}
+			mlock.unlock();
 		}
 	}
 	packet_getpubkey obj;
@@ -336,23 +335,23 @@ void BitMRC::sendObj(object obj)
 
 bool BitMRC::decryptMsg(packet_msg msg)
 {
-	std::unique_lock<std::mutex> mlock(this->mutex_priv);
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_priv);
 	ustring recovered;
 	bool decryptionSuccess = false;
-	unsigned int i = 0;
-	while( i < this->PrivAddresses.size() && !decryptionSuccess)
+	unsigned int address = 0;
+	while( address < this->PrivAddresses.size() && !decryptionSuccess)
 	{
 		try
 		{
-			recovered = this->PrivAddresses[i].decode(msg.objectPayload, this->PrivAddresses[i].getPrivEncryptionKey());
+			recovered = this->PrivAddresses[address].decode(msg.objectPayload, this->PrivAddresses[address].getPrivEncryptionKey());
 			decryptionSuccess = true;
 		}catch(...)
 		{
-			return false;
+			//nothing just failed with this address
 		}
-		i++;
+		address++;
 	}
-	i--;
+	address--;
 	bool signatureSuccess = false;
 	try {
 
@@ -384,7 +383,7 @@ bool BitMRC::decryptMsg(packet_msg msg)
 			AutoSeededRandomPool prng;
 
 			ECPPoint point;
-			i = 0;
+			unsigned int i = 0;
 			string xA = pubSigningKey.getString(32, i);
 			string yA = pubSigningKey.getString(32, i);
 
@@ -439,7 +438,23 @@ bool BitMRC::decryptMsg(packet_msg msg)
 
 			if (result)
 			{
-				printf("NEW MESSAGE: %s", Message.c_str());
+				//storing it
+				BitMRC::message Mess;
+
+				Mess.to = this->PrivAddresses[address].getAddress();
+				
+				PubAddr from;
+				ustring addr = from.buildAddressFromKeys(pubSigningKey, pubEncryptionKey, stream, version);
+
+				Mess.from = addr;
+				Mess.info = Message;
+
+				Mess.signature = sign;
+
+				int ret = this->messages.insert(Mess, sign);
+
+				if (ret)
+					this->new_messages.push(Mess);	//add to new incoming messages if not already there
 
 				signatureSuccess = true;
 			}
@@ -449,7 +464,6 @@ bool BitMRC::decryptMsg(packet_msg msg)
 	{
 		return false;
 	}
-	mlock.unlock();
 	return decryptionSuccess && signatureSuccess;
 }
 
@@ -474,7 +488,7 @@ void BitMRC::generateDeterministicAddr(ustring passphrase, int n)
 
 void BitMRC::saveAddr(PubAddr address)
 {
-	std::unique_lock<std::mutex> mlock(this->mutex_pub);
+	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_pub);
 
 	if (!address.getAddress().empty())
 	{
@@ -495,7 +509,7 @@ void BitMRC::saveAddr(PubAddr address)
 
 void BitMRC::saveAddr(Addr address)
 {
-	std::unique_lock<std::mutex> mlock(this->mutex_priv);
+	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_priv);
 
 	if (!address.getAddress().empty())
 	{
@@ -600,6 +614,7 @@ void BitMRC::save(string path)
 		writer.setFile(pFile);
 		for (int i = 0; i < this->sharedObj.Dim; i++)
 		{
+			std::shared_lock<std::shared_timed_mutex> mlock(this->sharedObj.mutex_);
 			hash_table<ustring>::linked_node * cur = this->sharedObj.Table[i];
 			while (cur != NULL)
 			{
@@ -607,6 +622,7 @@ void BitMRC::save(string path)
 				writer.writeVarUstring(cur->info);
 				cur = cur->next;
 			}
+			mlock.unlock();
 		}
 		writer.setFile(kFile);
 		for (unsigned int i = 0; i < this->PrivAddresses.size(); i++)
