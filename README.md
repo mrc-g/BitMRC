@@ -20,7 +20,6 @@ At this stage it can:
 But it cannot:
 + Read/Send broadcast.
 + use a different elliptic curve different from 0x02CA (714).
-+ It doesn't have a real system for reading the messages: it just print the messages on console whenever it arrives on network.
 + It doesn't read/decrypt the messages already in the invenctory.
 + Can handle only v4 address and pubkey
 + It doesn't use ack at all
