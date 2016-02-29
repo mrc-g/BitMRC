@@ -4,7 +4,6 @@
 
 int main()
 {
-
 	ustring addre;
 	addre.fromString(string("BM-2cUwUoj9YKoxsZMKT7C5N46tC1KTdUQZpH")); //just a test address
 	PubAddr address;
@@ -18,7 +17,7 @@ int main()
 
 	if(loaded)
 		bitmrc.getPubKey(address);
-
+	
 	//no need to wait address to be added: now is sync
 
 	while (bitmrc.PubAddresses[0].waitingPubKey())

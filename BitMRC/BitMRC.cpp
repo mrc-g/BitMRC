@@ -2,6 +2,10 @@
 
 BitMRC::BitMRC()
 {
+	//random number generator seeding
+	std::random_device rd;
+	this->engine.seed(rd());
+
 	//known nodes stream 1
 	this->connectNode(new NodeConnection("5.45.99.75", "8444", this));
 	this->connectNode(new NodeConnection("75.167.159.54", "8444", this));
@@ -85,8 +89,11 @@ void BitMRC::listen_inv()
 	while (this->running)
 	{
 		if (this->new_inv.size() < 1000)
-			Sleep(5000 + (rand()%1000));//sleep 5 +-1 sec
-		
+		{
+			std::uniform_int_distribution<int> distribution(0, 1000);
+			int random = distribution(this->engine);
+			Sleep(5000 + (random));//sleep 5 +-1 sec
+		}
 		packet_inv inv;
 
 		while (this->new_inv.size() > 0)

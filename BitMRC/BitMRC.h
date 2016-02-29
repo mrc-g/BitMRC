@@ -3,6 +3,7 @@
 #define _BITMRC
 
 #include <vector>
+#include <random>
 
 #include "Addr.h"
 
@@ -49,6 +50,8 @@ public:
 	std::shared_timed_mutex mutex_priv;
 	std::shared_timed_mutex mutex_pub;
 	std::shared_timed_mutex mutex_nodes;
+
+	std::mt19937 engine; //random number generator
 
 	void start();
 

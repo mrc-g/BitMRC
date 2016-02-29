@@ -222,7 +222,12 @@ void NodeConnection::Sender()
 				Packet packet = Packets.pop();
 
 				packet.sendData(this->Socket);
-				Sleep(100);
+
+
+				std::uniform_int_distribution<int> distribution(0, 1000);
+				int random = distribution(this->bitmrc->engine);
+
+				Sleep(100 + random); //this delay should prevent some attack
 			}
 		}
 	}
@@ -402,7 +407,7 @@ void NodeConnection::Listener()
 							ustring tag = this->bitmrc->PrivAddresses[i].getTag();
 							if (getpubkey.tag == tag)
 							{
-								this->bitmrc->sendObj(this->bitmrc->PrivAddresses[i].encodePubKey(),true); //TODO: add a delay for mitigating some attack
+								this->bitmrc->sendObj(this->bitmrc->PrivAddresses[i].encodePubKey(),true);
 							}
 						}
 					}
