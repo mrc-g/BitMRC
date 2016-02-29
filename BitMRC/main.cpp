@@ -2,6 +2,7 @@
 
 //just an example
 
+
 int main()
 {
 	ustring addre;
@@ -9,8 +10,6 @@ int main()
 	PubAddr address;
 	bool loaded = address.loadAddr(addre);
 
-	ustring ciao;
-	ciao.fromString(string("12345"));
 	BitMRC bitmrc;
 
 	bitmrc.start();

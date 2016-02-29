@@ -107,11 +107,12 @@ __int64		searchPow(ustring data, unsigned __int64 TTL)
 
 	unsigned __int64 nonce = 0;
 
+	char tmpnonce[8];
+
 	while (pow_value > target)
 	{
 		nonce++;
 
-		char * tmpnonce = new char[8];
 
 		unsigned char b1, b2, b3, b4, b5, b6, b7, b8;
 
@@ -140,12 +141,9 @@ __int64		searchPow(ustring data, unsigned __int64 TTL)
 
 		hash.CalculateDigest(hash2, hash1, sizeof(hash1));
 
-		/* The POW value is the last 8 bytes of that
+		/* The POW value is the first 8 bytes of that
 		* as a big-endian number */
-		memcpy(&pow_value, hash2, sizeof(pow_value));
-
-		pow_value = BigLongLong(pow_value);
-		delete tmpnonce;
+		pow_value = BigLongLong(*(__int64*)(hash2));
 	}
 	return nonce;
 }
