@@ -17,6 +17,7 @@ At this stage it can:
 + Decrypt/encrypt and sign everything 
 + Calculate pow.
 + It does propagate inventory elements
++ There is a random delay when propagating inv different from node to node (0.1 to 2.1 sec) this should prevent some minor attack
 
 But it cannot:
 + Read/Send broadcast.
