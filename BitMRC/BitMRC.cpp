@@ -90,9 +90,9 @@ void BitMRC::listen_inv()
 	{
 		if (this->new_inv.size() < 1000)
 		{
-			std::uniform_int_distribution<int> distribution(0, 1000);
+			std::uniform_int_distribution<int> distribution(-1000, 1000);
 			int random = distribution(this->engine);
-			Sleep(5000 + (random));//sleep 5 +-1 sec
+			Sleep(5000 + random);//sleep 5 +-1 sec
 		}
 		packet_inv inv;
 
@@ -178,7 +178,9 @@ void BitMRC::getPubKey(PubAddr address)
 		this->saveAddr(address);
 
 	time_t ltime = std::time(nullptr);
-	time_t TTL = 60 * 60;
+	std::uniform_int_distribution<int> distribution(-300, 300);
+	int random = distribution(this->engine);
+	time_t TTL = 28 * 24 * 60 * 60 + random; //28 days +- 5 min
 	ltime = ltime + TTL;
 
 	obj.Time = ltime;
@@ -197,7 +199,9 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 	packet_msg packet;
 	
 	time_t ltime = std::time(nullptr);
-	time_t TTL = 60 * 60;
+	std::uniform_int_distribution<int> distribution(-300, 300);
+	int random = distribution(this->engine);
+	time_t TTL = 28 * 24 * 60 * 60 + random; //28 days +- 5 min
 	ltime = ltime + TTL;
 
 	packet.Time = ltime;

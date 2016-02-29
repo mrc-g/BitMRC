@@ -196,7 +196,7 @@ bool NodeConnection::Connect()
 
 	version.sendData(this->Socket);
 
-	this->setTimeout(10*60*1000);
+	this->setTimeout(10*60*1000); //10 min
 	this->Listener();
 	return true;
 }
@@ -224,7 +224,7 @@ void NodeConnection::Sender()
 				packet.sendData(this->Socket);
 
 
-				std::uniform_int_distribution<int> distribution(0, 1000);
+				std::uniform_int_distribution<int> distribution(0, 2000);
 				int random = distribution(this->bitmrc->engine);
 
 				Sleep(100 + random); //this delay should prevent some attack

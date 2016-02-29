@@ -1,4 +1,5 @@
 #include "Addr.h"
+#include <random>
 
 PubAddr::PubAddr()
 {
@@ -931,7 +932,13 @@ packet_pubkey Addr::encodePubKey()
 	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	packet_pubkey pubkey;
 	time_t ltime = std::time(nullptr);
-	time_t TTL = 60 * 60;
+	
+	std::random_device rd;
+	std::mt19937 engine(rd());
+	std::uniform_int_distribution<int> distribution(-300, 300);
+	int random = distribution(engine);
+	
+	time_t TTL = 28 * 24 * 60 * 60 + random; //28 days +- 5 min
 	ltime = ltime + TTL;
 
 	pubkey.objectType = 1;
