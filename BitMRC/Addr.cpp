@@ -938,7 +938,7 @@ packet_pubkey Addr::encodePubKey()
 	std::uniform_int_distribution<int> distribution(-300, 300);
 	int random = distribution(engine);
 	
-	time_t TTL = 28 * 24 * 60 * 60 + random; //28 days +- 5 min
+	time_t TTL = 4 * 24 * 60 * 60 + random; //4 days +- 5 min
 	ltime = ltime + TTL;
 
 	pubkey.objectType = 1;

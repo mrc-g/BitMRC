@@ -180,7 +180,7 @@ void BitMRC::getPubKey(PubAddr address)
 	time_t ltime = std::time(nullptr);
 	std::uniform_int_distribution<int> distribution(-300, 300);
 	int random = distribution(this->engine);
-	time_t TTL = 28 * 24 * 60 * 60 + random; //28 days +- 5 min
+	time_t TTL = 4 * 24 * 60 * 60 + random; //4 days +- 5 min
 	ltime = ltime + TTL;
 
 	obj.Time = ltime;
@@ -201,7 +201,7 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 	time_t ltime = std::time(nullptr);
 	std::uniform_int_distribution<int> distribution(-300, 300);
 	int random = distribution(this->engine);
-	time_t TTL = 28 * 24 * 60 * 60 + random; //28 days +- 5 min
+	time_t TTL = 4 * 24 * 60 * 60 + random; //4 days +- 5 min
 	ltime = ltime + TTL;
 
 	packet.Time = ltime;
@@ -285,64 +285,6 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 
 	this->sendObj(packet, true);
 }
-
-
-/*
-ECPPoint point;
-i = 1;
-ustring a;
-a += fromAddr.getPubSigningKey();
-string xA = a.getString(32, i);
-string yA = a.getString(32, i);
-
-string encoded;
-StringSource((byte*)xA.c_str(), xA.size(), true,
-new HexEncoder(
-new StringSink(encoded)
-) // HexEncoder
-); // StringSource
-cout << "Q.x: " << encoded << endl;
-
-encoded.clear();
-StringSource((byte*)yA.c_str(), yA.size(), true,
-new HexEncoder(
-new StringSink(encoded)
-) // HexEncoder
-); // StringSource
-cout << "Q.y: " << encoded << endl;
-point.identity = false;
-point.x.Decode((byte*)xA.c_str(), 32);
-point.y.Decode((byte*)yA.c_str(), 32);
-
-ECDSA<ECP, SHA1>::PublicKey publicKey;
-publicKey.Initialize(CURVE, point);
-//privateKey.MakePublicKey(publicKey);
-
-bool res = publicKey.Validate(prng, 3);
-//const ECP::Point& qq = publicKey.GetPublicElement();
-//cout << "Q.x: " << std::hex << qq.x << endl;
-//cout << "Q.y: " << std::hex << qq.y << endl;
-
-ECDSA<ECP, SHA1>::Verifier verifier(publicKey);
-
-// Result of the verification process
-bool result = false;
-
-
-StringSource sss(signature + mess, true,
-new SignatureVerificationFilter(
-verifier,
-new ArraySink((byte*)&result, sizeof(result))
-) // SignatureVerificationFilter
-);
-
-if (result)
-{
-int a = 4;
-}
-
-*/
-
 
 void BitMRC::sendObj(object obj, bool only_inv)
 {
@@ -613,12 +555,13 @@ void BitMRC::load(string path)
 		{
 			
 			ustring tagS = reader.getUstring(32);
-			ustring infoS = reader.getVarUstring();
+			ustring infoS = reader.getVarUstring_B();
 
 			object obj;
 			obj.message_payload = infoS;
+			
 			obj.decodeData();
-
+			
 			if (ltime < obj.Time)
 				this->sharedObj.insert(infoS, tagS);
 		}
@@ -626,15 +569,16 @@ void BitMRC::load(string path)
 	catch (...)
 	{
 		//nothing just cant read any more blocks
+		//or currupted obj
 	}
 	reader.setFile(kFile);
 	try {
 		while (!feof(kFile))
 		{
 			Addr tmp;
-			ustring Address = reader.getVarUstring();
-			ustring privE = reader.getVarUstring();
-			ustring privS = reader.getVarUstring();
+			ustring Address = reader.getVarUstring_B();
+			ustring privE = reader.getVarUstring_B();
+			ustring privS = reader.getVarUstring_B();
 			tmp.loadAddr(Address);
 			if (!tmp.loadKeys(tmp.getPubOfPriv(privE), tmp.getPubOfPriv(privS), privE, privS, tmp.getStream(), tmp.getVersion())) //todo create a simpler function
 				continue;
@@ -666,8 +610,13 @@ void BitMRC::save(string path)
 			hash_table<ustring>::linked_node * cur = this->sharedObj.Table[i];
 			while (cur != NULL)
 			{
+				if (cur->hash.size() != 32 || cur->info.size()==0)//preventing currupted obj to be written
+				{
+					cur = cur->next;
+					continue;
+				}
 				writer.writeUstring(cur->hash);
-				writer.writeVarUstring(cur->info);
+				writer.writeVarUstring_B(cur->info);
 				cur = cur->next;
 			}
 		}
@@ -676,9 +625,9 @@ void BitMRC::save(string path)
 		mlock = std::shared_lock<std::shared_timed_mutex>(this->mutex_priv);
 		for (unsigned int i = 0; i < this->PrivAddresses.size(); i++)
 		{
-			writer.writeVarUstring(this->PrivAddresses[i].getAddress());
-			writer.writeVarUstring(this->PrivAddresses[i].getPrivEncryptionKey());
-			writer.writeVarUstring(this->PrivAddresses[i].getPrivSigningKey());
+			writer.writeVarUstring_B(this->PrivAddresses[i].getAddress());
+			writer.writeVarUstring_B(this->PrivAddresses[i].getPrivEncryptionKey());
+			writer.writeVarUstring_B(this->PrivAddresses[i].getPrivSigningKey());
 		}
 		mlock.unlock();
 	}

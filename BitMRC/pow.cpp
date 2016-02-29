@@ -110,9 +110,30 @@ __int64		searchPow(ustring data, unsigned __int64 TTL)
 	while (pow_value > target)
 	{
 		nonce++;
-		ustring nonceS;
-		nonceS.appendInt64(nonce);
-		hash.Update((byte*)nonceS.c_str(), nonceS.length());
+
+		char * tmpnonce = new char[8];
+
+		unsigned char b1, b2, b3, b4, b5, b6, b7, b8;
+
+		b1 = nonce & 255;
+		b2 = (nonce >> 8) & 255;
+		b3 = (nonce >> 16) & 255;
+		b4 = (nonce >> 24) & 255;
+		b5 = (nonce >> 32) & 255;
+		b6 = (nonce >> 40) & 255;
+		b7 = (nonce >> 48) & 255;
+		b8 = (nonce >> 56) & 255;
+
+		tmpnonce[0] = b8;
+		tmpnonce[1] = b7;
+		tmpnonce[2] = b6;
+		tmpnonce[3] = b5;
+		tmpnonce[4] = b4;
+		tmpnonce[5] = b3;
+		tmpnonce[6] = b2;
+		tmpnonce[7] = b1;
+
+		hash.Update((byte*)tmpnonce, 8);
 		hash.Update(initial_hash, sizeof(initial_hash));
 		hash.Final(hash1);
 
@@ -124,6 +145,7 @@ __int64		searchPow(ustring data, unsigned __int64 TTL)
 		memcpy(&pow_value, hash2, sizeof(pow_value));
 
 		pow_value = BigLongLong(pow_value);
+		delete tmpnonce;
 	}
 	return nonce;
 }

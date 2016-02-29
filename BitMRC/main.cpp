@@ -18,13 +18,10 @@ int main()
 	if(loaded)
 		bitmrc.getPubKey(address);
 	
-	//no need to wait address to be added: now is sync
-
-	while (bitmrc.PubAddresses[0].waitingPubKey())
-		Sleep(100);
 
 	while (1)
 	{
+		printf("Select a command: ");
 		char command[256];
 		scanf("%s", command);
 		if (!strcmp("quit", command))
@@ -71,8 +68,8 @@ int main()
 			printf("Message to send:\n");
 			scanf("%s", command);
 			msg.fromString(command);
-			bitmrc.sendMessage(msg, bitmrc.PubAddresses[des], bitmrc.PrivAddresses[fro]);
-			printf("messaggio inviato\n");
+			bitmrc.sendMessage(msg, bitmrc.PubAddresses[des], bitmrc.PrivAddresses[fro]); //maybe this should be done in another thread
+			printf("Message sent\n");
 		}
 		else if (!strcmp("address", command))
 		{
@@ -170,6 +167,7 @@ int main()
 				mlock.unlock();
 			}
 		}
+		printf("\n");
 	}
 	return 0;
 }

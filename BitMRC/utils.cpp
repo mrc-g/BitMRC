@@ -763,11 +763,13 @@ done:
 string socket_ustring::getString(int len)
 {
 	string ret;
-	for(int i=0;i<len;i++)
+	char *tmp = new char[len]; //this will boost it
+	for (unsigned int i = 0; i<(unsigned int)len; i++)
 	{
-		BYTE tmp = this->getInt8();
-		ret += tmp;
+		tmp[i] = this->getInt8();
 	}
+	ret.append(tmp, len);
+	delete tmp;
 	if (ret.empty())
 		return string();
 	return ret;
@@ -776,11 +778,13 @@ string socket_ustring::getString(int len)
 ustring socket_ustring::getUstring(int len)
 {
 	ustring ret;
-	for(int i=0;i<len;i++)
+	unsigned char *tmp = new unsigned char[len]; //this will boost it
+	for (unsigned int i = 0; i<(unsigned int)len; i++)
 	{
-		BYTE tmp = this->getInt8();
-		ret += tmp;
+		tmp[i] = this->getInt8();
 	}
+	ret.append(tmp, len);
+	delete tmp;
 	if (ret.empty())
 		return ustring();
 	return ret;
@@ -1084,7 +1088,7 @@ void file_ustring::writeVarString(string str)
 
 void file_ustring::writeVarUstring(ustring str)
 {
-	this->writeVarInt64(str.length());
+	this->writeVarInt32(str.length());
 	this->writeUstring(str);
 }
 
@@ -1193,11 +1197,13 @@ done:
 string file_ustring::getString(int len)
 {
 	string ret;
-	for (int i = 0; i<len; i++)
+	char *tmp = new char[len]; //this will boost it
+	for (unsigned int i = 0; i<(unsigned int)len; i++)
 	{
-		BYTE tmp = this->getInt8();
-		ret += tmp;
+		tmp[i] = this->getInt8();
 	}
+	ret.append(tmp, len);
+	delete tmp;
 	if (ret.empty())
 		return string();
 	return ret;
@@ -1206,11 +1212,13 @@ string file_ustring::getString(int len)
 ustring file_ustring::getUstring(int len)
 {
 	ustring ret;
-	for (int i = 0; i<len; i++)
+	unsigned char *tmp = new unsigned char[len]; //this will boost it
+	for (unsigned int i = 0; i<(unsigned int)len; i++)
 	{
-		BYTE tmp = this->getInt8();
-		ret += tmp;
+		tmp[i] = this->getInt8();
 	}
+	ret.append(tmp,len);
+	delete tmp;
 	if (ret.empty())
 		return ustring();
 	return ret;

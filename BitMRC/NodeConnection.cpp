@@ -193,9 +193,20 @@ bool NodeConnection::Connect()
 	version.encodeData();
 
 	version.setChecksum_Lenght_Magic();
-
-	version.sendData(this->Socket);
-
+	try
+	{
+		version.sendData(this->Socket);
+	}
+	catch (int e)
+	{
+		switch (e)
+		{
+		case CONNECTION_CLOSED:
+		case CONNECTION_ERROR:
+			this->Close();
+			return false;
+		}
+	}
 	this->setTimeout(10*60*1000); //10 min
 	this->Listener();
 	return true;
