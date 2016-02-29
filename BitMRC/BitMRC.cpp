@@ -25,13 +25,14 @@ BitMRC::~BitMRC()
 	this->running = false;
 	
 	this->new_packets.push(Packet());
-
-	if (this->thread_new_hashes.joinable())
-		this->thread_new_hashes.join();
+	
+	this->new_inv.push(sTag());
 
 	if (this->thread_new_packets.joinable())
 		this->thread_new_packets.join();
 
+	if (this->thread_new_inv.joinable())
+		this->thread_new_inv.join();
 
 
 	for (unsigned int i = 0; i < Nodes.size(); i++)
@@ -53,6 +54,7 @@ void BitMRC::start()
 {
 	this->running = true;
 	this->thread_new_packets = thread(&BitMRC::listen_packets, this);
+	this->thread_new_inv = thread(&BitMRC::listen_inv, this);
 }
 
 void BitMRC::connectNode(NodeConnection *node)
@@ -75,6 +77,25 @@ void BitMRC::listen_packets()
 		{
 			Nodes.operator[](i)->Packets.push(packet);
 		}
+	}
+}
+
+void BitMRC::listen_inv()
+{
+	while (this->running)
+	{
+		if (this->new_inv.size() < 1000)
+			Sleep(5000 + (rand()%1000));//sleep 5 +-1 sec
+		
+		packet_inv inv;
+
+		while (this->new_inv.size() > 0)
+			inv.inventory.push_back(this->new_inv.pop());
+
+		inv.encodeData();
+
+		if (inv.inventory.size() > 0)
+			this->send(inv);
 	}
 }
 
@@ -155,11 +176,17 @@ void BitMRC::getPubKey(PubAddr address)
 
 	obj.Time = ltime;
 
-	this->sendObj(obj);
+	this->sendObj(obj, true);
 }
 
 void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 {
+	if (toAddr.waitingPubKey())
+	{
+		this->getPubKey(toAddr); //TODO: make a system for key asked recently
+		while (toAddr.waitingPubKey())//TODO: make a list of waiting message for their pubkey
+			Sleep(10000); //just stuck there if no pubkey is going to appear
+	}
 	packet_msg packet;
 	
 	time_t ltime = std::time(nullptr);
@@ -245,7 +272,7 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 	
 	packet.objectPayload = encrypted;
 
-	this->sendObj(packet);
+	this->sendObj(packet, true);
 }
 
 
@@ -306,7 +333,7 @@ int a = 4;
 */
 
 
-void BitMRC::sendObj(object obj)
+void BitMRC::sendObj(object obj, bool only_inv)
 {
 	obj.nonce = 0;
 
@@ -321,16 +348,26 @@ void BitMRC::sendObj(object obj)
 
 	obj.encodePayload();
 
-	obj.setChecksum_Lenght_Magic();
-	unsigned int i = 20;
-	int version = (int)obj.message_payload.getVarInt_B(i);
-	int stream = (int)obj.message_payload.getVarInt_B(i);
-	this->new_packets.push(obj);
-	
-	sTag tag;
-	ustring hash = doubleHash(obj.message_payload);
+	if (only_inv)
+	{//wont send it just propagate the inv
+		ustring invHash = this->inventoryHash(obj.message_payload);
+		int present = this->sharedObj.insert(obj.message_payload, invHash);
 
-	memcpy(tag.ch, hash.c_str(), 32);
+		sTag tag;
+		memcpy(tag.ch, invHash.c_str(), 32);
+		
+		this->new_inv.push(tag);
+	}
+	else
+	{//send it
+		this->send(obj);
+	}
+}
+
+void BitMRC::send(Packet packet)
+{
+	packet.setChecksum_Lenght_Magic();
+	this->new_packets.push(packet);
 }
 
 bool BitMRC::decryptMsg(packet_msg msg)
@@ -612,9 +649,9 @@ void BitMRC::save(string path)
 	try {
 		file_ustring writer;
 		writer.setFile(pFile);
+		std::shared_lock<std::shared_timed_mutex> mlock(this->sharedObj.mutex_);
 		for (int i = 0; i < this->sharedObj.Dim; i++)
 		{
-			std::shared_lock<std::shared_timed_mutex> mlock(this->sharedObj.mutex_);
 			hash_table<ustring>::linked_node * cur = this->sharedObj.Table[i];
 			while (cur != NULL)
 			{
@@ -622,15 +659,17 @@ void BitMRC::save(string path)
 				writer.writeVarUstring(cur->info);
 				cur = cur->next;
 			}
-			mlock.unlock();
 		}
+		mlock.unlock();
 		writer.setFile(kFile);
+		mlock = std::shared_lock<std::shared_timed_mutex>(this->mutex_priv);
 		for (unsigned int i = 0; i < this->PrivAddresses.size(); i++)
 		{
 			writer.writeVarUstring(this->PrivAddresses[i].getAddress());
 			writer.writeVarUstring(this->PrivAddresses[i].getPrivEncryptionKey());
 			writer.writeVarUstring(this->PrivAddresses[i].getPrivSigningKey());
 		}
+		mlock.unlock();
 	}
 	catch (...)
 	{

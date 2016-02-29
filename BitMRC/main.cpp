@@ -16,7 +16,8 @@ int main()
 
 	bitmrc.start();
 
-	bitmrc.getPubKey(address);
+	if(loaded)
+		bitmrc.getPubKey(address);
 
 	//no need to wait address to be added: now is sync
 
@@ -74,22 +75,43 @@ int main()
 			bitmrc.sendMessage(msg, bitmrc.PubAddresses[des], bitmrc.PrivAddresses[fro]);
 			printf("messaggio inviato\n");
 		}
-		else if (!strcmp("generatekey", command))
+		else if (!strcmp("address", command))
 		{
 			scanf("%s", command);
-			if (!strcmp("deterministic", command))
+			if (!strcmp("generate", command))
 			{
 				scanf("%s", command);
-				ustring pass;
-				pass.fromString(command);
-				bitmrc.generateDeterministicAddr(pass, 1);
-			}
-			else if (!strcmp("random", command))
-			{
-				Addr privateAddr;
-				privateAddr.generateRandom();
+				if (!strcmp("deterministic", command))
+				{
+					scanf("%s", command);
+					ustring pass;
+					pass.fromString(command);
+					bitmrc.generateDeterministicAddr(pass, 1);
+				}
+				else if (!strcmp("random", command))
+				{
+					Addr privateAddr;
+					privateAddr.generateRandom();
 
-				bitmrc.saveAddr(privateAddr);
+					bitmrc.saveAddr(privateAddr);
+					printf("Generated %s\n", privateAddr.getAddress().c_str());
+				}
+			}
+			else if (!strcmp("public", command))
+			{
+				scanf("%s", command);
+				ustring addre;
+				addre.fromString(string(command));
+				PubAddr address;
+				bool loaded = address.loadAddr(addre);
+				if (loaded)
+				{
+					printf("Asking public key!\n");
+					bitmrc.getPubKey(address);
+					printf("Asked! check publickey for news on that address!\n");
+				}
+				else
+					printf("Address not correct!\n");
 			}
 		}
 		else if (!strcmp("check", command))

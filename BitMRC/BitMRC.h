@@ -40,6 +40,8 @@ public:
 
 	Queue<message> new_messages; //the new messages not already stored in messages will be there
 
+	Queue<sTag> new_inv; //this will store the new inv to be shared with every node, done by another thread
+
 	hash_table<message> messages;
 	
 	hash_table<ustring> sharedObj;
@@ -54,7 +56,11 @@ public:
 
 	void sendMessage(ustring message, PubAddr toAddr, Addr fromAddr);
 
-	void sendObj(object payload);
+	//if only_inv is true this will only create the object, store it and propagate the inv
+	//else it will create the object, store it and send it
+	void sendObj(object payload, bool only_inv);
+
+	void send(Packet packet);
 
 	bool decryptMsg(packet_msg msg);
 
@@ -66,13 +72,13 @@ public:
 
 	void connectNode(NodeConnection *node);
 
-	thread thread_new_hashes;
 	thread thread_new_packets;
+	thread thread_new_inv;
 
 	bool running;
 
-	void listen_hashes();
 	void listen_packets();
+	void listen_inv();
 
 	ustring inventoryHash(ustring data);
 

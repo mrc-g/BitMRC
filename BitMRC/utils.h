@@ -373,6 +373,14 @@ class Queue
     mlock.unlock();
     cond_.notify_one();
   }
+
+  int size()
+  {
+	  std::unique_lock<std::mutex> mlock(mutex_);
+	  int ret = queue_.size();
+	  mlock.unlock();
+	  return ret;
+  }
  
  private:
   std::queue<T> queue_;

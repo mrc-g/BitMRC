@@ -263,6 +263,7 @@ void NodeConnection::Listener()
 
 				verack.sendData(this->Socket);
 
+				//empty addr for now
 				packet_addr addr;
 				addr.addr_list.clear();
 				addr.encodeData();
@@ -272,15 +273,41 @@ void NodeConnection::Listener()
 
 				addr.sendData(this->Socket);
 
-				packet_inv inv;
-				inv.inventory.clear();
-				inv.encodeData();
+				//empty inv for now, this should be the whole list of object hash
+				bool finished = false;
+				vector<sTag> inventory;
+				std::shared_lock<std::shared_timed_mutex> mlock(bitmrc->sharedObj.mutex_);
+				for (int i = 0; i < bitmrc->sharedObj.Dim; i++)
+				{
+					hash_table<ustring>::linked_node * cur = bitmrc->sharedObj.Table[i];
+					while (cur != NULL)
+					{
+						sTag hash;
+						memcpy(hash.ch, cur->hash.c_str(), 32);
+						inventory.push_back(hash);
 
-				inv.setChecksum_Lenght_Magic();
+						cur = cur->next;
+					}
+				}
+				mlock.unlock();
+				unsigned int i = 0;
+				while (!finished)
+				{
+					packet_inv inv;
+					while (i < 50000 && i < inventory.size())
+					{
+						inv.inventory.push_back(inventory[i]);
+						i++;
+					}
+					inv.encodeData();
+
+					inv.setChecksum_Lenght_Magic();
 
 
-				inv.sendData(this->Socket);
-
+					inv.sendData(this->Socket);
+					if (i == inventory.size())
+						finished = true;
+				}
 				this->state = 2;
 			}else if(!strcmp(packet.command,"addr"))
 			{
@@ -341,6 +368,10 @@ void NodeConnection::Listener()
 					if (!ObjPayload.empty())
 					{
 						object obj;
+						
+						memset(obj.command, 0x00, sizeof obj.command);
+						strncpy(obj.command, "object", 7);
+
 						obj.message_payload = ObjPayload;
 						obj.setChecksum_Lenght_Magic();
 						Packets.push(obj);
@@ -356,6 +387,11 @@ void NodeConnection::Listener()
 				{
 					ustring invHash = this->bitmrc->inventoryHash(obj.message_payload);
 					int present = this->bitmrc->sharedObj.insert(obj.message_payload, invHash);
+					
+					sTag tag;
+					memcpy(tag.ch, invHash.c_str(), 32);
+
+					this->bitmrc->new_inv.push(tag);
 
 					if (obj.objectType == type_getpubkey)
 					{
@@ -366,7 +402,7 @@ void NodeConnection::Listener()
 							ustring tag = this->bitmrc->PrivAddresses[i].getTag();
 							if (getpubkey.tag == tag)
 							{
-								this->bitmrc->sendObj(this->bitmrc->PrivAddresses[i].encodePubKey());
+								this->bitmrc->sendObj(this->bitmrc->PrivAddresses[i].encodePubKey(),true); //TODO: add a delay for mitigating some attack
 							}
 						}
 					}
