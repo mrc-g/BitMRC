@@ -360,12 +360,18 @@ bool BitMRC::decryptMsg(packet_msg msg)
 				Nonce = (int)recovered.getVarInt_B(j);
 				Extra = (int)recovered.getVarInt_B(j);
 			}
-			ustring Ripe = recovered.getUstring(20, j);
+			ustring destRipe = recovered.getUstring(20, j);
 			int messageEncoding = (int)recovered.getVarInt_B(j);
 			ustring Message = recovered.getVarUstring_B(j);
 			ustring AckData = recovered.getVarUstring_B(j);
 			int k = j;
 			ustring sign = recovered.getVarUstring_B(j);
+
+			if (destRipe != this->PrivAddresses[address].getRipe())
+			{
+				//printf("Preventing a Surreptitious Forwarding Attack.");
+				return false;
+			}
 
 			//checking signature
 
