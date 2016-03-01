@@ -42,7 +42,7 @@ int main()
 			{
 				printf("[%d] Public key: %s Ready: %s\n", i, bitmrc.PubAddresses[i].getAddress().c_str(), bitmrc.PubAddresses[i].waitingPubKey() ? "False" : "True");
 			}
-			printf("Select destination: ");
+			printf("Select destination address: ");
 			int des;
 			scanf("%d", &des);
 			if (des < 0 || des >= bitmrc.PubAddresses.size())
@@ -54,7 +54,7 @@ int main()
 			{
 				printf("[%d] Private key: %s\n", i, bitmrc.PrivAddresses[i].getAddress().c_str());
 			}
-			printf("Select destination: ");
+			printf("Select from address: ");
 			int fro;
 			scanf("%d", &fro);
 			if (fro < 0 || fro >= bitmrc.PubAddresses.size())
@@ -81,7 +81,7 @@ int main()
 					scanf("%s", command);
 					ustring pass;
 					pass.fromString(command);
-					bitmrc.generateDeterministicAddr(pass, 1);
+					bitmrc.generateDeterministicAddr(pass, 1); //cant print it because this function wont show the results
 				}
 				else if (!strcmp("random", command))
 				{
