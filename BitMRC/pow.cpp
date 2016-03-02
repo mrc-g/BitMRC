@@ -87,7 +87,7 @@ bool		checkPow(ustring data, unsigned __int64 TTL, unsigned __int64 extrabytes, 
 }
 
 
-__int64		sP2(ustring data, unsigned __int64 TTL)
+__int64		searchPow(ustring data, unsigned __int64 TTL)
 {
 	InitEndian();
 	uint8_t initial_hash[CryptoPP::SHA512::DIGESTSIZE];
@@ -117,26 +117,14 @@ __int64		sP2(ustring data, unsigned __int64 TTL)
 	{
 		nonce++;
 
-
-		unsigned char b1, b2, b3, b4, b5, b6, b7, b8;
-
-		b1 = nonce & 255;
-		b2 = (nonce >> 8) & 255;
-		b3 = (nonce >> 16) & 255;
-		b4 = (nonce >> 24) & 255;
-		b5 = (nonce >> 32) & 255;
-		b6 = (nonce >> 40) & 255;
-		b7 = (nonce >> 48) & 255;
-		b8 = (nonce >> 56) & 255;
-
-		tmpnonce[0] = b8;
-		tmpnonce[1] = b7;
-		tmpnonce[2] = b6;
-		tmpnonce[3] = b5;
-		tmpnonce[4] = b4;
-		tmpnonce[5] = b3;
-		tmpnonce[6] = b2;
-		tmpnonce[7] = b1;
+		tmpnonce[7] = nonce & 255;
+		tmpnonce[6] = (nonce >> 8) & 255;
+		tmpnonce[5] = (nonce >> 16) & 255;
+		tmpnonce[4] = (nonce >> 24) & 255;
+		tmpnonce[3] = (nonce >> 32) & 255;
+		tmpnonce[2] = (nonce >> 40) & 255;
+		tmpnonce[1] = (nonce >> 48) & 255;
+		tmpnonce[0] = (nonce >> 56) & 255;
 
 		hash.CalculateDigest(hash1, (byte*)tmpnonce, 8 + CryptoPP::SHA512::DIGESTSIZE);
 
