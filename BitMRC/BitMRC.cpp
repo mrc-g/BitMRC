@@ -28,6 +28,15 @@ BitMRC::~BitMRC()
 {
 	this->running = false;
 	
+	for (unsigned int i = 0; i < Nodes.size(); i++)
+	{
+		if (Nodes[i] != NULL)
+			delete Nodes[i];
+	}
+
+	//important: clear thread first then clear data
+	this->Nodes.clear();
+
 	this->new_packets.push(Packet());
 	
 	this->new_inv.push(sTag());
@@ -37,18 +46,8 @@ BitMRC::~BitMRC()
 
 	if (this->thread_new_inv.joinable())
 		this->thread_new_inv.join();
-
-
-	for (unsigned int i = 0; i < Nodes.size(); i++)
-	{
-		if (Nodes[i] != NULL)
-			delete Nodes[i];
-	}
 	
 	this->save("save");
-	
-	//important: clear thread first then clear data
-	this->Nodes.clear();
 
 	this->PubAddresses.clear(); 
 	this->PrivAddresses.clear();
@@ -442,6 +441,11 @@ bool BitMRC::decryptMsg(packet_msg msg)
 				PubAddr from;
 				ustring addr = from.buildAddressFromKeys(pubSigningKey, pubEncryptionKey, stream, version);
 
+				from.loadAddr(addr);
+				from.loadKeys(pubSigningKey, pubEncryptionKey, Nonce, Extra);
+				
+				this->saveAddr(from); //saving it
+
 				Mess.from = addr;
 				Mess.info = Message;
 
@@ -582,13 +586,35 @@ void BitMRC::load(string path)
 		while (!feof(kFile))
 		{
 			Addr tmp;
-			ustring Address = reader.getVarUstring_B();
-			ustring privE = reader.getVarUstring_B();
-			ustring privS = reader.getVarUstring_B();
-			tmp.loadAddr(Address);
-			if (!tmp.loadKeys(tmp.getPubOfPriv(privE), tmp.getPubOfPriv(privS), privE, privS, tmp.getStream(), tmp.getVersion())) //todo create a simpler function
-				continue;
-			this->saveAddr(tmp);
+			int type = reader.getInt8();
+			if (type == 0)
+			{
+				ustring address = reader.getVarUstring_B();
+				ustring privE = reader.getVarUstring_B();
+				ustring privS = reader.getVarUstring_B();
+				tmp.loadAddr(address);
+				if (!tmp.loadKeys(tmp.getPubOfPriv(privE), tmp.getPubOfPriv(privS), privE, privS, tmp.getStream(), tmp.getVersion())) //todo create a simpler function
+					continue;
+				this->saveAddr(tmp);
+			}
+			else if (type == 1)
+			{
+				PubAddr tmp;
+
+				bool waiting = reader.getInt8();
+				ustring address = reader.getVarUstring_B();
+				tmp.loadAddr(address);
+				if (!waiting)
+				{
+					ustring pubE = reader.getVarUstring_B();
+					ustring pubS = reader.getVarUstring_B();
+					int nonce = reader.getVarInt_B();
+					int extra = reader.getVarInt_B();
+					
+					tmp.loadKeys(pubS, pubE, nonce, extra);
+				}
+				this->saveAddr(tmp);
+			}
 		}
 	}
 	catch (...)
@@ -627,15 +653,34 @@ void BitMRC::save(string path)
 			}
 		}
 		mlock.unlock();
+
 		writer.setFile(kFile);
 		mlock = std::shared_lock<std::shared_timed_mutex>(this->mutex_priv);
 		for (unsigned int i = 0; i < this->PrivAddresses.size(); i++)
 		{
+			writer.writeByte(0);//0 for private key
 			writer.writeVarUstring_B(this->PrivAddresses[i].getAddress());
 			writer.writeVarUstring_B(this->PrivAddresses[i].getPrivEncryptionKey());
 			writer.writeVarUstring_B(this->PrivAddresses[i].getPrivSigningKey());
 		}
 		mlock.unlock();
+
+		mlock = std::shared_lock<std::shared_timed_mutex>(this->mutex_pub);
+		for (unsigned int i = 0; i < this->PubAddresses.size(); i++)
+		{
+			writer.writeByte(1);//1 for public key
+			writer.writeByte(this->PubAddresses[i].waitingPubKey()); //false if have keys
+			writer.writeVarUstring_B(this->PubAddresses[i].getAddress());
+			if (!this->PubAddresses[i].waitingPubKey())
+			{
+				writer.writeVarUstring_B(this->PubAddresses[i].getPubEncryptionKey());
+				writer.writeVarUstring_B(this->PubAddresses[i].getPubSigningKey());
+				writer.writeVarInt_B(this->PubAddresses[i].getNonce());
+				writer.writeVarInt_B(this->PubAddresses[i].getExtra());
+			}
+		}
+		mlock.unlock();
+
 	}
 	catch (...)
 	{

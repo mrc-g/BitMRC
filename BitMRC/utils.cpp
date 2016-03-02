@@ -588,27 +588,31 @@ void socket_ustring::sendVarInt64(unsigned __int64 i)
 
 void socket_ustring::sendString(string str, int len)
 {
-	for(unsigned int i=0; (int)i<len;i++)
+	if (len > str.length())
+		throw runtime_error("Not enough bytes");
+	int iResult = 0;
+	while (iResult < len)
 	{
-		if(i>= str.length())
-		{
-			this->sendByte(0);
-			continue;
+		iResult = send(this->socket, (char*)&(str.c_str()[iResult]), len - iResult, 0);
+
+		if (iResult == SOCKET_ERROR) {
+			throw CONNECTION_ERROR;
 		}
-		this->sendByte(str[i]);
 	}
 }
 	
 void socket_ustring::sendUstring(ustring str, int len)
 {
-	for(unsigned int i=0; (int)i<len;i++)
+	if (len > str.length())
+		throw runtime_error("Not enough bytes");
+	int iResult = 0;
+	while (iResult < len)
 	{
-		if(i>= str.length())
-		{
-			this->sendByte(0);
-			continue;
+		iResult = send(this->socket, (char*)&(str.c_str()[iResult]), len - iResult, 0);
+
+		if (iResult == SOCKET_ERROR) {
+			throw CONNECTION_ERROR;
 		}
-		this->sendByte(str[i]);
 	}
 }
 
@@ -762,32 +766,56 @@ done:
 
 string socket_ustring::getString(int len)
 {
+	if (len == 0)
+		return string();
 	string ret;
 	char *tmp = new char[len]; //this will boost it
-	for (unsigned int i = 0; i<(unsigned int)len; i++)
+
+	int iResult = recv(this->socket, (char*)tmp, len, 0);
+	if (iResult > 0)
 	{
-		tmp[i] = this->getInt8();
+		ret.append(tmp, len);
+		delete tmp;
+		if (ret.empty())
+			return string();
+		if (len != iResult)
+			ret += this->getString(len - iResult);
+		return ret;
 	}
-	ret.append(tmp, len);
-	delete tmp;
-	if (ret.empty())
-		return string();
-	return ret;
+	else if (iResult >= 0)
+		throw CONNECTION_CLOSED;
+	else
+	{
+		//printf("recv failed with error: %d\n", WSAGetLastError());
+		throw CONNECTION_ERROR;
+	}
 }
 
 ustring socket_ustring::getUstring(int len)
 {
+	if (len == 0)
+		return ustring();
 	ustring ret;
 	unsigned char *tmp = new unsigned char[len]; //this will boost it
-	for (unsigned int i = 0; i<(unsigned int)len; i++)
+	
+	int iResult = recv(this->socket, (char*)tmp, len, 0);
+	if (iResult > 0)
 	{
-		tmp[i] = this->getInt8();
+		ret.append(tmp, len);
+		delete tmp;
+		if (ret.empty())
+			return ustring();
+		if(len != iResult)
+			ret += this->getUstring(len-iResult);
+		return ret;
 	}
-	ret.append(tmp, len);
-	delete tmp;
-	if (ret.empty())
-		return ustring();
-	return ret;
+	else if (iResult >= 0)
+		throw CONNECTION_CLOSED;
+	else
+	{
+		//printf("recv failed with error: %d\n", WSAGetLastError());
+		throw CONNECTION_ERROR;
+	}
 }
 
 string socket_ustring::getVarString()
@@ -1028,68 +1056,76 @@ void file_ustring::writeVarInt64(unsigned __int64 i)
 
 void file_ustring::writeString(string str, int len)
 {
-	for (unsigned int i = 0; (int)i<len; i++)
-	{
-		if (i >= str.length())
-		{
-			this->writeByte(0);
-			continue;
-		}
-		this->writeByte(str[i]);
+	if (len > str.length())
+		throw runtime_error("Not enough bytes");
+
+	int iResult = fwrite((char*)str.c_str(), 1, len, this->pFile);
+	if (iResult != len) {
+		throw 1;
 	}
 }
 
 void file_ustring::writeUstring(ustring str, int len)
 {
-	for (unsigned int i = 0; (int)i<len; i++)
-	{
-		if (i >= str.length())
-		{
-			this->writeByte(0);
-			continue;
-		}
-		this->writeByte(str[i]);
+	if (len > str.length())
+		throw runtime_error("Not enough bytes");
+
+	int iResult = fwrite((char*)str.c_str(), 1, len, this->pFile);
+	if (iResult != len) {
+		throw 1;
 	}
 }
 
 void file_ustring::writeString(string str)
 {
-	for (unsigned int i = 0; i<str.length(); i++)
-	{
-		this->writeByte(str[i]);
+	int iResult = fwrite((char*)str.c_str(), 1, str.size(), this->pFile);
+	if (iResult != str.size()) {
+		throw 1;
 	}
 }
 
 void file_ustring::writeUstring(ustring str)
 {
-	for (unsigned int i = 0; i<str.length(); i++)
-	{
-		this->writeByte(str[i]);
+	int iResult = fwrite((char*)str.c_str(), 1, str.size(), this->pFile);
+	if (iResult != str.size()) {
+		throw 1;
 	}
 }
 
 void file_ustring::writeVarString_B(string str)
 {
 	this->writeVarInt_B(str.length());
-	this->writeString(str);
+	int iResult = fwrite((char*)str.c_str(), 1, str.size(), this->pFile);
+	if (iResult != str.size()) {
+		throw 1;
+	}
 }
 
 void file_ustring::writeVarUstring_B(ustring str)
 {
 	this->writeVarInt_B(str.length());
-	this->writeUstring(str);
+	int iResult = fwrite((char*)str.c_str(), 1, str.size(), this->pFile);
+	if (iResult != str.size()) {
+		throw 1;
+	}
 }
 
 void file_ustring::writeVarString(string str)
 {
 	this->writeVarInt32(str.length());
-	this->writeString(str);
+	int iResult = fwrite((char*)str.c_str(), 1, str.size(), this->pFile);
+	if (iResult != str.size()) {
+		throw 1;
+	}
 }
 
 void file_ustring::writeVarUstring(ustring str)
 {
 	this->writeVarInt32(str.length());
-	this->writeUstring(str);
+	int iResult = fwrite((char*)str.c_str(), 1, str.size(), this->pFile);
+	if (iResult != str.size()) {
+		throw 1;
+	}
 }
 
 unsigned char file_ustring::getInt8()
@@ -1198,10 +1234,11 @@ string file_ustring::getString(int len)
 {
 	string ret;
 	char *tmp = new char[len]; //this will boost it
-	for (unsigned int i = 0; i<(unsigned int)len; i++)
-	{
-		tmp[i] = this->getInt8();
-	}
+	
+	int iResult = fread(tmp, 1, len, this->pFile);
+	if (iResult != len)
+		throw 1;
+
 	ret.append(tmp, len);
 	delete tmp;
 	if (ret.empty())
@@ -1213,10 +1250,11 @@ ustring file_ustring::getUstring(int len)
 {
 	ustring ret;
 	unsigned char *tmp = new unsigned char[len]; //this will boost it
-	for (unsigned int i = 0; i<(unsigned int)len; i++)
-	{
-		tmp[i] = this->getInt8();
-	}
+	
+	int iResult = fread(tmp, 1, len, this->pFile);
+	if (iResult != len)
+		throw 1;
+
 	ret.append(tmp,len);
 	delete tmp;
 	if (ret.empty())

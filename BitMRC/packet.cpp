@@ -18,7 +18,11 @@ void Packet::sendData(SOCKET socket)
 	socket_ustring connection;
 	connection.setSocket(socket);
 	connection.sendInt32(this->magic);
-	connection.sendString(string(this->command), 12);
+	ustring tmp;
+	tmp.append((unsigned char*)this->command, strlen(this->command));
+	for (int i = strlen(this->command); i < 12; i++)
+		tmp.appendInt8(0);
+	connection.sendUstring(tmp, 12);
 	connection.sendInt32(this->lenght);
 	for (int i = 0; i<4; i++)
 		connection.sendByte((unsigned char)this->checksum[i]);
