@@ -86,7 +86,8 @@ bool		checkPow(ustring data, unsigned __int64 TTL, unsigned __int64 extrabytes, 
 	}
 }
 
-__int64		searchPow(ustring data, unsigned __int64 TTL)
+
+__int64		sP2(ustring data, unsigned __int64 TTL)
 {
 	InitEndian();
 	uint8_t initial_hash[CryptoPP::SHA512::DIGESTSIZE];
@@ -100,14 +101,17 @@ __int64		searchPow(ustring data, unsigned __int64 TTL)
 	payload += data.substr(8, data.length());
 
 	hash.CalculateDigest(initial_hash, (byte*)payload.c_str(), payload.length());
-	
+
 	time_t ltime = std::time(nullptr);
 
 	unsigned __int64 target = getTarget(payload.length(), TTL - ltime);
 
 	unsigned __int64 nonce = 0;
 
-	char tmpnonce[8];
+	char * tmpnonce = new char[8 + CryptoPP::SHA512::DIGESTSIZE];
+
+	for (int i = 0; i < CryptoPP::SHA512::DIGESTSIZE; i++)
+		tmpnonce[8 + i] = initial_hash[i];
 
 	while (pow_value > target)
 	{
@@ -134,10 +138,7 @@ __int64		searchPow(ustring data, unsigned __int64 TTL)
 		tmpnonce[6] = b2;
 		tmpnonce[7] = b1;
 
-		hash.Update((byte*)tmpnonce, 8);
-		hash.Update(initial_hash, sizeof(initial_hash));
-		hash.Final(hash1);
-
+		hash.CalculateDigest(hash1, (byte*)tmpnonce, 8 + CryptoPP::SHA512::DIGESTSIZE);
 
 		hash.CalculateDigest(hash2, hash1, sizeof(hash1));
 
@@ -145,5 +146,6 @@ __int64		searchPow(ustring data, unsigned __int64 TTL)
 		* as a big-endian number */
 		pow_value = BigLongLong(*(__int64*)(hash2));
 	}
+	delete tmpnonce;
 	return nonce;
 }
