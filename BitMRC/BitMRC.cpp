@@ -497,7 +497,11 @@ void BitMRC::saveAddr(PubAddr address)
 		while (i < this->PubAddresses.size() && !find)
 		{
 			if (this->PubAddresses[i] == address)
+			{
+				if (!address.waitingPubKey() && this->PubAddresses[i].waitingPubKey())
+					this->PubAddresses[i] = address;
 				find = true;
+			}
 			i++;
 		}
 		if (!find)
@@ -551,77 +555,79 @@ void BitMRC::load(string path)
 {
 	FILE * pFile = fopen(path.c_str(), "rb");
 	FILE * kFile = fopen("keys.dat", "rb");
-	if (!pFile)
-		return;
-	if (!kFile)
-		return;
 
 	file_ustring reader;
-	reader.setFile(pFile);
-
-	time_t ltime = std::time(nullptr);	
-	try {
-		while (!feof(pFile))
-		{
-			
-			ustring tagS = reader.getUstring(32);
-			ustring infoS = reader.getVarUstring_B();
-
-			object obj;
-			obj.message_payload = infoS;
-			
-			obj.decodeData();
-			
-			if (ltime < obj.Time)
-				this->sharedObj.insert(infoS, tagS);
-		}
-	}
-	catch (...)
+	if (pFile)
 	{
-		//nothing just cant read any more blocks
-		//or currupted obj
-	}
-	reader.setFile(kFile);
-	try {
-		while (!feof(kFile))
-		{
-			Addr tmp;
-			int type = reader.getInt8();
-			if (type == 0)
+		reader.setFile(pFile);
+		time_t ltime = std::time(nullptr);
+		try {
+			while (!feof(pFile))
 			{
-				ustring address = reader.getVarUstring_B();
-				ustring privE = reader.getVarUstring_B();
-				ustring privS = reader.getVarUstring_B();
-				tmp.loadAddr(address);
-				if (!tmp.loadKeys(tmp.getPubOfPriv(privE), tmp.getPubOfPriv(privS), privE, privS, tmp.getStream(), tmp.getVersion())) //todo create a simpler function
-					continue;
-				this->saveAddr(tmp);
-			}
-			else if (type == 1)
-			{
-				PubAddr tmp;
 
-				bool waiting = reader.getInt8();
-				ustring address = reader.getVarUstring_B();
-				tmp.loadAddr(address);
-				if (!waiting)
+				ustring tagS = reader.getUstring(32);
+				ustring infoS = reader.getVarUstring_B();
+
+				object obj;
+				obj.message_payload = infoS;
+
+				obj.decodeData();
+
+				if (ltime < obj.Time)
+					this->sharedObj.insert(infoS, tagS);
+			}
+		}
+		catch (...)
+		{
+			//nothing just cant read any more blocks
+			//or currupted obj
+		}
+		fclose(pFile);
+	}
+	if (kFile)
+	{
+		reader.setFile(kFile);
+		try {
+			while (!feof(kFile))
+			{
+				Addr tmp;
+				int type = reader.getInt8();
+				if (type == 0)
 				{
-					ustring pubE = reader.getVarUstring_B();
-					ustring pubS = reader.getVarUstring_B();
-					int nonce = reader.getVarInt_B();
-					int extra = reader.getVarInt_B();
-					
-					tmp.loadKeys(pubS, pubE, nonce, extra);
+					ustring address = reader.getVarUstring_B();
+					ustring privE = reader.getVarUstring_B();
+					ustring privS = reader.getVarUstring_B();
+					tmp.loadAddr(address);
+					if (!tmp.loadKeys(tmp.getPubOfPriv(privE), tmp.getPubOfPriv(privS), privE, privS, tmp.getStream(), tmp.getVersion())) //todo create a simpler function
+						continue;
+					this->saveAddr(tmp);
 				}
-				this->saveAddr(tmp);
+				else if (type == 1)
+				{
+					PubAddr tmp;
+
+					bool waiting = reader.getInt8();
+					ustring address = reader.getVarUstring_B();
+					tmp.loadAddr(address);
+					if (!waiting)
+					{
+						ustring pubE = reader.getVarUstring_B();
+						ustring pubS = reader.getVarUstring_B();
+						int nonce = reader.getVarInt_B();
+						int extra = reader.getVarInt_B();
+
+						tmp.loadKeys(pubS, pubE, nonce, extra);
+					}
+					this->saveAddr(tmp);
+				}
 			}
 		}
+		catch (...)
+		{
+			//nothing just end of file or nothing can do
+		}
+		fclose(kFile);
 	}
-	catch (...)
-	{
-		//nothing just end of file or nothing can do
-	}
-	fclose(pFile);
 }
 
 void BitMRC::save(string path)
