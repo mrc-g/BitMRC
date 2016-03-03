@@ -506,7 +506,7 @@ ustring PubAddr::buildAddressFromKeys(ustring Skey, ustring Ekey, int stream, in
 	ustring addr;
 	addr.fromString(string("BM-"));
 
-	addr.append((unsigned char*)ret, size);
+	addr.append((unsigned char*)ret, size-1);
 
 	return addr;
 }
