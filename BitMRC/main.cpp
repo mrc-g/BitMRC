@@ -170,14 +170,14 @@ int main()
 		}
 		else if (!strcmp("help", command))
 		{
-			printf("send:                              send a message\n");
-			printf("address generate random:           generate a random address\n");
-			printf("address generate deterministic:    generate a deterministic address\n");
-			printf("address public:                    add public key\n");
-			printf("check message:                     wait until a message is in the inbox and display it\n");
-			printf("check connections:                 display information about connection nodes\n");
-			printf("check privatekey:                  display all the private addresses\n");
-			printf("check publickey:                   display all the public addresses\n");
+			printf("send                               send a message\n");
+			printf("address generate random            generate a random address\n");
+			printf("address generate deterministic     generate a deterministic address\n");
+			printf("address public                     add public key\n");
+			printf("check message                      wait until a message is in the inbox and display it\n");
+			printf("check connections                  display information about connection nodes\n");
+			printf("check privatekey                   display all the private addresses\n");
+			printf("check publickey                    display all the public addresses\n");
 		}
 		printf("\n");
 	}
