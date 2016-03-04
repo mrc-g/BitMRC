@@ -418,7 +418,10 @@ void NodeConnection::Listener()
 							ustring tag = this->bitmrc->PrivAddresses[i].getTag();
 							if (getpubkey.tag == tag)
 							{
-								this->bitmrc->sendObj(this->bitmrc->PrivAddresses[i].encodePubKey(),true);
+								if(this->bitmrc->PrivAddresses[i].getLastPubKeyRequest() + 60 * 60 * 24 * 4 < time(NULL))
+									this->bitmrc->sendObj(this->bitmrc->PrivAddresses[i].encodePubKey(),true);
+								//else
+									//printf("PubKey already shared recently");
 							}
 						}
 					}

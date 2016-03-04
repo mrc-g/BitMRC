@@ -28,6 +28,7 @@ BitMRC::~BitMRC()
 {
 	this->running = false;
 	
+	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_nodes);
 	for (unsigned int i = 0; i < Nodes.size(); i++)
 	{
 		if (Nodes[i] != NULL)
@@ -36,6 +37,8 @@ BitMRC::~BitMRC()
 
 	//important: clear thread first then clear data
 	this->Nodes.clear();
+
+	mlock.unlock();
 
 	this->new_packets.push(Packet());
 	
@@ -48,6 +51,9 @@ BitMRC::~BitMRC()
 		this->thread_new_inv.join();
 	
 	this->save("save");
+
+	std::unique_lock<std::shared_timed_mutex> mlock1(this->mutex_priv);
+	std::unique_lock<std::shared_timed_mutex> mlock2(this->mutex_pub);
 
 	this->PubAddresses.clear(); 
 	this->PrivAddresses.clear();
@@ -76,10 +82,12 @@ void BitMRC::listen_packets()
 	while (this->running)
 	{
 		Packet packet = this->new_packets.pop();
+		std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_nodes);
 		for (unsigned int i = 0; i < Nodes.size(); i++)
 		{
 			Nodes.operator[](i)->Packets.push(packet);
 		}
+		mlock.unlock();
 	}
 }
 
@@ -109,7 +117,7 @@ void BitMRC::getPubKey(PubAddr address)
 {
 	int find = false;
 	unsigned int i = 0;
-	while(i < this->PubAddresses.size() && !find)
+	while (i < this->PubAddresses.size() && !find)
 	{
 		if (this->PubAddresses[i].getVersion() == address.getVersion()) //check same version
 		{
@@ -120,7 +128,10 @@ void BitMRC::getPubKey(PubAddr address)
 					if (!this->PubAddresses[i].waitingPubKey()) //check if we already have the pubkeys
 						return; //we already have it!
 					else
+					{
+						this->PubAddresses[i].setLastPubKeyRequest(time(NULL)); //we are asking it right now
 						find = true; //continue we need to request it
+					}
 				}
 			}
 			else
@@ -130,7 +141,10 @@ void BitMRC::getPubKey(PubAddr address)
 					if (!this->PubAddresses[i].waitingPubKey()) //check if we already have the pubkeys
 						return; // we already have it!
 					else
+					{
+						this->PubAddresses[i].setLastPubKeyRequest(time(NULL)); //we are asking it right now
 						find = true; //continue we need to request it
+					}
 				}
 			}
 		}
@@ -144,7 +158,7 @@ void BitMRC::getPubKey(PubAddr address)
 			hash_table<ustring>::linked_node * cur = this->sharedObj.Table[i];
 			while (cur != NULL)
 			{
-				
+
 				object obj;
 				obj.message_payload = cur->info;
 				obj.decodeData();
@@ -167,15 +181,17 @@ void BitMRC::getPubKey(PubAddr address)
 	}
 	packet_getpubkey obj;
 	obj.tag = address.getTag();
-	
+
 	obj.objectType = 0;
 	obj.version = address.getVersion();
 	obj.stream = address.getStream();
 	obj.encodeObject();
 
-	if(!find) //add the pubkey only if is not already present
+	if (!find) //add the pubkey only if is not already present
+	{
+		address.setLastPubKeyRequest(time(NULL));
 		this->saveAddr(address);
-
+	}
 	time_t ltime = std::time(nullptr);
 	std::uniform_int_distribution<int> distribution(-300, 300);
 	int random = distribution(this->engine);
@@ -597,9 +613,13 @@ void BitMRC::load(string path)
 					ustring address = reader.getVarUstring_B();
 					ustring privE = reader.getVarUstring_B();
 					ustring privS = reader.getVarUstring_B();
+					time_t lastPubKey = reader.getInt64();
 					tmp.loadAddr(address);
 					if (!tmp.loadKeys(tmp.getPubOfPriv(privE), tmp.getPubOfPriv(privS), privE, privS, tmp.getStream(), tmp.getVersion())) //todo create a simpler function
 						continue;
+
+					tmp.setLastPubKeyRequest(lastPubKey);
+
 					this->saveAddr(tmp);
 				}
 				else if (type == 1)
@@ -668,6 +688,7 @@ void BitMRC::save(string path)
 			writer.writeVarUstring_B(this->PrivAddresses[i].getAddress());
 			writer.writeVarUstring_B(this->PrivAddresses[i].getPrivEncryptionKey());
 			writer.writeVarUstring_B(this->PrivAddresses[i].getPrivSigningKey());
+			writer.writeInt64(this->PrivAddresses[i].getLastPubKeyRequest());
 		}
 		mlock.unlock();
 

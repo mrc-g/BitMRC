@@ -62,6 +62,9 @@ public:
 	bool waitingPubKey();
 	ustring getTag();
 	ustring getTagE();
+	time_t getLastPubKeyRequest();
+
+	void setLastPubKeyRequest(time_t time);
 protected:
 	ustring pubSigningKey;
 	ustring pubEncryptionKey;
@@ -79,6 +82,8 @@ protected:
 	int version;
 	int stream;
 	ustring ripe;
+
+	time_t lastPubKeyRequest;
 
 	ustring address;
 	ustring tag;

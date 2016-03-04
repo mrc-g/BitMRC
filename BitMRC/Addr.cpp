@@ -3,6 +3,7 @@
 
 PubAddr::PubAddr()
 {
+	this->lastPubKeyRequest = 0;
 	this->empty = true;
 }
 
@@ -24,6 +25,8 @@ PubAddr::PubAddr(const PubAddr &that)
 	this->address = that.address;
 	this->tag = that.tag;
 	this->tagE = that.tagE;
+
+	this->lastPubKeyRequest = that.lastPubKeyRequest;
 	mlock2.unlock();
 }
 
@@ -45,6 +48,8 @@ void PubAddr::operator=(const PubAddr & that)
 	this->address = that.address;
 	this->tag = that.tag;
 	this->tagE = that.tagE;
+
+	this->lastPubKeyRequest = that.lastPubKeyRequest;
 	mlock2.unlock();
 }
 
@@ -602,6 +607,16 @@ ustring PubAddr::getTagE()
 	return this->tagE;
 }
 
+time_t PubAddr::getLastPubKeyRequest()
+{
+	return this->lastPubKeyRequest;
+}
+
+void PubAddr::setLastPubKeyRequest(time_t time)
+{
+	this->lastPubKeyRequest = time;
+}
+
 
 
 
@@ -618,6 +633,7 @@ ustring PubAddr::getTagE()
 
 Addr::Addr()
 {
+	this->lastPubKeyRequest = 0;
 	this->empty = true;
 }
 
@@ -644,6 +660,8 @@ Addr::Addr(const Addr &that)
 	this->address = that.address;
 	this->tag = that.tag;
 	this->tagE = that.tagE;
+
+	this->lastPubKeyRequest = that.lastPubKeyRequest;
 	mlock2.unlock();
 }
 
@@ -932,7 +950,9 @@ packet_pubkey Addr::encodePubKey()
 	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	packet_pubkey pubkey;
 	time_t ltime = std::time(nullptr);
-	
+
+	this->lastPubKeyRequest = ltime;
+
 	std::random_device rd;
 	std::mt19937 engine(rd());
 	std::uniform_int_distribution<int> distribution(-300, 300);
