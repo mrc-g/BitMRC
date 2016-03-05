@@ -4,3 +4,15 @@
 
 *.sdf
 *.opendb
+*.obj
+*.tlog
+*.pdb
+*.log
+*.pch
+*.lib
+*.ipch
+*.idb
+*.iobj
+*.ipdb
+*.ilk
+*.suo
