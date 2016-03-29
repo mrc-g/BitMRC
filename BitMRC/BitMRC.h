@@ -36,6 +36,7 @@ public:
 	vector<NodeConnection*> Nodes;
 	vector<PubAddr> PubAddresses; //do not add manually use saveAddr
 	vector<Addr> PrivAddresses; //same as above
+	vector<PubAddr> Subscriptions; //same
 
 	Queue<Packet> new_packets;
 
@@ -50,8 +51,7 @@ public:
 	std::shared_timed_mutex mutex_priv;
 	std::shared_timed_mutex mutex_pub;
 	std::shared_timed_mutex mutex_nodes;
-
-	std::mt19937 engine; //random number generator
+	std::shared_timed_mutex mutex_subs;
 
 	void start();
 
@@ -66,12 +66,14 @@ public:
 	void send(Packet packet);
 
 	bool decryptMsg(packet_msg msg);
+	bool decryptMsg(packet_broadcast msg);
 
 	//generate n deterministic address with the passphrase
 	void generateDeterministicAddr(ustring passphrase, int n);
 
-	void saveAddr(PubAddr address);
-	void saveAddr(Addr address);
+	void addAddr(PubAddr address);
+	void addAddr(Addr address);
+	void addSubscription(PubAddr address);
 
 	void connectNode(NodeConnection *node);
 

@@ -225,14 +225,78 @@ bool PubAddr::decodeFromObj(packet_pubkey pubkey)
 	encryptionKey += data.getUstring(64, p);
 	int nonce_trials = (int)data.getVarInt_B(p);
 	int extra_bytes = (int)data.getVarInt_B(p);
+	int k = p;
 	int sig_len = (int)data.getVarInt_B(p);
-	data.getUstring(sig_len, p);
+	ustring sign = data.getUstring(sig_len, p);
 
-	//todo check signature
 
-	this->loadKeys(signingKey, encryptionKey, nonce_trials, extra_bytes);
+	//checking signature
 
-	return true;
+	OID CURVE = secp256k1();
+	AutoSeededRandomPool prng;
+
+	ECPPoint point;
+	unsigned int i = 1;
+	string xA = signingKey.getString(32, i);
+	string yA = signingKey.getString(32, i);
+
+	point.identity = false;
+	point.x.Decode((byte*)xA.c_str(), 32);
+	point.y.Decode((byte*)yA.c_str(), 32);
+
+	ECDSA<ECP, SHA1>::PublicKey publicKey;
+	publicKey.Initialize(CURVE, point);
+
+	bool res = publicKey.Validate(prng, 3);
+
+	ECDSA<ECP, SHA1>::Verifier verifier(publicKey);
+
+	// Result of the verification process
+	bool result = false;
+
+	ustring mess1;
+	unsigned int j = 8;
+	mess1.appendInt64(pubkey.message_payload.getInt64(j));
+	mess1.appendInt32(pubkey.message_payload.getInt32(j));
+	mess1.appendVarInt_B(pubkey.message_payload.getVarInt_B(j));
+	mess1.appendVarInt_B(pubkey.message_payload.getVarInt_B(j));
+	mess1 += this->getTag();
+	string mess;
+
+	mess += mess1.toString();
+	j = 0;
+	mess += data.getString(k, j);
+
+	string tmp_sign = sign.toString();
+
+	//BER decoding
+	Integer r, s;
+	StringStore store(tmp_sign);
+	BERSequenceDecoder seq(store);
+	r.BERDecode(seq);
+	s.BERDecode(seq);
+	seq.MessageEnd();
+	string signature;
+	StringSink sink(signature);
+	r.Encode(sink, 32);
+	s.Encode(sink, 32);
+	//end conversion
+
+	StringSource sss(signature + mess, true,
+		new SignatureVerificationFilter(
+			verifier,
+			new ArraySink((byte*)&result, sizeof(result))
+			) // SignatureVerificationFilter
+		);
+
+	if (result)
+	{
+
+		this->loadKeys(signingKey, encryptionKey, nonce_trials, extra_bytes);
+
+		return true;
+	}
+	return false;
 }
 
 

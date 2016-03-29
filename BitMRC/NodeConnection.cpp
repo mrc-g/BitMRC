@@ -236,7 +236,10 @@ void NodeConnection::Sender()
 
 
 				std::uniform_int_distribution<int> distribution(0, 2000);
-				int random = distribution(this->bitmrc->engine);
+				std::mt19937 engine;
+				std::random_device rd;
+				engine.seed(rd());
+				int random = distribution(engine);
 
 				Sleep(100 + random); //this delay should prevent some attack
 			}
@@ -349,7 +352,6 @@ void NodeConnection::Listener()
 			}else if(!strcmp(packet.command,"inv"))
 			{
 				packet_inv inv(packet);
-
 				packet_getdata needed;
 				for (unsigned int i = 0; i < inv.inventory.size(); i++)
 				{
@@ -358,6 +360,8 @@ void NodeConnection::Listener()
 					{
 						tag += inv.inventory[i].ch[j];
 					}
+					
+					
 					if (this->bitmrc->sharedObj.searchByHash(tag).empty())
 					{
 						needed.inventory.push_back(inv.inventory[i]);
@@ -413,6 +417,8 @@ void NodeConnection::Listener()
 					{
 						packet_getpubkey getpubkey(obj);
 						
+						std::shared_lock<std::shared_timed_mutex> mlock(this->bitmrc->mutex_priv);
+
 						for (unsigned int i = 0; i < this->bitmrc->PrivAddresses.size(); i++)
 						{
 							ustring tag = this->bitmrc->PrivAddresses[i].getTag();
@@ -424,10 +430,15 @@ void NodeConnection::Listener()
 									//printf("PubKey already shared recently");
 							}
 						}
+
+						mlock.unlock();
 					}
 					else if (obj.objectType == type_pubkey)
 					{
 						packet_pubkey pubkey(obj);
+
+						std::shared_lock<std::shared_timed_mutex> mlock(this->bitmrc->mutex_pub);
+
 						for (unsigned int i = 0; i < this->bitmrc->PubAddresses.size(); i++)
 						{
 							if (!this->bitmrc->PubAddresses[i].waitingPubKey())
@@ -438,11 +449,14 @@ void NodeConnection::Listener()
 								this->bitmrc->PubAddresses[i].decodeFromObj(pubkey);
 							}
 						}
+
+						mlock.unlock();
 					}
 					else if (obj.objectType == type_msg)
 					{
 						packet_msg msg(obj);
-						if (this->bitmrc->decryptMsg(msg))
+
+						if (this->bitmrc->decryptMsg(msg)) //it takes like 1-4 milliseconds
 						{
 							//printf("Message accepted\n");
 						}
@@ -450,6 +464,11 @@ void NodeConnection::Listener()
 					else if (obj.objectType == type_broadcast)
 					{
 						packet_broadcast broadcast(obj);
+
+						if (this->bitmrc->decryptMsg(broadcast))
+						{
+							//printf("broadcast decrypted\n");
+						}
 					}
 				}
 			}

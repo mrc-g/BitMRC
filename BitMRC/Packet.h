@@ -556,9 +556,27 @@ public:
 		this->objectPayload = obj.objectPayload;
 		this->decodeObject();
 	}
+	
+	//tag 32 bytes
+	ustring tag;
+
+	ustring encrypted;
+
 
 	//decodes data
-	void decodeObject(){}
+	void decodeObject()
+	{
+		if (this->version == 4)
+			this->encrypted = this->objectPayload;
+
+		if (this->version == 5)
+		{
+			unsigned int i = 0;
+			this->tag = this->objectPayload.getUstring(32, i);
+			this->encrypted = this->objectPayload.getRest(i);
+		}
+
+	}
 
 	void encodeObject();
 };

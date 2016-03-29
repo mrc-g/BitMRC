@@ -38,24 +38,24 @@ int main()
 				printf("No public address\n");
 				continue;
 			}
-			for (int i = 0; i < bitmrc.PubAddresses.size(); i++)
+			for (unsigned int i = 0; i < bitmrc.PubAddresses.size(); i++)
 			{
 				printf("[%d] Public key: %s Ready: %s\n", i, bitmrc.PubAddresses[i].getAddress().c_str(), bitmrc.PubAddresses[i].waitingPubKey() ? "False" : "True");
 			}
 			printf("Select destination address: ");
-			int des;
+			unsigned int des;
 			scanf("%d", &des);
 			if (des < 0 || des >= bitmrc.PubAddresses.size())
 			{
 				printf("Incorrect selection\n");
 				continue;
 			}
-			for (int i = 0; i < bitmrc.PrivAddresses.size(); i++)
+			for (unsigned int i = 0; i < bitmrc.PrivAddresses.size(); i++)
 			{
 				printf("[%d] Private key: %s\n", i, bitmrc.PrivAddresses[i].getAddress().c_str());
 			}
 			printf("Select from address: ");
-			int fro;
+			unsigned int fro;
 			scanf("%d", &fro);
 			if (fro < 0 || fro >= bitmrc.PubAddresses.size())
 			{
@@ -89,7 +89,7 @@ int main()
 					Addr privateAddr;
 					privateAddr.generateRandom();
 
-					bitmrc.saveAddr(privateAddr);
+					bitmrc.addAddr(privateAddr);
 					printf("Generated %s\n", privateAddr.getAddress().c_str());
 				}
 			}
@@ -124,7 +124,7 @@ int main()
 			{
 				std::shared_lock<std::shared_timed_mutex> mlock(bitmrc.mutex_nodes);
 
-				for (int i = 0; i < bitmrc.Nodes.size(); i++)
+				for (unsigned int i = 0; i < bitmrc.Nodes.size(); i++)
 				{
 					if (bitmrc.Nodes[i]->state == 2)
 					{
@@ -145,7 +145,7 @@ int main()
 				if (bitmrc.PrivAddresses.size() == 0)
 					printf("No private key\n");
 
-				for (int i = 0; i < bitmrc.PrivAddresses.size(); i++)
+				for (unsigned int i = 0; i < bitmrc.PrivAddresses.size(); i++)
 				{
 					printf("Private key: %s\n", bitmrc.PrivAddresses[i].getAddress().c_str());
 				}
@@ -160,7 +160,7 @@ int main()
 				if (bitmrc.PubAddresses.size() == 0)
 					printf("No public key\n");
 
-				for (int i = 0; i < bitmrc.PubAddresses.size(); i++)
+				for (unsigned int i = 0; i < bitmrc.PubAddresses.size(); i++)
 				{
 					printf("Public key: %s Ready: %s\n", bitmrc.PubAddresses[i].getAddress().c_str(), bitmrc.PubAddresses[i].waitingPubKey() ? "False" : "True");
 				}

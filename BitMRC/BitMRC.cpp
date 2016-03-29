@@ -2,10 +2,6 @@
 
 BitMRC::BitMRC()
 {
-	//random number generator seeding
-	std::random_device rd;
-	this->engine.seed(rd());
-
 	//known nodes stream 1
 	this->connectNode(new NodeConnection("5.45.99.75", "8444", this));
 	this->connectNode(new NodeConnection("75.167.159.54", "8444", this));
@@ -98,7 +94,10 @@ void BitMRC::listen_inv()
 		if (this->new_inv.size() < 1000)
 		{
 			std::uniform_int_distribution<int> distribution(-1000, 1000);
-			int random = distribution(this->engine);
+			std::mt19937 engine;
+			std::random_device rd;
+			engine.seed(rd());
+			int random = distribution(engine);
 			Sleep(5000 + random);//sleep 5 +-1 sec
 		}
 		packet_inv inv;
@@ -169,7 +168,7 @@ void BitMRC::getPubKey(PubAddr address)
 					{
 						address.decodeFromObj(pubkey);
 
-						this->saveAddr(address);
+						this->addAddr(address);
 						return;
 					}
 				}
@@ -190,11 +189,14 @@ void BitMRC::getPubKey(PubAddr address)
 	if (!find) //add the pubkey only if is not already present
 	{
 		address.setLastPubKeyRequest(time(NULL));
-		this->saveAddr(address);
+		this->addAddr(address);
 	}
 	time_t ltime = std::time(nullptr);
 	std::uniform_int_distribution<int> distribution(-300, 300);
-	int random = distribution(this->engine);
+	std::mt19937 engine;
+	std::random_device rd;
+	engine.seed(rd());
+	int random = distribution(engine);
 	time_t TTL = 4 * 24 * 60 * 60 + random; //4 days +- 5 min
 	ltime = ltime + TTL;
 
@@ -215,7 +217,10 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 	
 	time_t ltime = std::time(nullptr);
 	std::uniform_int_distribution<int> distribution(-300, 300);
-	int random = distribution(this->engine);
+	std::mt19937 engine;
+	std::random_device rd;
+	engine.seed(rd());
+	int random = distribution(engine);
 	time_t TTL = 4 * 24 * 60 * 60 + random; //4 days +- 5 min
 	ltime = ltime + TTL;
 
@@ -460,7 +465,163 @@ bool BitMRC::decryptMsg(packet_msg msg)
 				from.loadAddr(addr);
 				from.loadKeys(pubSigningKey, pubEncryptionKey, Nonce, Extra);
 				
-				this->saveAddr(from); //saving it
+				this->addAddr(from); //saving it
+
+				Mess.from = addr;
+				Mess.info = Message;
+
+				Mess.signature = sign;
+
+				int ret = this->messages.insert(Mess, sign);
+
+				if (ret)
+					this->new_messages.push(Mess);	//add to new incoming messages if not already there
+
+				signatureSuccess = true;
+			}
+		}
+	}
+	catch (...)
+	{
+		return false;
+	}
+	return decryptionSuccess && signatureSuccess;
+}
+
+bool BitMRC::decryptMsg(packet_broadcast msg)
+{
+	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_subs);
+	ustring recovered;
+	bool decryptionSuccess = false;
+	unsigned int address = 0;
+	while (address < this->Subscriptions.size() && !decryptionSuccess)
+	{
+		if (msg.version == 4)
+		{
+			try
+			{
+				recovered = this->Subscriptions[address].decode(msg.objectPayload, this->Subscriptions[address].getTagE());
+				decryptionSuccess = true;
+			}
+			catch (...)
+			{
+				//nothing just failed with this address
+			}
+		}
+		else if (msg.version == 5)
+		{
+			if (msg.tag == this->Subscriptions[address].getTag())
+			{
+				try
+				{
+					recovered = this->Subscriptions[address].decode(msg.objectPayload, this->Subscriptions[address].getTagE());
+					decryptionSuccess = true;
+				}
+				catch (...)
+				{
+					return false;
+				}
+			}
+		}
+		address++;
+	}
+	address--;
+	bool signatureSuccess = false;
+	try {
+
+		if (decryptionSuccess)
+		{
+			unsigned int j = 0;
+			int version = (int)recovered.getVarInt_B(j);
+			int stream = (int)recovered.getVarInt_B(j);
+			int bitfield = recovered.getInt32(j);
+			ustring pubSigningKey = recovered.getUstring(64, j);
+			ustring pubEncryptionKey = recovered.getUstring(64, j);
+			int Nonce = 1000;
+			int Extra = 1000;
+			if (version >= 3)
+			{
+				Nonce = (int)recovered.getVarInt_B(j);
+				Extra = (int)recovered.getVarInt_B(j);
+			}
+			int messageEncoding = (int)recovered.getVarInt_B(j);
+			ustring Message = recovered.getVarUstring_B(j);
+			int k = j;
+			ustring sign = recovered.getVarUstring_B(j);
+
+			//checking signature
+
+			OID CURVE = secp256k1();
+			AutoSeededRandomPool prng;
+
+			ECPPoint point;
+			unsigned int i = 0;
+			string xA = pubSigningKey.getString(32, i);
+			string yA = pubSigningKey.getString(32, i);
+
+			point.identity = false;
+			point.x.Decode((byte*)xA.c_str(), 32);
+			point.y.Decode((byte*)yA.c_str(), 32);
+
+			ECDSA<ECP, SHA1>::PublicKey publicKey;
+			publicKey.Initialize(CURVE, point);
+
+			bool res = publicKey.Validate(prng, 3);
+
+			ECDSA<ECP, SHA1>::Verifier verifier(publicKey);
+
+			// Result of the verification process
+			bool result = false;
+
+			ustring mess1;
+			j = 8;
+			mess1.appendInt64(msg.message_payload.getInt64(j));
+			mess1.appendInt32(msg.message_payload.getInt32(j));
+			mess1.appendVarInt_B(msg.message_payload.getVarInt_B(j));
+			mess1.appendVarInt_B(msg.message_payload.getVarInt_B(j));
+
+			string mess;
+
+			mess += mess1.toString();
+			j = 0;
+			mess += recovered.getString(k, j);
+
+			string tmp_sign = sign.toString();
+
+			//BER decoding
+			Integer r, s;
+			StringStore store(tmp_sign);
+			BERSequenceDecoder seq(store);
+			r.BERDecode(seq);
+			s.BERDecode(seq);
+			seq.MessageEnd();
+			string signature;
+			StringSink sink(signature);
+			r.Encode(sink, 32);
+			s.Encode(sink, 32);
+			//end conversion
+
+			StringSource sss(signature + mess, true,
+				new SignatureVerificationFilter(
+					verifier,
+					new ArraySink((byte*)&result, sizeof(result))
+					) // SignatureVerificationFilter
+				);
+
+			if (result)
+			{
+				//storing it
+				BitMRC::message Mess;
+
+				Mess.to.fromString(string("Broadcast"));
+
+				PubAddr from;
+				ustring addr = from.buildAddressFromKeys(pubSigningKey, pubEncryptionKey, stream, version);
+
+				from.loadAddr(addr);
+				from.loadKeys(pubSigningKey, pubEncryptionKey, Nonce, Extra);
+
+				this->addAddr(from); //saving it
 
 				Mess.from = addr;
 				Mess.info = Message;
@@ -497,12 +658,12 @@ void BitMRC::generateDeterministicAddr(ustring passphrase, int n)
 		if (nonce == nonce_old)
 			continue;
 
-		this->saveAddr(address);
+		this->addAddr(address);
 		i++;
 	}
 }
 
-void BitMRC::saveAddr(PubAddr address)
+void BitMRC::addAddr(PubAddr address)
 {
 	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_pub);
 
@@ -527,7 +688,7 @@ void BitMRC::saveAddr(PubAddr address)
 	mlock.unlock();
 }
 
-void BitMRC::saveAddr(Addr address)
+void BitMRC::addAddr(Addr address)
 {
 	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_priv);
 
@@ -543,6 +704,27 @@ void BitMRC::saveAddr(Addr address)
 		}
 		if (!find)
 			this->PrivAddresses.push_back(address);
+	}
+
+	mlock.unlock();
+}
+
+void BitMRC::addSubscription(PubAddr address)
+{
+	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_subs);
+
+	if (!address.getAddress().empty())
+	{
+		bool find = false;
+		unsigned int i = 0;
+		while (i < this->Subscriptions.size() && !find)
+		{
+			if (this->Subscriptions[i] == address)
+				find = true;
+			i++;
+		}
+		if (!find)
+			this->Subscriptions.push_back(address);
 	}
 
 	mlock.unlock();
@@ -620,7 +802,7 @@ void BitMRC::load(string path)
 
 					tmp.setLastPubKeyRequest(lastPubKey);
 
-					this->saveAddr(tmp);
+					this->addAddr(tmp);
 				}
 				else if (type == 1)
 				{
@@ -638,7 +820,7 @@ void BitMRC::load(string path)
 
 						tmp.loadKeys(pubS, pubE, nonce, extra);
 					}
-					this->saveAddr(tmp);
+					this->addAddr(tmp);
 				}
 			}
 		}
