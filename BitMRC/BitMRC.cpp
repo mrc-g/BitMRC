@@ -233,6 +233,21 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 
 	packet.encodePayload();
 
+	OID CURVE = secp256k1();
+	AutoSeededRandomPool rng;
+
+	ECDH < ECP >::Domain dhA(CURVE);
+	//generating ephemeral key pair
+	SecByteBlock privA(dhA.PrivateKeyLength()), pubA(dhA.PublicKeyLength());
+
+	dhA.GenerateKeyPair(rng, privA, pubA);
+
+	ustring pubEKey;
+	pubEKey.append(pubA.data(), pubA.size());
+
+	ustring privEKey;
+	privEKey.append(privA.data(), privA.size());
+
 	ustring msg;
 	//msg.appendVarInt_B(1); //msg version
 	msg.appendVarInt_B(fromAddr.getVersion());
@@ -252,7 +267,6 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 	msg.appendVarInt_B(1); //ack len 1 so it wont work just testing
 	msg.appendInt8(1);
 
-	OID CURVE = secp256k1();
 	AutoSeededRandomPool prng;
 
 	ECDSA<ECP, SHA1>::PrivateKey privateKey;
@@ -299,7 +313,7 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 	msg.appendVarInt_B(sign.size());
 	msg.append((unsigned char*)sign.c_str(), sign.size());
 
-	ustring encrypted = fromAddr.encode(toAddr.getPubEncryptionKey(), fromAddr.getPrivEncryptionKey(), fromAddr.getPubEncryptionKey(), msg);
+	ustring encrypted = fromAddr.encode(toAddr.getPubEncryptionKey(), privEKey, pubEKey, msg);
 	
 	packet.objectPayload = encrypted;
 

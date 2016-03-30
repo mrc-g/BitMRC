@@ -1034,6 +1034,22 @@ packet_pubkey Addr::encodePubKey()
 
 	ustring plain;
 
+
+	OID CURVE = secp256k1();
+	AutoSeededRandomPool rng;
+
+	ECDH < ECP >::Domain dhA(CURVE);
+	//generating ephemeral key pair
+	SecByteBlock privA(dhA.PrivateKeyLength()), pubA(dhA.PublicKeyLength());
+
+	dhA.GenerateKeyPair(rng, privA, pubA);
+
+	ustring pubEKey;
+	pubEKey.append(pubA.data(), pubA.size());
+
+	ustring privEKey;
+	privEKey.append(privA.data(), privA.size());
+
 	plain.appendInt32(1); //bitfiled 1 not yet integrated
 	plain.append(this->pubSigningKey.c_str() + 1, 64);
 	plain.append(this->pubEncryptionKey.c_str() + 1, 64);
@@ -1041,9 +1057,6 @@ packet_pubkey Addr::encodePubKey()
 	plain.appendVarInt_B(this->extra_bytes);
 
 
-
-
-	OID CURVE = secp256k1();
 	AutoSeededRandomPool prng;
 
 	ECDSA<ECP, SHA1>::PrivateKey privateKey;
@@ -1106,7 +1119,7 @@ packet_pubkey Addr::encodePubKey()
 	pubK += 0x04;
 	pubK.fromString(pubS);
 
-	ustring encoded = this->encode(pubK, this->getPrivEncryptionKey(), this->getPubEncryptionKey(), plain);
+	ustring encoded = this->encode(pubK, privEKey, pubEKey, plain);
 	pubkey.tag = this->getTag();
 	pubkey.encrypted = encoded;
 
