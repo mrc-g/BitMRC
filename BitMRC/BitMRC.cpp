@@ -274,8 +274,33 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 	if (toAddr.waitingPubKey())
 	{
 		this->getPubKey(toAddr); //TODO: make a system for key asked recently
-		while (toAddr.waitingPubKey())//TODO: make a list of waiting message for their pubkey
+
+		// Find the address in our pool, as the one we have is only a copy
+		PubAddr* target = nullptr;
+		for (auto i = this->PubAddresses.begin(); i != this->PubAddresses.end(); ++i)
+		{
+			if (*i == toAddr)
+			{
+				target = &(*i);
+				break; // We found our pointer, stop the loop
+			}
+		}
+
+		// If this fails, we won't be able to send the message.
+		// The toAddr we passed is only a copy, not a reference,
+		// therefore it will never contain the public key, even if it has been added to the pool.
+		// Exiting here is therefore the only possible option.
+		// Although this should never happen, as 'this->getPubKey(toAddr)' should insert it.
+		if (!target)
+		{
+			return;
+		}
+
+		while (target->waitingPubKey()) //TODO: make a list of waiting message for their pubkey
 			Sleep(10000); //just stuck there if no pubkey is going to appear
+
+		// Copy the acquired data over to our object
+		toAddr = *target;
 	}
 	packet_msg packet;
 	
