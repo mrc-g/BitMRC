@@ -2,20 +2,55 @@
 
 BitMRC::BitMRC()
 {
-	//known nodes stream 1
-	this->connectNode(new NodeConnection("5.45.99.75", "8444", this));
-	this->connectNode(new NodeConnection("75.167.159.54", "8444", this));
-	this->connectNode(new NodeConnection("95.165.168.168", "8444", this));
-	this->connectNode(new NodeConnection("85.180.139.241", "8444", this));
-	this->connectNode(new NodeConnection("158.222.211.81", "8080", this));
-	this->connectNode(new NodeConnection("178.62.12.187", "8448", this));
-	this->connectNode(new NodeConnection("24.188.198.204", "8111", this));
-	this->connectNode(new NodeConnection("109.147.204.113", "1195", this));
-	this->connectNode(new NodeConnection("178.11.46.221", "8444", this));
-	this->connectNode(new NodeConnection("79.215.196.101", "8444", this));
-	this->connectNode(new NodeConnection("190.244.108.137", "8444", this));
-	this->connectNode(new NodeConnection("198.244.103.16", "8445", this));
-	this->connectNode(new NodeConnection("127.0.0.1", "8444", this));
+	addrinfo *result = NULL, hints;
+	sockaddr_in  *sockaddr_ipv4;
+
+	WSADATA wsaData;
+	WSAStartup(MAKEWORD(2, 2), &wsaData);
+
+
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	if (getaddrinfo("bootstrap8444.bitmessage.org", "0", &hints, &result))
+	{
+		//printf("Node bootstrapping failed!\n");
+		//trying hardcoded nodes
+		//TODO save a list of nodes on disk
+		this->connectNode(new NodeConnection("5.45.99.75", "8444", this));
+		this->connectNode(new NodeConnection("75.167.159.54", "8444", this));
+		this->connectNode(new NodeConnection("95.165.168.168", "8444", this));
+		this->connectNode(new NodeConnection("85.180.139.241", "8444", this));
+		this->connectNode(new NodeConnection("158.222.211.81", "8080", this));
+		this->connectNode(new NodeConnection("178.62.12.187", "8448", this));
+		this->connectNode(new NodeConnection("24.188.198.204", "8111", this));
+		this->connectNode(new NodeConnection("109.147.204.113", "1195", this));
+		this->connectNode(new NodeConnection("178.11.46.221", "8444", this));
+		this->connectNode(new NodeConnection("79.215.196.101", "8444", this));
+		this->connectNode(new NodeConnection("190.244.108.137", "8444", this));
+		this->connectNode(new NodeConnection("198.244.103.16", "8445", this));
+		this->connectNode(new NodeConnection("127.0.0.1", "8444", this));
+	}
+	else
+	{
+		for (addrinfo *ptr = result; ptr != NULL; ptr = ptr->ai_next)
+		{
+			if (ptr->ai_family == AF_INET)
+			{
+
+				sockaddr_ipv4 = (sockaddr_in *)ptr->ai_addr;
+				/*printf(inet_ntoa(sockaddr_ipv4->sin_addr));
+				printf("\n");*/
+				this->connectNode(new NodeConnection(inet_ntoa(sockaddr_ipv4->sin_addr), "8444", this));
+			}
+		}
+
+		freeaddrinfo(result);
+	}
+
+	WSACleanup();
 
 	this->load("save");
 }
