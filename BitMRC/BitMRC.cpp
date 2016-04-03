@@ -1,4 +1,10 @@
 #include "BitMRC.h"
+#ifdef LINUX
+#include <string.h> /* memset */
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif
 
 BitMRC::BitMRC()
 {
@@ -6,12 +12,15 @@ BitMRC::BitMRC()
 
 	addrinfo *result = NULL, hints;
 	sockaddr_in  *sockaddr_ipv4;
-
+#ifdef LINUX
+	memset(&hints,0,sizeof(hints));
+#else
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
-
-
 	ZeroMemory(&hints, sizeof(hints));
+#endif
+	
+	
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
@@ -58,9 +67,9 @@ BitMRC::BitMRC()
 
 		freeaddrinfo(result);
 	}
-
+#ifndef LINUX
 	WSACleanup();
-
+#endif
 	if (1)//for now i leave this active, I noticed that sometimes bootstrap dns work but no ip is working.
 	{
 		//printf("Node bootstrapping failed!\n");
@@ -162,7 +171,7 @@ void BitMRC::listen_inv()
 			std::random_device rd;
 			engine.seed(rd());
 			int random = distribution(engine);
-			Sleep(5000 + random);//sleep 5 +-1 sec
+			SLEEP(5000 + random);//sleep 5 +-1 sec
 		}
 		packet_inv inv;
 
@@ -297,7 +306,7 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 		}
 
 		while (target->waitingPubKey()) //TODO: make a list of waiting message for their pubkey
-			Sleep(10000); //just stuck there if no pubkey is going to appear
+			SLEEP(10000); //just stuck there if no pubkey is going to appear
 
 		// Copy the acquired data over to our object
 		toAddr = *target;

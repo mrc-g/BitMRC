@@ -1,7 +1,7 @@
 
 #ifndef _ENDIAN
 #define _ENDIAN
-
+#include <types.h>
 
 extern short (*BigShort) ( short s );
 extern short (*LittleShort) ( short s );

@@ -1,5 +1,8 @@
 #include "utils.h"
-
+#ifdef LINUX
+#include <sys/types.h>
+#include <sys/socket.h>
+#endif
 string ustring::toString()
 {
 	string ret;
@@ -846,7 +849,7 @@ ustring socket_ustring::getVarUstring_B()
 	return ret;
 }
 
-void socket_ustring::setSocket(SOCKET sock)
+void socket_ustring::setSocket(SOCK_TYPE sock)
 {
 	this->socket = sock;
 }

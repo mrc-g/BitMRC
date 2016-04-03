@@ -1,0 +1,8 @@
+- add system type definition for WIN (toplevel CMakeLists.txt) -steady-
+- fix std int types in utils.h, should use something like stdint.h-types... -steady-
+
+- fix install dirs for cryptopp submodule, as this would install to /usr/local/... 
+  this is mitigated by the 'doMakeLinux.sh' script, but very ugly -steady-
+
+- introduce abstract classes for win/linux stuff (eg. NodeConnection) and subclass... -steady-
+

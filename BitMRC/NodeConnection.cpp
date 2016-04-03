@@ -1,14 +1,17 @@
 #include "NodeConnection.h"
 
+/* \todo: provide baseclass, and subclass for every platform instead of 
+feature-toggle-it-out -steady286- */
 NodeConnection::NodeConnection(BitMRC *self)
 {
+#ifndef LINUX
 	this->wsaInit = WSAStartup(MAKEWORD(2,2), &this->wsaData);
-
+#endif
+	CLRMEM(hints);
 	this->Socket = INVALID_SOCKET;
 	this->result = NULL;
 	this->state = 0;
 
-	ZeroMemory( &hints, sizeof(hints) );
 	this->hints.ai_family = AF_UNSPEC;
     this->hints.ai_socktype = SOCK_STREAM;
     this->hints.ai_protocol = IPPROTO_TCP;
@@ -22,14 +25,14 @@ NodeConnection::NodeConnection(string ip, string port, BitMRC *self)
 	this->Port = port;
 
 	this->state = 0;
-
+#ifndef LINUX
 	this->wsaInit = WSAStartup(MAKEWORD(2,2), &this->wsaData);
-
+#endif
+	CLRMEM(hints);
 	this->Socket = INVALID_SOCKET;
 
 	this->result = NULL;
 
-	ZeroMemory( &hints, sizeof(hints) );
 	this->hints.ai_family = AF_UNSPEC;
     this->hints.ai_socktype = SOCK_STREAM;
     this->hints.ai_protocol = IPPROTO_TCP;
@@ -41,7 +44,9 @@ NodeConnection::~NodeConnection()
 {
 	if(this->wsaInit == 0)
 	{
+#ifndef LINUX
 		WSACleanup();
+#endif
 	}
 	if(this->state)
 	{
@@ -119,7 +124,9 @@ bool NodeConnection::Connect()
     if ( iResult != 0 )
 	{
         //printf("getaddrinfo failed with error: %d\n", iResult);
+#ifndef LINUX
         WSACleanup();
+#endif
         return false;
     }
 
@@ -134,7 +141,9 @@ bool NodeConnection::Connect()
 		{
             //printf("socket failed with error: %ld\n", WSAGetLastError());
 			freeaddrinfo(result);
+#ifndef LINUX
             WSACleanup();
+#endif
             return false;
         }
 
@@ -157,7 +166,9 @@ bool NodeConnection::Connect()
     if (Socket == INVALID_SOCKET)
 	{
         //printf("Unable to connect to server!\n");
+#ifndef LINUX
         WSACleanup();
+#endif
         return false;
     }
 	//printf("Connected: %s!\n",this->Ip.c_str());
@@ -241,7 +252,7 @@ void NodeConnection::Sender()
 				engine.seed(rd());
 				int random = distribution(engine);
 
-				Sleep(100 + random); //this delay should prevent some attack
+				SLEEP(100 + random); //this delay should prevent some attack
 			}
 		}
 	}
