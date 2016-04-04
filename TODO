@@ -3,6 +3,6 @@
 
 - fix install dirs for cryptopp submodule, as this would install to /usr/local/... 
   this is mitigated by the 'doMakeLinux.sh' script, but very ugly -steady-
-
+- rename libcryptopp to cryptopp, and consolidate with windows version. -steady-
 - introduce abstract classes for win/linux stuff (eg. NodeConnection) and subclass... -steady-
 

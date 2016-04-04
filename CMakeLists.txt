@@ -2,8 +2,8 @@ project(BitMRC CXX)
 cmake_minimum_required(VERSION 2.8)
 include(GNUInstallDirs)
 set(CMAKE_VERBOSE_MAKEFILE true)
-set(CRYPTOPP_INC ${CMAKE_SOURCE_DIR}/cryptopp)
-set(CRYPTOPP_SRC ${CMAKE_SOURCE_DIR}/cryptopp)
+set(CRYPTOPP_INC ${CMAKE_SOURCE_DIR}/libcryptopp)
+set(CRYPTOPP_SRC ${CMAKE_SOURCE_DIR}/libcryptopp)
 message("System Type ${CMAKE_SYSTEM}")
  
 include_directories(/usr/local/include/cryptopp ${CMAKE_SOURCE_DIR}/BitMRC/include

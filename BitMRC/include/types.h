@@ -17,6 +17,7 @@
 	#define SOCKET_ERROR -1
 	#define BYTE char 
 	#define DWORD unsigned long
+	#define ZeroMemory(a,b) memset(a,0,b)
 #else
 
 	#define SOCK_TYPE SOCKET
