@@ -12,13 +12,9 @@ BitMRC::BitMRC()
 
 	addrinfo *result = NULL, hints;
 	sockaddr_in  *sockaddr_ipv4;
-#ifdef LINUX
-	memset(&hints,0,sizeof(hints));
-#else
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 	ZeroMemory(&hints, sizeof(hints));
-#endif
 	
 	
 	hints.ai_family = AF_UNSPEC;

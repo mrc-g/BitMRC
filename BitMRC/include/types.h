@@ -18,6 +18,7 @@
 	#define BYTE char 
 	#define DWORD unsigned long
 	#define ZeroMemory(a,b) memset(a,0,b)
+	#define WSAStartup(a,b) 
 #else
 
 	#define SOCK_TYPE SOCKET
