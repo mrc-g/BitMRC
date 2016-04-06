@@ -4,13 +4,13 @@ include(GNUInstallDirs)
 set(CMAKE_VERBOSE_MAKEFILE true)
 set(CRYPTOPP_INC ${CMAKE_SOURCE_DIR}/libcryptopp)
 set(CRYPTOPP_SRC ${CMAKE_SOURCE_DIR}/libcryptopp)
-message("System Type ${CMAKE_SYSTEM}")
+set(CMAKE_VERBOSE_MAKEFILE false)
  
 include_directories(/usr/local/include/cryptopp ${CMAKE_SOURCE_DIR}/BitMRC/include
 	/usr/include/c++/4.9.3 /usr/include/c++)
 
 execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version OUTPUT_VARIABLE CXX_VER)
-message("CXXVER IS : ${CXX_VER}")
+
 if("${CXX_VER}" MATCHES " 4.9." OR  "${CXX_VER}" MATCHES " 5.")
 	message("c++ version is okay")
 else()
@@ -19,9 +19,16 @@ endif()
 if(${CMAKE_SYSTEM} MATCHES "Linux")
 	# TODO: check 'permissive' flag.
 	add_definitions(-DLINUX -std=c++1y -fpermissive)
+	find_library(LIBCPPTEST_PATH NAMES cpptest libcpptest.a)
+	if(${LIBCPPTEST_PATH} MATCHES NOTFOUND)
+		message(FATAL_ERROR "\n***** ERROR: Need libcpptest-dev\n")
+	endif()
 else()
 	# TODO: add windows definition
+	# TODO: add find_library libcpptest for windows
 endif()
+message("System Type ${CMAKE_SYSTEM} CXXVER IS : ${CXX_VER} CPPTEST is at ${LIBCPPTEST_PATH}")
+
 include(ExternalProject)
 ExternalProject_Add(libcryptopp 
 		# GIT_REPOSITORY https://github.com/weidai11/cryptopp.git
