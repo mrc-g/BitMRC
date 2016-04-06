@@ -11,7 +11,7 @@
 #include <iostream>
 
 #include "utils.h"
-#include "endian.h" //need this only for getting the numbers swapped, since ustring made all the conversion automatically
+#include <bitmrc_endian.h> //need this only for getting the numbers swapped, since ustring made all the conversion automatically
 
 //input:	data
 //output:	first 32 byte of double sha512

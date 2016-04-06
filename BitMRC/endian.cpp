@@ -1,4 +1,4 @@
-#include "endian.h"
+#include <bitmrc_endian.h>
 
 #ifdef __cplusplus
 extern "C" {
