@@ -27,11 +27,11 @@
 #endif
 /* \todo: use stdint.h types only */
 #define __int16 short
-#define __uint16 short
-#define __uint32 long
+#define __uint16 unsigned short
+#define __uint32 unsigned long
 #define __int32 long
 #define __int64 long long
-#define __uint64 long long
+#define __uint64 unsigned long long
 
 /* function macros */
 #ifdef LINUX

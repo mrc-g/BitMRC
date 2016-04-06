@@ -1,7 +1,6 @@
 project(BitMRC CXX)
 cmake_minimum_required(VERSION 2.8)
 include(GNUInstallDirs)
-set(CMAKE_VERBOSE_MAKEFILE true)
 set(CRYPTOPP_INC ${CMAKE_SOURCE_DIR}/libcryptopp)
 set(CRYPTOPP_SRC ${CMAKE_SOURCE_DIR}/libcryptopp)
 set(CMAKE_VERBOSE_MAKEFILE false)
@@ -29,6 +28,7 @@ else()
 endif()
 message("System Type ${CMAKE_SYSTEM} CXXVER IS : ${CXX_VER} CPPTEST is at ${LIBCPPTEST_PATH}")
 
+
 include(ExternalProject)
 ExternalProject_Add(libcryptopp 
 		# GIT_REPOSITORY https://github.com/weidai11/cryptopp.git
@@ -39,3 +39,4 @@ ExternalProject_Add(libcryptopp
 		CONFIGURE_COMMAND cmake . -DCMAKE_INSTALL_PREFIX:STRING=${CMAKE_SOURCE_DIR}/libs
 		)
 add_subdirectory(BitMRC)
+
