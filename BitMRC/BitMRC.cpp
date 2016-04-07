@@ -33,8 +33,8 @@ BitMRC::BitMRC()
 			{
 
 				sockaddr_ipv4 = (sockaddr_in *)ptr->ai_addr;
-				/*printf(inet_ntoa(sockaddr_ipv4->sin_addr));
-				printf("\n");*/
+				printf( "%s\n",inet_ntoa(sockaddr_ipv4->sin_addr));
+
 				this->connectNode(new NodeConnection(inet_ntoa(sockaddr_ipv4->sin_addr), "8444", this));
 			}
 		}

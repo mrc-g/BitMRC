@@ -17,7 +17,7 @@ else()
 endif()
 if(${CMAKE_SYSTEM} MATCHES "Linux")
 	# TODO: check 'permissive' flag.
-	add_definitions(-DLINUX -std=c++1y -fpermissive)
+	add_definitions(-DLINUX -std=c++1y -fpermissive -o0 -ggdb)
 	find_library(LIBCPPTEST_PATH NAMES cpptest libcpptest.a)
 	if(${LIBCPPTEST_PATH} MATCHES NOTFOUND)
 		message(FATAL_ERROR "\n***** ERROR: Need libcpptest-dev\n")
@@ -39,4 +39,5 @@ ExternalProject_Add(libcryptopp
 		CONFIGURE_COMMAND cmake . -DCMAKE_INSTALL_PREFIX:STRING=${CMAKE_SOURCE_DIR}/libs
 		)
 add_subdirectory(BitMRC)
+add_executable(dns trial/dns.cpp)
 
