@@ -41,5 +41,19 @@ int main(int argc, char ** argv) {
 		}
 	}
 	freeaddrinfo(result);	
+	
+	hints.ai_family = AF_INET6;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	if ( 0 == getaddrinfo("bootstrap8444.bitmessage.org", "0", &hints, &result))
+	for (addrinfo *ptr = result; ptr != NULL; ptr = ptr->ai_next) {
+		if (ptr->ai_family == AF_INET) {
+			sockaddr_ipv4 = (sockaddr_in *)ptr->ai_addr;
+			printf( "8080 IP6 %s\n",inet_ntoa(sockaddr_ipv4->sin_addr));
+		}
+	}
+	freeaddrinfo(result);		
+	
 	return 0;
 }
