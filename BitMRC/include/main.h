@@ -19,7 +19,7 @@
 using namespace std;
 
 
-#include "BitMRC.h"
+#include <BitMRC.h>
 
 
 

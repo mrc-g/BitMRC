@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-#include "utils.h"
+#include <utils.h>
 #include <bitmrc_endian.h> //need this only for getting the numbers swapped, since ustring made all the conversion automatically
 
 //input:	data
