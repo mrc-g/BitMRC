@@ -13,12 +13,17 @@
 #include <NodeConnection.h>
 #include <NodeBlacklist.h>
 #include <stdint.h>
-#include <arpa/inet.h> // on windows??
+
 
 typedef struct {
 	uint32_t netaddr_version;
 	unsigned char addr[40];
 } netversion_t;
+typedef struct {
+	uint32_t netaddr_version;
+	unsigned char octets[16];
+} netversion_bin_t;
+
 // inet_pton does not seem to be happy with leading zeros
 // leaving these vectors for later...
 static netversion_t test_vectors[] = {
@@ -36,7 +41,12 @@ static netversion_t test_vectors[] = {
 		{4, "22.143.5.149"},
 		{0,""}
 };
-
+static netversion_bin_t test_vectors_bin[] = {
+		{4, 3, 224, 16, 250 },
+		{4, 13, 153, 30, 131 },
+		{4, 22, 109, 5, 119 },
+		{ .0 }};
+		
 static netversion_t ip_blacklist[] = {
 		{4, "3.224.16.250"},
 		{4, "6.187.21.161"},
@@ -158,8 +168,6 @@ int NodeBlacklist::is_blacklisted(string ip, uint32_t ip_v) {
 
 	int ret = 0, fret = 0;
 
-    char str[INET6_ADDRSTRLEN];
-
 	switch(ip_v) {
 	case 4: // do ip4 address conversion
 		struct in_addr ip4_in, ip4_black;
@@ -171,31 +179,69 @@ int NodeBlacklist::is_blacklisted(string ip, uint32_t ip_v) {
 					if(memcmp(&ip4_in, &ip4_black, sizeof(in_addr)) == 0) {
 						fret = 1;
 					}
-				} /*else {
-					printf("convertion of BLIST %s: error %d\n",bl->addr, ret);
-				}*/
-			} /*else {
-				printf("convertion of IN_ADDR %s: error %d\n",ip.c_str(), ret);
-			}*/
+				} 
+			}
 			bl++;
 		}
-
 		break;
 	case 6:
 		struct in6_addr ip6_in, ip6_black;
-
 		break;
-
 	}
+	return fret;
+}
+/** \brief overloaded function for convenience
+ *   */
+int NodeBlacklist::is_blacklisted(struct addrinfo * ai, int family) {
+	netversion_t * bl = ip_blacklist;
 
+	int ret = 0, fret = 0;
+	string ip;
+	struct in_addr ip4_in, ip4_black;
+	
+	switch(family) {
+	case AF_INET: // do ip4 address conversion
+		struct in_addr ip4_in, ip4_black;
+		while(bl->netaddr_version != 0 && ret>=0) {			
+			ret = inet_pton(AF_INET, bl->addr, (void*) &ip4_black);
+			if(ret >0) {
+				if(memcmp(ai->ai_addr, &ip4_black, ai->ai_addrlen) == 0) {
+					fret = 1;
+				}
+			} 
+		bl++;
+		}
+		break;
+	case AF_INET6:
+		struct in6_addr ip6_in, ip6_black;
+		break;
+	}
 	return fret;
 }
 /** \brief add a blacklist entry
  * \return 0 if everything was ok
  * \return <0 if error
  */
-int NodeBlacklist::add_blacklist_entry(string ip, uint32_t ip_v) {
+int NodeBlacklist::add_blacklist_entry(std::string ip, uint32_t ip_v) {
 	// \todo: implement
+	return 0;
+}
+/** \brief test the binary address blacklist discovery
+ * */
+int NodeBlacklist::test_binaddr() {
+	int ret = 0, fret = 0;
+	netversion_bin_t * tests = test_vectors_bin;
+	struct addrinfo ai;
+	
+	ai.ai_family = AF_INET;
+	while(tests->netaddr_version !=0) {
+		memcpy(ai.ai_addr, tests->octets, 4);
+		if ( is_blacklisted(&ai, tests->netaddr_version) > 0) {
+			fret = 1;
+		}
+		tests++;
+	}	
+	return fret;
 }
 /** \brief run the blacklist discovery on the testvectors
  * \return 0 if ok

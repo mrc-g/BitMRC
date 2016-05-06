@@ -18,6 +18,7 @@ public:
     {
         TEST_ADD(NodeTest::init_test)
 		TEST_ADD(NodeTest::BlacklistTest)
+		TEST_ADD(NodeTest::BlacklistTestBin)
         // TEST_ADD(EndianTest::second_test)
     }
     ~NodeTest() {
@@ -26,6 +27,7 @@ public:
 private:
     void init_test();
 	void BlacklistTest();
+	void BlacklistTestBin();
     //void second_test();
 	NodeBlacklist * bl;
 };
@@ -37,6 +39,11 @@ void NodeTest::init_test()
 void NodeTest::BlacklistTest() {
 
 	TEST_ASSERT(bl->test() == 0);
+
+}
+void NodeTest::BlacklistTestBin() {
+
+	TEST_ASSERT(bl->test_binaddr() == 1);
 
 }
 #if 0

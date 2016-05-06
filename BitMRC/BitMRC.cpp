@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
+#include <NodeBlacklist.h>
 
 BitMRC::BitMRC()
 {
@@ -16,6 +17,7 @@ BitMRC::BitMRC()
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 	ZeroMemory(&hints, sizeof(hints));
 	
+	NodeBlacklist * bl = new NodeBlacklist();
 	
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
@@ -27,18 +29,15 @@ BitMRC::BitMRC()
 	}
 	else
 	{
-		for (addrinfo *ptr = result; ptr != NULL; ptr = ptr->ai_next)
-		{
-			if (ptr->ai_family == AF_INET)
-			{
-
-				sockaddr_ipv4 = (sockaddr_in *)ptr->ai_addr;
-				printf( "%s\n",inet_ntoa(sockaddr_ipv4->sin_addr));
-
-				this->connectNode(new NodeConnection(inet_ntoa(sockaddr_ipv4->sin_addr), "8444", this));
+		for (addrinfo *ptr = result; ptr != NULL; ptr = ptr->ai_next) {
+			if (ptr->ai_family == AF_INET) {
+				if ( bl->is_blacklisted(ptr->ai_addr) < 1) {
+					sockaddr_ipv4 = (sockaddr_in *)ptr->ai_addr;
+					printf( "Adding : %s\n",inet_ntoa(sockaddr_ipv4->sin_addr));			
+					this->connectNode(new NodeConnection(inet_ntoa(sockaddr_ipv4->sin_addr), "8444", this));
+				}
 			}
 		}
-
 		freeaddrinfo(result);
 	}
 
