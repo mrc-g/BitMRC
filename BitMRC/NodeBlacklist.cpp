@@ -6,8 +6,9 @@
  *
  *      Maintain a blacklist of known-bad nodes
  *      These are initialised statically from values, i've found out during operation
- *      of the original pythong bitmessage daemon
- *      */
+ *      of the original python bitmessage daemon.
+ *      We shall make them persistent in some database.
+ **/
 #include <BitMRC.h>
 #include <NodeConnection.h>
 #include <NodeBlacklist.h>
@@ -18,18 +19,21 @@ typedef struct {
 	uint32_t netaddr_version;
 	unsigned char addr[40];
 } netversion_t;
-
+// inet_pton does not seem to be happy with leading zeros
+// leaving these vectors for later...
 static netversion_t test_vectors[] = {
 		{4, "3.224.16.250"},
-		{4, "03.224.16.250"},
-		{4, "003.224.16.250"},
+/*		{4, "03.224.16.250"},
+		{4, "003.224.16.250"},*/
 		{4, "3.224.16.250"},
-		{4, "3.224.016.250"},
-		{4, "3.224.16.250"},
+/*		{4, "3.224.016.250"},
+		{4, "3.224.16.250"},*/
 		{4, "13.153.30.131"},
-		{4, "013.153.30.131"},
+/*		{4, "013.153.30.131"},
 		{4, "013.153.030.131"},
-		{4, "13.153.030.131"},
+		{4, "13.153.030.131"},*/
+		{4, "22.109.5.119"},
+		{4, "22.143.5.149"},
 		{0,""}
 };
 
@@ -152,7 +156,7 @@ NodeBlacklist::~NodeBlacklist() {
 int NodeBlacklist::is_blacklisted(string ip, uint32_t ip_v) {
 	netversion_t * bl = ip_blacklist;
 
-	int ret = 0;
+	int ret = 0, fret = 0;
 
     char str[INET6_ADDRSTRLEN];
 
@@ -164,11 +168,15 @@ int NodeBlacklist::is_blacklisted(string ip, uint32_t ip_v) {
 			if (ret >0) {
 				ret = inet_pton(AF_INET, bl->addr, (void*) &ip4_black);
 				if(ret >0) {
-					if(memcmp(&ip4_black.s_addr, &ip4_in.s_addr, sizeof(struct in_addr)) == 0) {
-						ret = 1;
+					if(memcmp(&ip4_in, &ip4_black, sizeof(in_addr)) == 0) {
+						fret = 1;
 					}
-				}
-			}
+				} /*else {
+					printf("convertion of BLIST %s: error %d\n",bl->addr, ret);
+				}*/
+			} /*else {
+				printf("convertion of IN_ADDR %s: error %d\n",ip.c_str(), ret);
+			}*/
 			bl++;
 		}
 
@@ -180,14 +188,14 @@ int NodeBlacklist::is_blacklisted(string ip, uint32_t ip_v) {
 
 	}
 
-
+	return fret;
 }
 /** \brief add a blacklist entry
  * \return 0 if everything was ok
  * \return <0 if error
  */
 int NodeBlacklist::add_blacklist_entry(string ip, uint32_t ip_v) {
-
+	// \todo: implement
 }
 /** \brief run the blacklist discovery on the testvectors
  * \return 0 if ok
