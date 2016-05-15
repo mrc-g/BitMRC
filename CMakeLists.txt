@@ -31,9 +31,9 @@ message("System Type ${CMAKE_SYSTEM} CXXVER IS : ${CXX_VER} CPPTEST is at ${LIBC
 
 include(ExternalProject)
 ExternalProject_Add(libcryptopp 
-		# GIT_REPOSITORY https://github.com/weidai11/cryptopp.git
+		GIT_REPOSITORY https://github.com/weidai11/cryptopp.git
 		# FOR TESTING: use a local bare repo
-		GIT_REPOSITORY ${CMAKE_SOURCE_DIR}/../libcryptopp.git
+		#GIT_REPOSITORY ${CMAKE_SOURCE_DIR}/../libcryptopp.git
 		PREFIX ${CRYPTOPP_SRC}
 		BUILD_IN_SOURCE 1
 		CONFIGURE_COMMAND cmake . -DCMAKE_INSTALL_PREFIX:STRING=${CMAKE_SOURCE_DIR}/libs
