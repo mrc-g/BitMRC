@@ -6,7 +6,7 @@ set(SRCS Addr.cpp base58.cpp BitMRC.cpp endian.cpp main.cpp
 	
 find_library(CRYPTOPP_BASE 
 	NAMES libcryptopp.a
-	PATHS /usr/local/lib ${CRYPTOPP_SRC} 
+	PATHS ${CRYPTOPP_SRC} 
 	NO_DEFAULT_PATH)
 
 message("CRYPTOPP_BASE is ${CRYPTOPP_BASE}")
