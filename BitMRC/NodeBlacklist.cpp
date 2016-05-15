@@ -43,7 +43,7 @@ static netversion_t test_vectors[] = {
 };
 static netversion_bin_t test_vectors_bin[] = {
 		{4, 3, 224, 16, 250 },
-		{4, 13, 153, 30, 131 },
+		{4, 13, 143, 30, 131 },
 		{4, 22, 109, 5, 119 },
 		{ .0 }};
 		
@@ -198,6 +198,8 @@ int NodeBlacklist::is_blacklisted(struct addrinfo * ai, int family) {
 	int ret = 0, fret = 0;
 	string ip;
 	struct in_addr ip4_in, ip4_black;
+	struct addrinfo ai_black;
+	uint32_t count=0;
 	
 	switch(family) {
 	case AF_INET: // do ip4 address conversion
@@ -209,13 +211,14 @@ int NodeBlacklist::is_blacklisted(struct addrinfo * ai, int family) {
 					fret = 1;
 				}
 			} 
-		bl++;
+		bl++; count++;
 		}
 		break;
 	case AF_INET6:
 		struct in6_addr ip6_in, ip6_black;
 		break;
 	}
+	printf("bintest:checkd %u elements\n",count);
 	return fret;
 }
 /** \brief add a blacklist entry
@@ -236,7 +239,7 @@ int NodeBlacklist::test_binaddr() {
 	ai.ai_family = AF_INET;
 	while(tests->netaddr_version !=0) {
 		memcpy(ai.ai_addr, tests->octets, 4);
-		if ( is_blacklisted(&ai, tests->netaddr_version) > 0) {
+		if ( is_blacklisted(&ai, AF_INET) > 0) {
 			fret = 1;
 		}
 		tests++;

@@ -31,7 +31,7 @@ BitMRC::BitMRC()
 	{
 		for (addrinfo *ptr = result; ptr != NULL; ptr = ptr->ai_next) {
 			if (ptr->ai_family == AF_INET) {
-				if ( bl->is_blacklisted(ptr->ai_addr) < 1) {
+				if ( bl->is_blacklisted(ptr, AF_INET) < 1) {
 					sockaddr_ipv4 = (sockaddr_in *)ptr->ai_addr;
 					printf( "Adding : %s\n",inet_ntoa(sockaddr_ipv4->sin_addr));			
 					this->connectNode(new NodeConnection(inet_ntoa(sockaddr_ipv4->sin_addr), "8444", this));
