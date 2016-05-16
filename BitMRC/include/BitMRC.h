@@ -32,6 +32,10 @@ public:
 	};
 
 	BitMRC();
+
+	//starts network
+	void init();
+
 	~BitMRC();
 	vector<NodeConnection*> Nodes;
 	vector<PubAddr> PubAddresses; //do not add manually use saveAddr
@@ -79,6 +83,7 @@ public:
 
 	thread thread_new_packets;
 	thread thread_new_inv;
+	thread thread_init;
 
 	bool running;
 

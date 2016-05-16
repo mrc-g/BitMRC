@@ -9,6 +9,11 @@
 
 BitMRC::BitMRC()
 {
+	this->load("save");
+}
+
+void BitMRC::init()
+{
 	int dns = 2;
 
 	addrinfo *result = NULL, hints;
@@ -19,11 +24,11 @@ BitMRC::BitMRC()
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 #endif
 
-	
+
 	ZeroMemory(&hints, sizeof(hints));
-	
+
 	NodeBlacklist * bl = new NodeBlacklist();
-	
+
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
@@ -36,9 +41,9 @@ BitMRC::BitMRC()
 	{
 		for (addrinfo *ptr = result; ptr != NULL; ptr = ptr->ai_next) {
 			if (ptr->ai_family == AF_INET) {
-				if ( bl->is_blacklisted(ptr, AF_INET) == 0) {
+				if (bl->is_blacklisted(ptr, AF_INET) == 0) {
 					sockaddr_ipv4 = (sockaddr_in *)ptr->ai_addr;
-					printf( "Adding : %s\n",inet_ntoa(sockaddr_ipv4->sin_addr));			
+					printf("Adding : %s\n", inet_ntoa(sockaddr_ipv4->sin_addr));
 					this->connectNode(new NodeConnection(inet_ntoa(sockaddr_ipv4->sin_addr), "8444", this));
 				}
 			}
@@ -90,8 +95,6 @@ BitMRC::BitMRC()
 		this->connectNode(new NodeConnection("198.244.103.16", "8445", this));
 		this->connectNode(new NodeConnection("127.0.0.1", "8444", this));
 	}
-
-	this->load("save");
 }
 
 BitMRC::~BitMRC()
@@ -120,6 +123,9 @@ BitMRC::~BitMRC()
 	if (this->thread_new_inv.joinable())
 		this->thread_new_inv.join();
 	
+	if (this->thread_init.joinable())
+		this->thread_init.join();
+
 	this->save("save");
 
 	std::unique_lock<std::shared_timed_mutex> mlock1(this->mutex_priv);
@@ -134,6 +140,7 @@ void BitMRC::start()
 	this->running = true;
 	this->thread_new_packets = thread(&BitMRC::listen_packets, this);
 	this->thread_new_inv = thread(&BitMRC::listen_inv, this);
+	this->thread_init = thread(&BitMRC::init, this);
 }
 
 void BitMRC::connectNode(NodeConnection *node)
