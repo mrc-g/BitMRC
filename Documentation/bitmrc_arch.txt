@@ -1,0 +1,49 @@
+@startuml
+/' use "plantuml" to compile '/
+title Client/Server interaction
+
+box "BitMRC" #LightBlue
+participant Main as M
+participant Connections as C
+participant Messages as MS
+participant Services as S
+end box
+
+box "DataStorage"
+participant Main as DSM
+participant InQ
+participant OutQ
+end box
+
+activate M
+M --> C : init()
+M --> MS : init()
+M --> S : init()
+
+M --> C :  startThreads()
+activate C
+C --> C : connect()
+C --> C : run()
+C --> C : accept()
+C --> S : validate()
+C --> C : add/delete
+C --> C : receive()
+C --> InQ : add()
+deactivate C
+
+M --> MS :  startThreads()
+activate MS
+MS --> MS : accept()
+MS --> MS : run()
+deactivate C
+
+MS --> InQ : wait()
+MS --> MS : process()
+MS --> S : validate()
+MS --> S : decode()
+
+M --> C : send()
+deactivate M
+
+
+@enduml

@@ -2,7 +2,7 @@
  * NodeBlacklist.h
  *
  *  Created on: 06.05.2016
- *      Author: blueboxes
+ *      Author: steady286
  */
 
 #ifndef NODEBLACKLIST_H_
