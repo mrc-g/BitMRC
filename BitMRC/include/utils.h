@@ -547,8 +547,9 @@ public:
 	{
 		int intLength = hash.length() / 4;
 		long sum = 0;
+		char c[4];
 		for (int j = 0; j < intLength; j++) {
-			char *c = (char*)hash.substr(j * 4,  4).c_str();
+			strncpy(c,(char*)hash.substr(j * 4, 4).c_str(),4);
 			long mult = 1;
 			for (int k = 0; k < 4; k++) {
 				sum += c[k] * mult;
@@ -556,7 +557,7 @@ public:
 			}
 		}
 
-		char *c = (char*)hash.substr(intLength * 4).c_str();
+		strcpy(c,(char*)hash.substr(intLength * 4).c_str());
 		long mult = 1;
 		for (unsigned int k = 0; k < (hash.length()-(intLength * 4)); k++) {
 			sum += c[k] * mult;
