@@ -174,7 +174,7 @@ int NodeBlacklist::is_blacklisted(string ip, uint32_t ip_v) {
 		while(bl->netaddr_version != 0 && ret>=0) {
 			ret = inet_pton(AF_INET, ip.c_str(), (void*) &ip4_in);
 			if (ret >0) {
-				ret = inet_pton(AF_INET, (PCSTR)bl->addr, (void*) &ip4_black);
+				ret = inet_pton(AF_INET, (char*)bl->addr, (void*) &ip4_black);
 				if(ret >0) {
 					if(memcmp(&ip4_in, &ip4_black, sizeof(in_addr)) == 0) {
 						fret = 1;
@@ -205,7 +205,7 @@ int NodeBlacklist::is_blacklisted(struct addrinfo * ai, int family) {
 	case AF_INET: // do ip4 address conversion
 		struct in_addr ip4_in, ip4_black;
 		while(bl->netaddr_version != 0 && ret>=0) {			
-			ret = inet_pton(AF_INET, (PCSTR)bl->addr, (void*) &ip4_black);
+			ret = inet_pton(AF_INET, (char*)bl->addr, (void*) &ip4_black);
 			if(ret >0) {
 				if(memcmp(ai->ai_addr, &ip4_black, ai->ai_addrlen) == 0) {
 					fret = 1;
