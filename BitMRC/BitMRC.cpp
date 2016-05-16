@@ -70,6 +70,7 @@ BitMRC::BitMRC()
 #ifndef LINUX
 	WSACleanup();
 #endif
+	delete bl;
 	if (1)//for now i leave this active, I noticed that sometimes bootstrap dns work but no ip is working.
 	{
 		//printf("Node bootstrapping failed!\n");

@@ -784,9 +784,13 @@ string socket_ustring::getString(int len)
 		return ret;
 	}
 	else if (iResult >= 0)
+	{
+		delete[] tmp;
 		throw CONNECTION_CLOSED;
+	}
 	else
 	{
+		delete[] tmp;
 		//printf("recv failed with error: %d\n", WSAGetLastError());
 		throw CONNECTION_ERROR;
 	}
@@ -811,9 +815,13 @@ ustring socket_ustring::getUstring(int len)
 		return ret;
 	}
 	else if (iResult >= 0)
+	{
+		delete[] tmp;
 		throw CONNECTION_CLOSED;
+	}
 	else
 	{
+		delete[] tmp;
 		//printf("recv failed with error: %d\n", WSAGetLastError());
 		throw CONNECTION_ERROR;
 	}
@@ -1235,11 +1243,13 @@ string file_ustring::getString(int len)
 {
 	string ret;
 	char *tmp = new char[len]; //this will boost it
-	
+
 	int iResult = fread(tmp, 1, len, this->pFile);
 	if (iResult != len)
+	{
+		delete[] tmp;
 		throw 1;
-
+	}
 	ret.append(tmp, len);
 	delete[] tmp;
 	if (ret.empty())
@@ -1254,8 +1264,10 @@ ustring file_ustring::getUstring(int len)
 	
 	int iResult = fread(tmp, 1, len, this->pFile);
 	if (iResult != len)
+	{
+		delete[] tmp;
 		throw 1;
-
+	}
 	ret.append(tmp,len);
 	delete[] tmp;
 	if (ret.empty())

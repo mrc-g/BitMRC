@@ -443,6 +443,7 @@ public:
 				delete cur;
 				cur = tmp;
 			}
+			delete[] this->Table;
 		}
 	}
 	//insert in the table
