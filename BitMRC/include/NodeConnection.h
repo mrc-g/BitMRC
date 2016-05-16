@@ -9,11 +9,16 @@
 #include <future>
 #include <iostream>
 #include <random>
+#ifdef LINUX
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
+#else
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
-
+#endif
 
 
 #include "utils.h"
@@ -22,11 +27,11 @@
 
 
 
-
+#ifndef LINUX
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
-
+#endif
 
 using namespace std;
 
@@ -83,7 +88,7 @@ public:
 	//holds state of wsadata
 	int wsaInit;
 	//holds the socket
-    SOCKET Socket;
+	SOCK_TYPE Socket;
 	
 	//packets queue for multi threading
 	Queue<Packet> Packets;

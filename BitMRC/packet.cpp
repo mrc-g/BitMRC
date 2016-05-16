@@ -1,6 +1,6 @@
 #include "Packet.h"
-
-void Packet::getCommand(SOCKET socket)
+#include <types.h>
+void Packet::getCommand(SOCK_TYPE socket)
 {
 	socket_ustring connection;
 	connection.setSocket(socket);
@@ -13,7 +13,7 @@ void Packet::getCommand(SOCKET socket)
 	this->message_payload = connection.getUstring(this->lenght);
 }
 
-void Packet::sendData(SOCKET socket)
+void Packet::sendData(SOCK_TYPE socket)
 {
 	socket_ustring connection;
 	connection.setSocket(socket);

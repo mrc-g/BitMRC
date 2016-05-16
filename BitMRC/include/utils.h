@@ -1,13 +1,24 @@
+#ifndef LINUX
 #pragma once
+#endif
+
 #ifndef _UTILS 
 #define _UTILS
+using namespace std;
 
+#ifdef LINUX
+//#include <pthread.h>
+#include <string>
+#include <types.h>
 
+#else
+
+#endif
 #include <shared_mutex>
 #include <cstdio>
 #include <cstring>
 #include <vector>
-using namespace std;
+
 
 //unsigned string with stream function for protocol bytes array
 class ustring : public basic_string<unsigned char, char_traits<unsigned char>, allocator<unsigned char> >
@@ -17,7 +28,7 @@ public:
 	string toString();
 
 	//append from string
-	void ustring::fromString(string from);
+	void fromString(string from);
 
 	//append a unsigned char or int8
 	void appendInt8(unsigned char i);
@@ -44,16 +55,16 @@ public:
 	//append varint 64, little endian
 	void appendVarInt64(unsigned __int64 i);
 
-	//append a string prefixed by a varint representing the lenght
+	//append a string prefixed by a varint representing the length
 	void appendVarString(string str);
 
-	//append a unsigned string prefixed by a varint representing the lenght
+	//append a unsigned string prefixed by a varint representing the length
 	void appendVarUstring(ustring str);
 
-	//append a string prefixed by a varint_B representing the lenght
+	//append a string prefixed by a varint_B representing the length
 	void appendVarString_B(string str);
 
-	//append a unsigned string prefixed by a varint_B representing the lenght
+	//append a unsigned string prefixed by a varint_B representing the length
 	void appendVarUstring_B(ustring str);
 
 	//get a signed byte
@@ -105,12 +116,17 @@ public:
 	//sum two ustring
 	//ustring operator+(ustring adder);
 };
+#ifdef LINUX
+/*\todo: move this to proper location -steady-
+ *
+ */
+#else
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
 #pragma comment (lib, "Ws2_32.lib")
-
+#endif
 
 #define CONNECTION_CLOSED	1
 #define CONNECTION_ERROR	2
@@ -213,10 +229,10 @@ public:
 	ustring getVarUstring_B();
 
 	//set socket
-	void setSocket(SOCKET sock);
+	void setSocket(SOCK_TYPE sock);
 
 	//holds the socket pointer
-	SOCKET socket;
+	SOCK_TYPE socket;
 
 };
 
@@ -406,7 +422,7 @@ public:
 	int Dim;
 	hash_table()
 	{
-		std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);
+		std::unique_lock<shared_timed_mutex> mlock(this->mutex_);
 		Dim = 100771;
 		this->Table = new linked_node*[this->Dim];
 		memset(this->Table, NULL, sizeof(linked_node*) * this->Dim);
@@ -415,7 +431,7 @@ public:
 
 	~hash_table()
 	{
-		std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);
+		std::unique_lock<shared_timed_mutex> mlock(this->mutex_);
 		for (int i = 0; i < this->Dim; i++)
 		{
 			hash_table::linked_node * cur = this->Table[i];

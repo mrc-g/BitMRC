@@ -24,8 +24,10 @@
 #ifndef _SSIZE_T_DEFINED
 #ifdef  _WIN64
 typedef unsigned __int64    ssize_t;
-#else
+#elif defined(_WIN32)
 typedef unsigned int   ssize_t;
+#elif defined(LINUX)
+
 #endif
 #define _SSIZE_T_DEFINED
 #endif

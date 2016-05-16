@@ -3,7 +3,11 @@
 
 #include <ctime>
 #include <cstdio>
+#ifdef LINUX
+
+#else
 #include <shared_mutex>
+#endif
 #include "utils.h"
 
 // Crypto++ Library
@@ -93,10 +97,10 @@ public:
 	ustring				message_payload;
 
 	//gets the data until it reachs the command
-	void getCommand(SOCKET socket);
+	void getCommand(SOCK_TYPE socket);
 
 	//sends data
-	void sendData(SOCKET socket);
+	void sendData(SOCK_TYPE socket);
 
 	bool setChecksum_Lenght_Magic();
 };

@@ -1,4 +1,10 @@
-#include "endian.h"
+#include <bitmrc_endian.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* \todo: pin this to stdint.h-types (int16/int32/uint16/uint32) etc .. -steady286-*/
 
 short (*BigShort) ( short s );
 short (*LittleShort) ( short s );
@@ -8,7 +14,9 @@ __int64 (*BigLongLong) ( __int64 i );
 __int64 (*LittleLongLong) ( __int64 i );
 float (*BigFloat) ( float f );
 float (*LittleFloat) ( float f );
+void x() {
 
+}
 short ShortSwap( short s )
 {
 	unsigned char b1, b2;
@@ -119,3 +127,6 @@ void InitEndian( void )
 		LittleFloat = FloatNoSwap;
 	}
 }
+#ifdef __cplusplus
+}
+#endif
