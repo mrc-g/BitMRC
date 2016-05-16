@@ -42,9 +42,14 @@ static netversion_t test_vectors[] = {
 		{0,""}
 };
 static netversion_bin_t test_vectors_bin[] = {
-		{4, 3, 224, 16, 250 },
-		{4, 13, 143, 30, 131 },
-		{4, 22, 109, 5, 119 },
+		{4,{ 3, 224, 16, 250} },
+		{4,{ 13, 153, 30, 131} },
+		{4,{ 22, 109, 5, 119} },
+		{4,{ 54, 14, 37, 20} },
+		/* fixme: ipv6 address tests
+		{6, { 0x2a, 0x01, 0x04e, 0xee, 0x20, 0x00, 0x00, 0x00, 0x00, 0xc3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02 }},
+		{6, { 0x2a, 0x01, 0x04e, 0xee, 0x30, 0x00, 0x00, 0x00, 0x00, 0xc3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03 }},
+		*/
 		{ .0 }};
 		
 static netversion_t ip_blacklist[] = {
@@ -148,6 +153,7 @@ static netversion_t ip_blacklist[] = {
 		{4, "253.186.238.160"},
 		{4, "254.195.237.217"},
 		{4, "254.238.237.244"},
+		{6, { "2a01:4eee:3000:0000:00c3:0000:0000:0003" }},
 		{0, ""}
 };
 NodeBlacklist::NodeBlacklist() {
@@ -204,14 +210,19 @@ int NodeBlacklist::is_blacklisted(struct addrinfo * ai, int family) {
 	switch(family) {
 	case AF_INET: // do ip4 address conversion
 		struct in_addr ip4_in, ip4_black;
-		while(bl->netaddr_version != 0 && ret>=0) {			
-			ret = inet_pton(AF_INET, bl->addr, (void*) &ip4_black);
+		while(bl->netaddr_version != 0 && ret>=0) {
+			//printf("%s : check %s\n", __func__, bl->addr);
+			ret = inet_pton(family, bl->addr, (void*) &ip4_black);
 			if(ret >0) {
+				count++;
 				if(memcmp(ai->ai_addr, &ip4_black, ai->ai_addrlen) == 0) {
 					fret = 1;
+					break;
 				}
-			} 
-		bl++; count++;
+			} else {
+				printf("%s : conversion failed\n", __func__);
+			}
+		bl++;
 		}
 		break;
 	case AF_INET6:
@@ -232,15 +243,26 @@ int NodeBlacklist::add_blacklist_entry(std::string ip, uint32_t ip_v) {
 /** \brief test the binary address blacklist discovery
  * */
 int NodeBlacklist::test_binaddr() {
-	int ret = 0, fret = 0;
+	int ret = 0, fret = 1, family = 0;
+	uint32_t testcount = 0;
 	netversion_bin_t * tests = test_vectors_bin;
 	struct addrinfo ai;
+	unsigned char sabytes[20];
+	ai.ai_addr = (struct sockaddr*)sabytes; /* \fixme: ipv6 */
 	
 	ai.ai_family = AF_INET;
 	while(tests->netaddr_version !=0) {
-		memcpy(ai.ai_addr, tests->octets, 4);
-		if ( is_blacklisted(&ai, AF_INET) > 0) {
-			fret = 1;
+		testcount++;
+		switch(tests->netaddr_version) {
+			case 4:	ai.ai_addrlen = 4; family = AF_INET; break;
+			case 6: ai.ai_addrlen = 16; family = AF_INET6; break;
+			default: ai.ai_addrlen = 0;
+		}
+
+		memcpy(ai.ai_addr, tests->octets, ai.ai_addrlen);
+		if ( 0 == is_blacklisted(&ai, family) ) {
+			fret = 0;
+			printf("%s element not found: %u\n", __func__, testcount);
 		}
 		tests++;
 	}	
