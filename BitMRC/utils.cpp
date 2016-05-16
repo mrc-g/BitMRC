@@ -778,7 +778,7 @@ string socket_ustring::getString(int len)
 	if (iResult > 0)
 	{
 		ret.append(tmp, len);
-		delete tmp;
+		delete[] tmp;
 		if (ret.empty())
 			return string();
 		if (len != iResult)
@@ -805,7 +805,7 @@ ustring socket_ustring::getUstring(int len)
 	if (iResult > 0)
 	{
 		ret.append(tmp, len);
-		delete tmp;
+		delete[] tmp;
 		if (ret.empty())
 			return ustring();
 		if(len != iResult)
@@ -1243,7 +1243,7 @@ string file_ustring::getString(int len)
 		throw 1;
 
 	ret.append(tmp, len);
-	delete tmp;
+	delete[] tmp;
 	if (ret.empty())
 		return string();
 	return ret;
@@ -1259,7 +1259,7 @@ ustring file_ustring::getUstring(int len)
 		throw 1;
 
 	ret.append(tmp,len);
-	delete tmp;
+	delete[] tmp;
 	if (ret.empty())
 		return ustring();
 	return ret;

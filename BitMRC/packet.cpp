@@ -46,7 +46,7 @@ bool Packet::setChecksum_Lenght_Magic()
 	{
 		this->checksum[i] = rgbHash[i];
 	}
-	delete pbBuffer;
+	delete[] pbBuffer;
 
 	this->magic = Magic;
 

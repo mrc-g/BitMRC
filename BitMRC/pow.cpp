@@ -134,6 +134,6 @@ __int64		searchPow(ustring data, unsigned __int64 TTL)
 		* as a big-endian number */
 		pow_value = BigLongLong(*(__int64*)(hash2));
 	}
-	delete tmpnonce;
+	delete[] tmpnonce;
 	return nonce;
 }

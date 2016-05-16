@@ -76,13 +76,13 @@ bool b58tobin(void *bin, size_t *binszp, const char *b58)
 		if (b58u[i] & 0x80)
 		{
 			// High-bit set on invalid digit
-			delete outi;
+			delete[] outi;
 			return false;
 		}
 		if (b58digits_map[b58u[i]] == -1)
 		{
 			// Invalid base58 digit
-			delete outi;
+			delete[] outi;
 			return false;
 		}
 		c = (unsigned)b58digits_map[b58u[i]];
@@ -95,13 +95,13 @@ bool b58tobin(void *bin, size_t *binszp, const char *b58)
 		if (c)
 		{
 			// Output number too big (carry to the next int32)
-			delete outi;
+			delete[] outi;
 			return false;
 		}
 		if (outi[0] & zeromask)
 		{
 			// Output number too big (last int32 filled too far)
-			delete outi;
+			delete[] outi;
 			return false;
 		}
 	}
@@ -143,7 +143,7 @@ bool b58tobin(void *bin, size_t *binszp, const char *b58)
 	{
 		((char*)bin)[i] = binu[j + i];
 	}
-	delete outi;
+	delete[] outi;
 	return true;
 }
 
@@ -179,7 +179,7 @@ bool b58enc(char *b58, size_t *b58sz, const void *data, size_t binsz)
 	if (*b58sz <= zcount + size - j)
 	{
 		*b58sz = zcount + size - j + 1;
-		delete buf;
+		delete[] buf;
 		return false;
 	}
 
@@ -190,6 +190,6 @@ bool b58enc(char *b58, size_t *b58sz, const void *data, size_t binsz)
 	b58[i] = '\0';
 	*b58sz = i + 1;
 
-	delete buf;
+	delete[] buf;
 	return true;
 }
