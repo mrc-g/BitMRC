@@ -214,7 +214,7 @@ int NodeBlacklist::is_blacklisted(struct addrinfo * ai, int family) {
 		struct in_addr ip4_in, ip4_black;
 		while(bl->netaddr_version != 0 && ret>=0) {
 			//printf("%s : check %s\n", __func__, bl->addr);
-			ret = inet_pton(family, bl->addr, (void*) &ip4_black);
+			ret = inet_pton(family, (char*)bl->addr, (void*) &ip4_black);
 			if(ret >0) {
 				count++;
 				if(memcmp(ai->ai_addr, &ip4_black, ai->ai_addrlen) == 0) {
