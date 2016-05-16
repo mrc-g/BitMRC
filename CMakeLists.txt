@@ -37,6 +37,7 @@ ExternalProject_Add(libcryptopp
 		PREFIX ${CRYPTOPP_SRC}
 		BUILD_IN_SOURCE 1
 		CONFIGURE_COMMAND cmake . -DCMAKE_INSTALL_PREFIX:STRING=${CMAKE_SOURCE_DIR}/libs
+		STAMP_DIR ${CRYPTOPP_SRC}
 		)
 add_subdirectory(BitMRC)
 add_executable(dns trial/dns.cpp)
