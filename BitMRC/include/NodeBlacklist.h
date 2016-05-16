@@ -12,7 +12,12 @@ using namespace std;
 
 #include <cstdio>
 #include <cstring>
-#include <arpa/inet.h> // on windows??
+#ifdef LINUX
+#include <arpa/inet.h>
+
+#else
+#include <WinSock2.h>
+#endif
 
 class NodeBlacklist {
 public:

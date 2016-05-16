@@ -73,6 +73,7 @@ public:
 
 	//state of connection:
 	//		0: not connected
+	//		3: connecting     for now it stay as 3
 	//		1: connected
 	//		2: connection accepted
 	int state;

@@ -42,33 +42,42 @@
     <ClCompile Include="Addr.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="NodeBlacklist.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="endian.h">
+    <ClInclude Include="include\NodeBlacklist.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="main.h">
+    <ClInclude Include="include\Addr.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="utils.h">
+    <ClInclude Include="include\base58.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="NodeConnection.h">
+    <ClInclude Include="include\BitMRC.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="Packet.h">
+    <ClInclude Include="include\bitmrc_endian.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="BitMRC.h">
+    <ClInclude Include="include\main.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="base58.h">
+    <ClInclude Include="include\NodeConnection.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="pow.h">
+    <ClInclude Include="include\Packet.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="Addr.h">
+    <ClInclude Include="include\pow.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="include\types.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="include\utils.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>

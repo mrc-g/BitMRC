@@ -54,7 +54,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)cryptopp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)cryptopp;$(SolutionDir)BitMRC/include;</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -69,7 +69,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)cryptopp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)cryptopp;$(SolutionDir)BitMRC/include;</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -81,15 +81,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Addr.h" />
-    <ClInclude Include="base58.h" />
-    <ClInclude Include="BitMRC.h" />
-    <ClInclude Include="endian.h" />
-    <ClInclude Include="main.h" />
-    <ClInclude Include="NodeConnection.h" />
-    <ClInclude Include="Packet.h" />
-    <ClInclude Include="pow.h" />
-    <ClInclude Include="utils.h" />
+    <ClInclude Include="include\Addr.h" />
+    <ClInclude Include="include\base58.h" />
+    <ClInclude Include="include\BitMRC.h" />
+    <ClInclude Include="include\bitmrc_endian.h" />
+    <ClInclude Include="include\main.h" />
+    <ClInclude Include="include\NodeBlacklist.h" />
+    <ClInclude Include="include\NodeConnection.h" />
+    <ClInclude Include="include\Packet.h" />
+    <ClInclude Include="include\pow.h" />
+    <ClInclude Include="include\types.h" />
+    <ClInclude Include="include\utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Addr.cpp" />
@@ -97,6 +99,7 @@
     <ClCompile Include="BitMRC.cpp" />
     <ClCompile Include="endian.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="NodeBlacklist.cpp" />
     <ClCompile Include="NodeConnection.cpp" />
     <ClCompile Include="packet.cpp" />
     <ClCompile Include="pow.cpp" />

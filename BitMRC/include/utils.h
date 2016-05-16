@@ -9,11 +9,12 @@ using namespace std;
 #ifdef LINUX
 //#include <pthread.h>
 #include <string>
-#include <types.h>
+
 
 #else
 
 #endif
+#include <types.h>
 #include <shared_mutex>
 #include <cstdio>
 #include <cstring>

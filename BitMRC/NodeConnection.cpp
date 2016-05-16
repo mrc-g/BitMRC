@@ -151,9 +151,11 @@ bool NodeConnection::Connect()
 		//char buffer[600];
 		//const char *string = inet_ntop(ptr->ai_addr->sa_family, get_in_addr((struct sockaddr *)ptr->ai_addr), buffer, sizeof(buffer));
 		//printf("%s", buffer);
+		this->state = 3;
         iResult = connect( Socket, ptr->ai_addr, (int)ptr->ai_addrlen);
         if (iResult == SOCKET_ERROR)
 		{
+			this->state = 0;
 			closesocket(Socket);
             Socket = INVALID_SOCKET;
             continue;
