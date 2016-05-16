@@ -13,8 +13,13 @@ BitMRC::BitMRC()
 
 	addrinfo *result = NULL, hints;
 	sockaddr_in  *sockaddr_ipv4;
+
+#ifndef LINUX
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
+#endif
+
+	
 	ZeroMemory(&hints, sizeof(hints));
 	
 	NodeBlacklist * bl = new NodeBlacklist();

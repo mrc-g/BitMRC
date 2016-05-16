@@ -28,6 +28,7 @@ NodeConnection::NodeConnection(string ip, string port, BitMRC *self)
 #ifndef LINUX
 	this->wsaInit = WSAStartup(MAKEWORD(2,2), &this->wsaData);
 #endif
+
 	CLRMEM(hints);
 	this->Socket = INVALID_SOCKET;
 
@@ -42,12 +43,12 @@ NodeConnection::NodeConnection(string ip, string port, BitMRC *self)
 
 NodeConnection::~NodeConnection()
 {
+#ifndef LINUX
 	if(this->wsaInit == 0)
 	{
-#ifndef LINUX
 		WSACleanup();
-#endif
 	}
+#endif
 	if(this->state)
 	{
 		this->Close();
@@ -113,9 +114,10 @@ void *get_in_addr(struct sockaddr *sa)
 }
 bool NodeConnection::Connect()
 {
+#ifndef LINUX
 	if(this->wsaInit != 0)
 		return false; //problem with winsock
-
+#endif
 	struct addrinfo *ptr = NULL;
     int iResult;
 	this->state = 3;

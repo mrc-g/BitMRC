@@ -84,10 +84,13 @@ public:
 	//holds addrss structure
 	struct addrinfo *result,hints;
 
+#ifndef LINUX
 	//holds WSADATA
 	WSADATA wsaData;
 	//holds state of wsadata
 	int wsaInit;
+#endif
+
 	//holds the socket
 	SOCK_TYPE Socket;
 	
