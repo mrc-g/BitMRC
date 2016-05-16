@@ -132,7 +132,15 @@ int main()
 					}
 					else if (bitmrc.Nodes[i]->state == 0)
 					{
-						printf("Node: %s:%s Not connected\n", bitmrc.Nodes[i]->Ip.c_str(), bitmrc.Nodes[i]->Port.c_str());
+						printf("Node: %s:%s Not\n", bitmrc.Nodes[i]->Ip.c_str(), bitmrc.Nodes[i]->Port.c_str());
+					}
+					if (bitmrc.Nodes[i]->state == 1)
+					{
+						printf("Node: %s:%s Almost\n", bitmrc.Nodes[i]->Ip.c_str(), bitmrc.Nodes[i]->Port.c_str());
+					}
+					else if (bitmrc.Nodes[i]->state == 3)
+					{
+						printf("Node: %s:%s Trying\n", bitmrc.Nodes[i]->Ip.c_str(), bitmrc.Nodes[i]->Port.c_str());
 					}
 				}
 

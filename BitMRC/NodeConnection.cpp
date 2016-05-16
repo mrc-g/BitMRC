@@ -125,6 +125,7 @@ bool NodeConnection::Connect()
 	iResult = getaddrinfo(this->Ip.c_str(), this->Port.c_str(), &hints, &result);
     if ( iResult != 0 )
 	{
+		this->state = 0;
         //printf("getaddrinfo failed with error: %d\n", iResult);
 #ifndef LINUX
         WSACleanup();
@@ -141,6 +142,7 @@ bool NodeConnection::Connect()
             ptr->ai_protocol);
         if (Socket == INVALID_SOCKET)
 		{
+			this->state = 0;
             //printf("socket failed with error: %ld\n", WSAGetLastError());
 			freeaddrinfo(result);
 #ifndef LINUX
@@ -157,6 +159,7 @@ bool NodeConnection::Connect()
         iResult = connect( Socket, ptr->ai_addr, (int)ptr->ai_addrlen);
         if (iResult == SOCKET_ERROR)
 		{
+			this->state = 0;
 			closesocket(Socket);
             Socket = INVALID_SOCKET;
             continue;
@@ -168,6 +171,7 @@ bool NodeConnection::Connect()
 
     if (Socket == INVALID_SOCKET)
 	{
+		this->state = 0;
         //printf("Unable to connect to server!\n");
 #ifndef LINUX
         WSACleanup();
