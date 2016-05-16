@@ -197,7 +197,9 @@ int NodeBlacklist::is_blacklisted(string ip, uint32_t ip_v) {
 	return fret;
 }
 /** \brief overloaded function for convenience
- *   */
+ * \return 0 if entry is not blacklisted
+ * \return 1 if entry is blacklisted
+ * \return <0 if error */
 int NodeBlacklist::is_blacklisted(struct addrinfo * ai, int family) {
 	netversion_t * bl = ip_blacklist;
 
