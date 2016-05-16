@@ -408,9 +408,7 @@ ustring ustring::getRest(unsigned int& i)
 //methods of socket_ustring
 void socket_ustring::sendByte(unsigned char i)
 {
-	char byte[1];
-	byte[0]=i;
-	int iResult = send( this->socket, byte, 1, 0 );
+	int iResult = send( this->socket, (char*)&i, 1, 0 );
     if (iResult == SOCKET_ERROR) {
 		throw CONNECTION_ERROR;
     }
