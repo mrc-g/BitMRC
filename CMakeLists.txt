@@ -41,4 +41,5 @@ ExternalProject_Add(libcryptopp
 		)
 add_subdirectory(BitMRC)
 add_executable(dns trial/dns.cpp)
+add_executable(thread_test trial/thread_test.cpp)
 
