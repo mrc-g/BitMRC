@@ -70,6 +70,12 @@ int main()
 			bitmrc.sendMessage(msg, bitmrc.PubAddresses[des], bitmrc.PrivAddresses[fro]); //maybe this should be done in another thread
 			printf("Message sent\n");
 		}
+		else if (!strcmp("connect", command))
+		{
+			printf("To: ");
+			scanf("%s", command);
+			bitmrc.connectNode(new NodeConnection(command, "8444", &bitmrc));
+		}
 		else if (!strcmp("address", command))
 		{
 			scanf("%s", command);
