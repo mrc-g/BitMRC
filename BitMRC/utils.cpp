@@ -770,30 +770,38 @@ string socket_ustring::getString(int len)
 	if (len == 0)
 		return string();
 	string ret;
+	int read = 0;
 	char *tmp = new char[len]; //this will boost it
-
-	int iResult = recv(this->socket, (char*)tmp, len, 0);
-	if (iResult > 0)
+	do
 	{
-		ret.append(tmp, len);
-		delete[] tmp;
-		if (len != iResult)
-			ret += this->getString(len - iResult);
-		if (ret.empty())
-			return string();
-		return ret;
-	}
-	else if (iResult >= 0)
-	{
-		delete[] tmp;
-		throw CONNECTION_CLOSED;
-	}
-	else
-	{
-		delete[] tmp;
-		//printf("recv failed with error: %d\n", WSAGetLastError());
-		throw CONNECTION_ERROR;
-	}
+		int iResult = recv(this->socket, (char*)tmp, len, 0);
+		if (iResult == 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+		{
+			continue;
+		}
+		else if (iResult > 0)
+		{
+			read += iResult;
+			ret.append(tmp, iResult);
+		}
+		else if (iResult == 0)
+		{
+			delete[] tmp;
+			throw CONNECTION_CLOSED;
+		}
+		else
+		{
+			delete[] tmp;
+			//printf("recv failed with error: %d\n", WSAGetLastError());
+			throw CONNECTION_ERROR;
+		}
+		if(len != read)
+			SLEEP(50);
+	} while (len != read);
+	delete[] tmp;
+	if (ret.empty())
+		return string();
+	return ret;
 }
 
 ustring socket_ustring::getUstring(int len)
@@ -801,30 +809,38 @@ ustring socket_ustring::getUstring(int len)
 	if (len == 0)
 		return ustring();
 	ustring ret;
+	int read = 0;
 	unsigned char *tmp = new unsigned char[len]; //this will boost it
-	
-	int iResult = recv(this->socket, (char*)tmp, len, 0);
-	if (iResult > 0 || errno == EWOULDBLOCK || errno == EAGAIN)
+	do
 	{
-		ret.append(tmp, len);
-		delete[] tmp;
-		if(len != iResult)
-			ret += this->getUstring(len-iResult);
-		if (ret.empty())
-			return ustring();
-		return ret;
-	}
-	else if (iResult >= 0)
-	{
-		delete[] tmp;
-		throw CONNECTION_CLOSED;
-	}
-	else
-	{
-		delete[] tmp;
-		//printf("recv failed with error: %d\n", WSAGetLastError());
-		throw CONNECTION_ERROR;
-	}
+		int iResult = recv(this->socket, (char*)tmp, len, 0);
+		if (iResult == 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+		{
+			continue;
+		}
+		else if (iResult > 0)
+		{
+			read += iResult;
+			ret.append(tmp, iResult);
+		}
+		else if (iResult == 0)
+		{
+			delete[] tmp;
+			throw CONNECTION_CLOSED;
+		}
+		else
+		{
+			delete[] tmp;
+			//printf("recv failed with error: %d\n", WSAGetLastError());
+			throw CONNECTION_ERROR;
+		}
+		if (len != read)
+			SLEEP(50);
+	} while (len != read);
+	delete[] tmp;
+	if (ret.empty())
+		return ustring();
+	return ret;
 }
 
 string socket_ustring::getVarString()
