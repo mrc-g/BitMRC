@@ -777,10 +777,10 @@ string socket_ustring::getString(int len)
 	{
 		ret.append(tmp, len);
 		delete[] tmp;
-		if (ret.empty())
-			return string();
 		if (len != iResult)
 			ret += this->getString(len - iResult);
+		if (ret.empty())
+			return string();
 		return ret;
 	}
 	else if (iResult >= 0)
@@ -804,14 +804,14 @@ ustring socket_ustring::getUstring(int len)
 	unsigned char *tmp = new unsigned char[len]; //this will boost it
 	
 	int iResult = recv(this->socket, (char*)tmp, len, 0);
-	if (iResult > 0)
+	if (iResult > 0 || errno == EWOULDBLOCK || errno == EAGAIN)
 	{
 		ret.append(tmp, len);
 		delete[] tmp;
-		if (ret.empty())
-			return ustring();
 		if(len != iResult)
 			ret += this->getUstring(len-iResult);
+		if (ret.empty())
+			return ustring();
 		return ret;
 	}
 	else if (iResult >= 0)
