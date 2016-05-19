@@ -1,7 +1,14 @@
 # BitMRC
 A simple bitmessage client implementation written in c++
 
-It compile on windows using visual studio, but i think it can be easily ported to linux by changing the windows socket.
+Linux:
+```
+#cmake .
+#make
+```
+if not working because of linking try ./doMakeLinux.sh
+
+Windows: compile with Visual Studio
 
 It uses crypto++ for cryptography so i included it.
 
