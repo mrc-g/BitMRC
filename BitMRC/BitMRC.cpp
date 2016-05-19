@@ -103,6 +103,9 @@ BitMRC::~BitMRC()
 	
 	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_nodes);
 	for (unsigned int i = 0; i < Nodes.size(); i++)
+		Nodes[i]->Close();
+
+	for (unsigned int i = 0; i < Nodes.size(); i++)
 	{
 		if (Nodes[i] != NULL)
 			delete Nodes[i];
