@@ -774,7 +774,7 @@ string socket_ustring::getString(int len)
 	char *tmp = new char[len]; //this will boost it
 	do
 	{
-		int iResult = recv(this->socket, (char*)tmp, len, 0);
+		int iResult = recv(this->socket, (char*)tmp, len-read, 0);
 		if (iResult == 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
 		{
 			continue;
@@ -797,7 +797,7 @@ string socket_ustring::getString(int len)
 		}
 		if(len != read)
 			SLEEP(50);
-	} while (len != read);
+	} while (len > read);
 	delete[] tmp;
 	if (ret.empty())
 		return string();
@@ -813,7 +813,7 @@ ustring socket_ustring::getUstring(int len)
 	unsigned char *tmp = new unsigned char[len]; //this will boost it
 	do
 	{
-		int iResult = recv(this->socket, (char*)tmp, len, 0);
+		int iResult = recv(this->socket, (char*)tmp, len-read, 0);
 		if (iResult == 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
 		{
 			continue;
@@ -836,7 +836,7 @@ ustring socket_ustring::getUstring(int len)
 		}
 		if (len != read)
 			SLEEP(50);
-	} while (len != read);
+	} while (len > read);
 	delete[] tmp;
 	if (ret.empty())
 		return ustring();
