@@ -236,6 +236,9 @@ void NodeConnection::Close()
 		return;
 
 	this->state = 0;
+#ifdef LINUX
+	shutdown(this->Socket, SHUT_RDRW);
+#endif
 	// cleanup socket
     closesocket(this->Socket);
 }

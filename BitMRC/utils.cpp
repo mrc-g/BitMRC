@@ -777,7 +777,7 @@ string socket_ustring::getString(int len)
 		int iResult = recv(this->socket, (char*)tmp, len-read, 0);
 		if (iResult == 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
 		{
-			continue;
+			;
 		}
 		else if (iResult > 0)
 		{
@@ -816,7 +816,7 @@ ustring socket_ustring::getUstring(int len)
 		int iResult = recv(this->socket, (char*)tmp, len-read, 0);
 		if (iResult == 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
 		{
-			continue;
+			;
 		}
 		else if (iResult > 0)
 		{
