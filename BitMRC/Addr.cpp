@@ -570,13 +570,15 @@ ustring PubAddr::buildAddressFromKeys(ustring Skey, ustring Ekey, int stream, in
 	char * ret = new char[256];
 	size_t size;
 	if (!b58enc(ret, &size, tmp.c_str(), tmp.size()))
+	{
+		delete[] ret;
 		throw runtime_error("cannot encode base58");
-
+	}
 	ustring addr;
 	addr.fromString(string("BM-"));
 
 	addr.append((unsigned char*)ret, size-1);
-
+	delete[] ret;
 	return addr;
 }
 
