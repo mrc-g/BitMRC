@@ -28,8 +28,8 @@ public:
 	// todo: implement
 	int add_blacklist_entry(std::string ip, uint32_t ip_v);
 	// testing the detection on test vectors
-	int NodeBlacklist::test();
-	int NodeBlacklist::test_binaddr();
+	int test();
+	int test_binaddr();
 };
 
 #endif /* NODEBLACKLIST_H_ */

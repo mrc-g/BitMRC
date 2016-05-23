@@ -40,5 +40,7 @@ ExternalProject_Add(libcryptopp
 		STAMP_DIR ${CRYPTOPP_SRC}
 		)
 add_subdirectory(BitMRC)
-add_executable(dns trial/dns.cpp)
+if(${ENABLE_TESTS})
+  add_subdirectory(trial)
+endif()
 
