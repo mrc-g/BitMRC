@@ -116,15 +116,33 @@ int main()
 				else
 					printf("Address not correct!\n");
 			}
+			else if (!strcmp("broadcast", command))
+			{
+				printf("Insert a public address: ");
+				scanf("%s", command);
+				ustring addre;
+				addre.fromString(string(command));
+				PubAddr address;
+				bool loaded = address.loadAddr(addre);
+				if (loaded)
+				{
+					printf("Adding subscription!\n");
+					bitmrc.addSubscription(address);
+				}
+				else
+					printf("Address not correct!\n");
+			}
 		}
 		else if (!strcmp("check", command))
 		{
 			scanf("%s", command);
 			if (!strcmp("message", command))
 			{
-				//this should be done asynchronous because this will stuck this thread if no message is incoming
-				BitMRC::message mess = bitmrc.new_messages.pop();
-				printf("New message:\nFrom: %s\nTo: %s\nMessage:\n%s\n", mess.from.c_str(), mess.to.c_str(), mess.info.c_str());
+				while (bitmrc.new_messages.size() > 0)
+				{
+					BitMRC::message mess = bitmrc.new_messages.pop();
+					printf("New message:\nFrom: %s\nTo: %s\nMessage:\n%s\n", mess.from.c_str(), mess.to.c_str(), mess.info.c_str());
+				}
 			}
 			else if (!strcmp("connections", command))
 			{
@@ -188,7 +206,7 @@ int main()
 			printf("address generate random            generate a random address\n");
 			printf("address generate deterministic     generate a deterministic address\n");
 			printf("address public                     add public key\n");
-			printf("check message                      wait until a message is in the inbox and display it\n");
+			printf("check message					   print messages received\n");
 			printf("check connections                  display information about connection nodes\n");
 			printf("check privatekey                   display all the private addresses\n");
 			printf("check publickey                    display all the public addresses\n");

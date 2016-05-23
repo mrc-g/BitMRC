@@ -623,7 +623,7 @@ bool BitMRC::decryptMsg(packet_broadcast msg)
 		{
 			try
 			{
-				recovered = this->Subscriptions[address].decode(msg.objectPayload, this->Subscriptions[address].getTagE());
+				recovered = this->Subscriptions[address].decode(msg.encrypted, this->Subscriptions[address].getTagE());
 				decryptionSuccess = true;
 			}
 			catch (...)
@@ -637,7 +637,7 @@ bool BitMRC::decryptMsg(packet_broadcast msg)
 			{
 				try
 				{
-					recovered = this->Subscriptions[address].decode(msg.objectPayload, this->Subscriptions[address].getTagE());
+					recovered = this->Subscriptions[address].decode(msg.encrypted, this->Subscriptions[address].getTagE());
 					decryptionSuccess = true;
 				}
 				catch (...)
@@ -702,7 +702,8 @@ bool BitMRC::decryptMsg(packet_broadcast msg)
 			mess1.appendInt32(msg.message_payload.getInt32(j));
 			mess1.appendVarInt_B(msg.message_payload.getVarInt_B(j));
 			mess1.appendVarInt_B(msg.message_payload.getVarInt_B(j));
-
+			if (msg.version == 5)
+				mess1 += msg.tag;
 			string mess;
 
 			mess += mess1.toString();
