@@ -1,4 +1,4 @@
-#include "BitMRC.h"
+#include <BitMRC.h>
 #ifdef LINUX
 #include <string.h> /* memset */
 #include <sys/socket.h>
@@ -291,10 +291,11 @@ void BitMRC::getPubKey(PubAddr address)
 
 void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 {
+	//TODO: check fromAddr is not empty
 	if (toAddr.waitingPubKey())
 	{
 		this->getPubKey(toAddr); //TODO: make a system for key asked recently
-
+		
 		// Find the address in our pool, as the one we have is only a copy
 		PubAddr* target = nullptr;
 		for (auto i = this->PubAddresses.begin(); i != this->PubAddresses.end(); ++i)
@@ -335,7 +336,7 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 
 	packet.Time = ltime;
 
-	packet.objectType = 2;
+	packet.objectType = type_msg;
 	packet.Time = ltime;
 	packet.stream = fromAddr.getStream();
 	packet.version = 1;
@@ -422,9 +423,122 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 	msg.appendVarInt_B(sign.size());
 	msg.append((unsigned char*)sign.c_str(), sign.size());
 
-	ustring encrypted = fromAddr.encode(toAddr.getPubEncryptionKey(), privEKey, pubEKey, msg);
+	packet.objectPayload = fromAddr.encode(toAddr.getPubEncryptionKey(), privEKey, pubEKey, msg);
 	
-	packet.objectPayload = encrypted;
+
+	this->sendObj(packet, true);
+}
+
+void BitMRC::sendBroadcast(ustring message, Addr address)
+{
+	//TODO: check address is not empty
+	ustring pubE = address.getPubOfPriv(address.getTagE());
+
+	packet_broadcast packet;
+	
+	time_t ltime = std::time(nullptr);
+	std::uniform_int_distribution<int> distribution(-300, 300);
+	std::mt19937 engine;
+	std::random_device rd;
+	engine.seed(rd());
+	int random = distribution(engine);
+	time_t TTL = 4 * 24 * 60 * 60 + random; //4 days +- 5 min
+	ltime = ltime + TTL;
+
+	packet.Time = ltime;
+
+	packet.objectType = type_broadcast;
+	packet.Time = ltime;
+	packet.stream = address.getStream();
+	packet.version = 5; //broadcast version 5: included tag
+
+	packet.encodePayload();
+
+	OID CURVE = secp256k1();
+	AutoSeededRandomPool rng;
+
+	ECDH < ECP >::Domain dhA(CURVE);
+	//generating ephemeral key pair
+	SecByteBlock privA(dhA.PrivateKeyLength()), pubA(dhA.PublicKeyLength());
+
+	dhA.GenerateKeyPair(rng, privA, pubA);
+
+	ustring pubEKey;
+	pubEKey.append(pubA.data(), pubA.size());
+
+	ustring privEKey;
+	privEKey.append(privA.data(), privA.size());
+
+	ustring msg;
+	//msg.appendVarInt_B(1); //msg version
+	msg.appendVarInt_B(address.getVersion());
+	msg.appendVarInt_B(address.getStream());
+	msg.appendInt32(1);
+	msg.append(address.getPubSigningKey().c_str() + 1, 64);
+	msg.append(address.getPubEncryptionKey().c_str() + 1, 64);
+	if (address.getVersion() >= 3)
+	{
+		msg.appendVarInt_B(address.getNonce());
+		msg.appendVarInt_B(address.getExtra());
+	}
+	msg.appendVarInt_B(1); //message encoding 1: trivia no body or subject
+	msg.appendVarInt_B(message.size());
+	msg += message;
+
+	AutoSeededRandomPool prng;
+
+	ECDSA<ECP, SHA1>::PrivateKey privateKey;
+
+	Integer x;
+	x.Decode(address.getPrivSigningKey().c_str(), address.getPrivSigningKey().size());
+	privateKey.Initialize(CURVE, x);
+
+	ECDSA<ECP, SHA1>::Signer signer(privateKey);
+
+
+	string signature;
+	string mess;
+	ustring mess1;
+	unsigned int i = 8;
+	mess1.appendInt64(packet.message_payload.getInt64(i));
+	mess1.appendInt32(packet.message_payload.getInt32(i));
+	mess1.appendVarInt_B(packet.message_payload.getVarInt_B(i));
+	mess1.appendVarInt_B(packet.message_payload.getVarInt_B(i));
+	if (packet.version == 5)
+	{
+		packet.tag = address.getTag();
+		mess1 += packet.tag;
+	}
+
+	mess += mess1.toString();
+	mess += msg.toString();
+
+	StringSource ss(mess, true /*pump all*/,
+		new SignerFilter(prng,
+			signer,
+			new StringSink(signature)
+			) // SignerFilter
+		); // StringSource
+
+		   //DER encoding
+	Integer r, s;
+	StringStore store(signature);
+	r.Decode(store, signature.size() / 2);
+	s.Decode(store, signature.size() / 2);
+	string sign;
+	StringSink sink(sign);
+	DERSequenceEncoder seq(sink);
+	r.DEREncode(seq);
+	s.DEREncode(seq);
+	seq.MessageEnd();
+	//end conversion
+
+	msg.appendVarInt_B(sign.size());
+	msg.append((unsigned char*)sign.c_str(), sign.size());
+
+	packet.encrypted = address.encode(pubE, privEKey, pubEKey, msg);
+
+	packet.encodeObject();
 
 	this->sendObj(packet, true);
 }

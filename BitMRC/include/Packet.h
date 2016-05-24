@@ -543,14 +543,14 @@ public:
 class packet_broadcast : public object
 {
 public:
-	packet_broadcast(){}
+	packet_broadcast() {}
 
 	packet_broadcast(object obj)
 	{
 		this->magic = obj.magic;
-		strncpy(this->command, obj.command,12);
+		strncpy(this->command, obj.command, 12);
 		this->lenght = obj.lenght;
-		strncpy(this->checksum, obj.checksum,4);
+		strncpy(this->checksum, obj.checksum, 4);
 		this->message_payload = obj.message_payload;
 		this->nonce = obj.nonce;
 		this->Time = obj.Time;
@@ -560,7 +560,7 @@ public:
 		this->objectPayload = obj.objectPayload;
 		this->decodeObject();
 	}
-	
+
 	//tag 32 bytes
 	ustring tag;
 
@@ -582,6 +582,15 @@ public:
 
 	}
 
-	void encodeObject();
+	void encodeObject()
+	{
+		if (this->version == 4)
+			this->objectPayload = this->encrypted;
+		if (this->version == 5)
+		{
+			this->objectPayload = this->tag;
+			this->objectPayload += this->encrypted;
+		}
+	}
 };
 #endif

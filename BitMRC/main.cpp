@@ -25,6 +25,33 @@ int main()
 		scanf("%s", command);
 		if (!strcmp("quit", command))
 			break;
+		else if (!strcmp("sendb", command))
+		{
+			if (bitmrc.PrivAddresses.size() == 0)
+			{
+				printf("No private address\n");
+				continue;
+			}
+			for (unsigned int i = 0; i < bitmrc.PrivAddresses.size(); i++)
+			{
+				printf("[%d] Private key: %s\n", i, bitmrc.PrivAddresses[i].getAddress().c_str());
+			}
+			printf("Select from address: ");
+			unsigned int fro;
+			scanf("%d", &fro);
+			if (fro < 0 || fro >= bitmrc.PubAddresses.size())
+			{
+				printf("Incorrect selection\n");
+				continue;
+			}
+
+			ustring msg;
+			printf("Message to send:\n");
+			scanf("%s", command);
+			msg.fromString(command);
+			bitmrc.sendBroadcast(msg, bitmrc.PrivAddresses[fro]); //maybe this should be done in another thread
+			printf("Broadcast sent\n");
+		}
 		else if (!strcmp("send", command))
 		{
 			if (bitmrc.PrivAddresses.size() == 0)

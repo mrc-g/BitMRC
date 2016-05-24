@@ -62,6 +62,7 @@ public:
 	void getPubKey(PubAddr address);
 
 	void sendMessage(ustring message, PubAddr toAddr, Addr fromAddr);
+	void sendBroadcast(ustring message, Addr address);
 
 	//if only_inv is true this will only create the object, store it and propagate the inv
 	//else it will create the object, store it and send it

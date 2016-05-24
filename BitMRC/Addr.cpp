@@ -1106,20 +1106,21 @@ packet_pubkey Addr::encodePubKey()
 	plain.append((unsigned char*)sign.c_str(), sign.size());
 	
 	ECIES<ECP>::PrivateKey priv;
-	Integer e;
-	e.Decode(this->getTagE().c_str(), 32);
-	priv.Initialize(CURVE, e);
-	ECIES<ECP>::PublicKey pub;
-	priv.MakePublicKey(pub);
-	const ECP::Point& qq = pub.GetPublicElement();
-	string pubS;
-	StringSink sinkK(pubS);
-	qq.x.Encode(sinkK, 32);
-	qq.y.Encode(sinkK, 32);
+	ustring pubK = this->getPubOfPriv(this->getTagE());
+	//Integer e;
+	//e.Decode(this->getTagE().c_str(), 32);
+	//priv.Initialize(CURVE, e);
+	//ECIES<ECP>::PublicKey pub;
+	//priv.MakePublicKey(pub);
+	//const ECP::Point& qq = pub.GetPublicElement();
+	//string pubS;
+	//StringSink sinkK(pubS);
+	//qq.x.Encode(sinkK, 32);
+	//qq.y.Encode(sinkK, 32);
 
-	ustring pubK;
-	pubK += 0x04;
-	pubK.fromString(pubS);
+	//ustring pubK;
+	//pubK += 0x04;
+	//pubK.fromString(pubS);
 
 	ustring encoded = this->encode(pubK, privEKey, pubEKey, plain);
 	pubkey.tag = this->getTag();
