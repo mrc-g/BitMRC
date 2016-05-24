@@ -14,6 +14,7 @@ It uses crypto++ for cryptography so i included it.
 
 At this stage it can:
 + Read/send messages.
++ Read/send broadcasts.
 + Read/send pubkeys.
 + Save/load private addresses.
 + Save/load blocks.
@@ -27,7 +28,6 @@ At this stage it can:
 + There is a random delay when propagating inv different from node to node (0.1 to 2.1 sec) this should prevent some minor attacks
 
 But it cannot:
-+ Read/Send broadcast.
 + use a different elliptic curve different from 0x02CA (714).
 + It doesn't read/decrypt the messages already in the invenctory.
 + Can handle only v4 address and pubkey
