@@ -40,5 +40,10 @@ ExternalProject_Add(libcryptopp
 		STAMP_DIR ${CRYPTOPP_SRC}
 		)
 add_subdirectory(BitMRC)
-add_executable(dns trial/dns.cpp)
+#
+# todo: move this to ccmake config 
+# for now enable by cmake -DENABLE_TRIALS=1
+if(${ENABLE_TRIALS})
+  add_subdirectory(trial)
+endif()
 

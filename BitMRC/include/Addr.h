@@ -35,11 +35,11 @@ public:
 
 	//decode cipherText
 	//pubk will agree with privk on the shared key that will be used for aes
-	ustring PubAddr::decode(ustring data, ustring privK);
+	ustring decode(ustring data, ustring privK);
 
 	//encode plain
 	//return IV + CURVE (714 short) + public part of the privK (len X, X, len Y, Y) + cipherText + MAC
-	ustring PubAddr::encode(ustring pubKA, ustring privKB, ustring pubKB, ustring plain);
+	ustring encode(ustring pubKA, ustring privKB, ustring pubKB, ustring plain);
 
 	//get address BM-.....
 	//need keys to start with 0x04
@@ -96,7 +96,7 @@ class Addr : public PubAddr
 public:
 	Addr();
 
-	Addr::Addr(const Addr &that);
+	Addr(const Addr &that);
 
 	//load from keys and generate all the needed
 	bool loadKeys(ustring pubE, ustring pubS, ustring privE, ustring privS, int stream, int version);
