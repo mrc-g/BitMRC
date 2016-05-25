@@ -1046,15 +1046,15 @@ void BitMRC::load(string path)
 				{
 					PubAddr tmp;
 
-					bool waiting = reader.getInt8();
+					bool waiting = reader.getInt8() != 0;
 					ustring address = reader.getVarUstring_B();
 					tmp.loadAddr(address);
 					if (!waiting)
 					{
 						ustring pubE = reader.getVarUstring_B();
 						ustring pubS = reader.getVarUstring_B();
-						int nonce = reader.getVarInt_B();
-						int extra = reader.getVarInt_B();
+						int nonce = (int)reader.getVarInt_B();
+						int extra = (int)reader.getVarInt_B();
 
 						tmp.loadKeys(pubS, pubE, nonce, extra);
 					}

@@ -195,7 +195,7 @@ bool NodeConnection::Connect()
 		version.addr_recv.IPv6_4.appendInt8(arr[i]);
 	int port;
 	sscanf(this->Port.c_str(),"%i",&port);
-	version.addr_recv.port = (unsigned __int32)port;
+	version.addr_recv.port = (unsigned __int16)port;
 
 	version.addr_from.services = NODE_NETWORK;
 	char arr2[16] = {	(char)0x00,(char)0x00,(char)0x00,(char)0x00,(char)0x00,(char)0x00,(char)0x00,(char)0x00,
@@ -203,7 +203,7 @@ bool NodeConnection::Connect()
 	for(int i=0; i<16;i++)
 		version.addr_from.IPv6_4.appendInt8(arr2[i]);
 	sscanf(this->Port.c_str(),"%i",&port);
-	version.addr_from.port = (unsigned __int32)port;
+	version.addr_from.port = (unsigned __int16)port;
 
 	version.nonce = -5399599167942985965;
 	version.stream_numbers.appendInt8(1);
