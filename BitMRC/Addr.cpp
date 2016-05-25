@@ -568,7 +568,7 @@ ustring PubAddr::buildAddressFromKeys(ustring Skey, ustring Ekey, int stream, in
 
 	//convert to base58
 	char * ret = new char[256];
-	size_t size;
+	size_t size = 256;
 	if (!b58enc(ret, &size, tmp.c_str(), tmp.size()))
 	{
 		delete[] ret;
