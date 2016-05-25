@@ -230,6 +230,7 @@ int main()
 		else if (!strcmp("help", command))
 		{
 			printf("send                               send a message\n");
+			printf("sendb                              send a broadcast\n");
 			printf("address generate random            generate a random address\n");
 			printf("address generate deterministic     generate a deterministic address\n");
 			printf("address public                     add public key\n");
