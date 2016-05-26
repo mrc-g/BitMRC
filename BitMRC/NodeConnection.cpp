@@ -254,16 +254,14 @@ void NodeConnection::Sender()
 				Packet packet = Packets.pop();
 
 				packet.sendData(this->Socket);
-
-
-				std::uniform_int_distribution<int> distribution(0, 2000);
-				std::mt19937 engine;
-				std::random_device rd;
-				engine.seed(rd());
-				int random = distribution(engine);
-
-				SLEEP(100 + random); //this delay should prevent some attack
 			}
+			std::uniform_int_distribution<int> distribution(0, 2000);
+			std::mt19937 engine;
+			std::random_device rd;
+			engine.seed(rd());
+			int random = distribution(engine);
+
+			SLEEP(100 + random); //this delay should prevent some attack
 		}
 	}
 	catch (int e)
@@ -383,7 +381,7 @@ void NodeConnection::Listener()
 					}
 					
 					
-					if (this->bitmrc->sharedObj.searchByHash(tag).empty())
+					if (!this->bitmrc->sharedObj.present(tag))
 					{
 						needed.inventory.push_back(inv.inventory[i]);
 					}

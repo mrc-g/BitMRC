@@ -493,6 +493,27 @@ public:
 		}
 	}
 
+	//search the hash
+	//return:	1 if present
+	//			0 if not
+	int present(ustring hash)
+	{
+		int i = hash_f(hash);
+		std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);
+		linked_node * cur = this->Table[i];
+		while (cur != NULL)
+		{
+			if (cur->hash == hash)
+			{
+				mlock.unlock();
+				return 1;
+			}
+			cur = cur->next;
+		}
+		mlock.unlock();
+		return false;
+	}
+
 	T searchByHash(ustring hash)
 	{
 		int i = hash_f(hash);
