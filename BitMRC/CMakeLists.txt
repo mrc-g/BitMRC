@@ -2,7 +2,9 @@ project(BitMRC_Server CXX)
 cmake_minimum_required(VERSION 2.8)
 
 set(SRCS Addr.cpp base58.cpp BitMRC.cpp endian.cpp main.cpp 
-	NodeConnection.cpp packet.cpp pow.cpp utils.cpp NodeBlacklist.cpp)
+	NodeConnection.cpp packet.cpp pow.cpp utils.cpp NodeBlacklist.cpp
+	Storage/Unique_Key.cpp Storage/Storage_sqlite3.cpp Storage/Storage.cpp
+	)
 	
 find_library(CRYPTOPP_BASE 
 	NAMES libcryptopp.a
