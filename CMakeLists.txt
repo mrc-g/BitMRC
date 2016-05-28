@@ -5,7 +5,8 @@ set(CRYPTOPP_INC ${CMAKE_SOURCE_DIR}/libcryptopp)
 set(CRYPTOPP_SRC ${CMAKE_SOURCE_DIR}/libcryptopp)
 set(CMAKE_VERBOSE_MAKEFILE false)
  
-include_directories(/usr/local/include/cryptopp ${CMAKE_SOURCE_DIR}/BitMRC/include
+include_directories(/usr/local/include/cryptopp 
+	${CMAKE_SOURCE_DIR}/BitMRC/include ${CMAKE_SOURCE_DIR}/BitMRC/Storage/include
 	/usr/include/c++/4.9.3 /usr/include/c++)
 
 execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version OUTPUT_VARIABLE CXX_VER)
