@@ -27,6 +27,36 @@ INSERT INTO settings VALUES('version','10')''')
 INSERT INTO settings VALUES('lastvacuumtime',?)''', (
 CREATE TABLE objectprocessorqueue (objecttype int, data blob, UNIQUE(objecttype, data) ON CONFLICT REPLACE)''' )
 */
+#include <StorageInterface.h>
+#include <Storage_sqlite3.h>
+#include <vector>
+#include <iostream>
+vector<Storable *> Storage::storable_list;
+//vector<Storable *> Storage_sqlite3::storable_list ;
 
+Storage_sqlite3::Storage_sqlite3() {
+	storable_list.clear();
+}
+Storage_sqlite3::~Storage_sqlite3() {
+	cout << "Storage_sqlite3 destructor" << endl;
+}
 
+// methods needed by all Storage objects
+bool Storage_sqlite3::open(std::string path, std::string user, std::string password) {
+
+	return true;
+}
+bool Storage_sqlite3::close(Storage & obj_in) {
+	return true;
+}
+void Storage_sqlite3::flush(Storage & obj_in) {
+
+}
+bool Storage_sqlite3::register_storable(Storable * object) {
+	// add the ref to the vector for further use. all storables using the storage must
+	// have been registered.
+	cout << "Storage_sqlite3 %s" << __func__ << endl;
+
+	return true;
+}
 
