@@ -1,16 +1,26 @@
 # BitMRC
 A simple bitmessage client implementation written in c++
 
-Linux:
+It uses crypto++ for cryptography so i included it.
+
+For discussion we have a bitmessage chan:
+
+Name: BitMRC-Development-Talk
+
+Address: BM-2cVxGMPpzu1WwnpUwAvcy9aQpuS9deouky
+
+
+##### Compile:
+###### Linux:
 ```
 #cmake .
 #make
 ```
 if not working because of linking try ./doMakeLinux.sh
 
-Windows: compile with Visual Studio
+###### Windows:
 
-It uses crypto++ for cryptography so i included it.
+compile with Visual Studio
 
 At this stage it can:
 + Read/send messages.
