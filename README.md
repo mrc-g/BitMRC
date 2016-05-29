@@ -41,4 +41,4 @@ But it cannot:
 + use a different elliptic curve different from 0x02CA (714).
 + It doesn't read/decrypt the messages already in the invenctory.
 + Can handle only v4 address and pubkey
-+ It doesn't use ack at all
++ It only resend ack but it does not use it
