@@ -286,7 +286,7 @@ void BitMRC::getPubKey(PubAddr address)
 
 	obj.Time = ltime;
 
-	this->sendObj(obj, true);
+	this->sendObj(obj);
 }
 
 void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
@@ -426,7 +426,7 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 	packet.objectPayload = fromAddr.encode(toAddr.getPubEncryptionKey(), privEKey, pubEKey, msg);
 	
 
-	this->sendObj(packet, true);
+	this->sendObj(packet);
 }
 
 void BitMRC::sendBroadcast(ustring message, Addr address)
@@ -540,17 +540,17 @@ void BitMRC::sendBroadcast(ustring message, Addr address)
 
 	packet.encodeObject();
 
-	this->sendObj(packet, true);
+	this->sendObj(packet);
 }
 
-void BitMRC::sendObj(object obj, bool only_inv)
+void BitMRC::sendObj(object obj)
 {
 	obj.nonce = 0;
 
 	memset(obj.command, 0x00, sizeof obj.command);
 	strncpy(obj.command, "object",7);
 
-	obj.encodePayload();
+	obj.encodePayload(); //time should be already 
 
 	unsigned __int64 nonce = searchPow(obj.message_payload, obj.Time);
 
@@ -558,20 +558,32 @@ void BitMRC::sendObj(object obj, bool only_inv)
 
 	obj.encodePayload();
 
-	if (only_inv)
-	{//wont send it just propagate the inv
-		ustring invHash = this->inventoryHash(obj.message_payload);
-		int present = this->sharedObj.insert(obj.message_payload, invHash);
+	this->propagate(obj);
+}
 
-		sTag tag;
-		memcpy(tag.ch, invHash.c_str(), 32);
-		
-		this->new_inv.push(tag);
-	}
-	else
-	{//send it
-		this->send(obj);
-	}
+void BitMRC::propagate(object obj)
+{
+	if (obj.message_payload.length() > UINT64_C(0x40000)) //2^16
+		return;
+
+	if (!checkPow(obj.message_payload, obj.Time))
+		return;
+
+	time_t ltime = std::time(nullptr);
+
+	if (obj.Time - ltime > 28 * 24 * 60 * 60 + 10800)
+		return;
+
+	if (obj.Time - ltime < -3600)
+		return;
+
+	ustring invHash = this->inventoryHash(obj.message_payload);
+	int present = this->sharedObj.insert(obj.message_payload, invHash);
+
+	sTag tag;
+	memcpy(tag.ch, invHash.c_str(), 32);
+
+	this->new_inv.push(tag);
 }
 
 void BitMRC::send(Packet packet)
@@ -691,6 +703,10 @@ bool BitMRC::decryptMsg(packet_msg msg)
 
 			if (result)
 			{
+				//propagate ack
+				Packet ack(AckData);
+				this->propagate(ack);
+
 				//storing it
 				BitMRC::message Mess;
 

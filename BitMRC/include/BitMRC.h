@@ -64,10 +64,12 @@ public:
 	void sendMessage(ustring message, PubAddr toAddr, Addr fromAddr);
 	void sendBroadcast(ustring message, Addr address);
 
-	//if only_inv is true this will only create the object, store it and propagate the inv
-	//else it will create the object, store it and send it
-	void sendObj(object payload, bool only_inv);
+	void sendObj(object payload);
 
+	//check and propagate the inv intead of sending the obj directly
+	void propagate(object obj);
+
+	//send the packet directly
 	void send(Packet packet);
 
 	bool decryptMsg(packet_msg msg);

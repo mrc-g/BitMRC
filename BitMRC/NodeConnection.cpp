@@ -418,6 +418,7 @@ void NodeConnection::Listener()
 				}
 			}else if(!strcmp(packet.command,"object"))
 			{
+				//TODO optimize the object why should be copied the data all the time?
 				object obj(packet);
 				bool check = checkPow(obj.message_payload, obj.Time);
 
@@ -444,7 +445,7 @@ void NodeConnection::Listener()
 							if (getpubkey.tag == tag)
 							{
 								if(this->bitmrc->PrivAddresses[i].getLastPubKeyRequest() + 60 * 60 * 24 * 4 < time(NULL))
-									this->bitmrc->sendObj(this->bitmrc->PrivAddresses[i].encodePubKey(),true);
+									this->bitmrc->sendObj(this->bitmrc->PrivAddresses[i].encodePubKey());
 								//else
 									//printf("PubKey already shared recently");
 							}

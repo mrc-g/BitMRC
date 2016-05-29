@@ -81,6 +81,8 @@ class Packet
 public:
 	Packet(){}
 
+	Packet(ustring data);
+
 	//magic
 	unsigned __int32	magic;
 
@@ -103,6 +105,7 @@ public:
 	void sendData(SOCK_TYPE socket);
 
 	bool setChecksum_Lenght_Magic();
+
 };
 
 class packet_version : public Packet

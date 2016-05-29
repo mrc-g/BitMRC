@@ -1,5 +1,14 @@
 #include "Packet.h"
 #include <types.h>
+Packet::Packet(ustring data)
+{
+	unsigned int i = 0;
+	this->magic = data.getInt32(i);
+	strncpy(this->command, data.getString(12, i).c_str(),12);
+	this->lenght = data.getInt32(i);
+	strncpy(this->checksum, data.getString(4,i).c_str(),4);
+	this->message_payload = data.getRest(i);
+}
 void Packet::getCommand(SOCK_TYPE socket)
 {
 	socket_ustring connection;
