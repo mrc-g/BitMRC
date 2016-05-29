@@ -42,3 +42,4 @@ But it cannot:
 + It doesn't read/decrypt the messages already in the invenctory.
 + Can handle only v4 address and pubkey
 + It only resend ack but it does not use it
++ It doesn't support ipv6
