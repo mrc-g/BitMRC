@@ -59,6 +59,8 @@ public:
 
 	void start();
 
+	void processObj(object obj);
+
 	void getPubKey(PubAddr address);
 
 	void sendMessage(ustring message, PubAddr toAddr, Addr fromAddr);

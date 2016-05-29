@@ -146,6 +146,82 @@ void BitMRC::start()
 	this->thread_init = thread(&BitMRC::init, this);
 }
 
+void BitMRC::processObj(object obj)
+{
+	bool check = checkPow(obj.message_payload, obj.Time);
+
+	//if not ignore
+	if (check)
+	{
+		ustring invHash = this->inventoryHash(obj.message_payload);
+		int present = this->sharedObj.insert(obj.message_payload, invHash);
+		if (present == 2)
+			return; //exit because this object is already analized
+		sTag tag;
+		memcpy(tag.ch, invHash.c_str(), 32);
+
+		this->new_inv.push(tag);
+
+		if (obj.objectType == type_getpubkey)
+		{
+			packet_getpubkey getpubkey(obj);
+
+			std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_priv);
+
+			for (unsigned int i = 0; i < this->PrivAddresses.size(); i++)
+			{
+				ustring tag = this->PrivAddresses[i].getTag();
+				if (getpubkey.tag == tag)
+				{
+					if (this->PrivAddresses[i].getLastPubKeyRequest() + 60 * 60 * 24 * 4 < time(NULL))
+						this->sendObj(this->PrivAddresses[i].encodePubKey());
+					//else
+					//printf("PubKey already shared recently");
+				}
+			}
+
+			mlock.unlock();
+		}
+		else if (obj.objectType == type_pubkey)
+		{
+			packet_pubkey pubkey(obj);
+
+			std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_pub);
+
+			for (unsigned int i = 0; i < this->PubAddresses.size(); i++)
+			{
+				if (!this->PubAddresses[i].waitingPubKey())
+					continue;
+				ustring tag = this->PubAddresses[i].getTag();
+				if (pubkey.tag == tag)
+				{
+					this->PubAddresses[i].decodeFromObj(pubkey);
+				}
+			}
+
+			mlock.unlock();
+		}
+		else if (obj.objectType == type_msg)
+		{
+			packet_msg msg(obj);
+
+			if (this->decryptMsg(msg)) //it takes like 1-4 milliseconds
+			{
+				//printf("Message accepted\n");
+			}
+		}
+		else if (obj.objectType == type_broadcast)
+		{
+			packet_broadcast broadcast(obj);
+
+			if (this->decryptMsg(broadcast))
+			{
+				//printf("broadcast decrypted\n");
+			}
+		}
+	}
+}
+
 void BitMRC::connectNode(NodeConnection *node)
 {
 	if (node != NULL)
@@ -1009,33 +1085,6 @@ void BitMRC::load(string path)
 	FILE * kFile = fopen("keys.dat", "rb");
 
 	file_ustring reader;
-	if (pFile)
-	{
-		reader.setFile(pFile);
-		time_t ltime = std::time(nullptr);
-		try {
-			while (!feof(pFile))
-			{
-
-				ustring tagS = reader.getUstring(32);
-				ustring infoS = reader.getVarUstring_B();
-
-				object obj;
-				obj.message_payload = infoS;
-
-				obj.decodeData();
-
-				if (ltime < obj.Time)
-					this->sharedObj.insert(infoS, tagS);
-			}
-		}
-		catch (...)
-		{
-			//nothing just cant read any more blocks
-			//or currupted obj
-		}
-		fclose(pFile);
-	}
 	if (kFile)
 	{
 		reader.setFile(kFile);
@@ -1083,6 +1132,36 @@ void BitMRC::load(string path)
 			//nothing just end of file or nothing can do
 		}
 		fclose(kFile);
+	}
+	if (pFile)
+	{
+		reader.setFile(pFile);
+		time_t ltime = std::time(nullptr);
+		try {
+			while (!feof(pFile))
+			{
+
+				ustring tagS = reader.getUstring(32);
+				ustring infoS = reader.getVarUstring_B();
+
+				object obj;
+				obj.message_payload = infoS;
+
+				obj.decodeData();
+
+				if (ltime < obj.Time)
+				{
+					//processObj(obj); //process this message would take too much time (instant vs 30 sec)
+					this->sharedObj.insert(infoS, tagS);
+				}
+			}
+		}
+		catch (...)
+		{
+			//nothing just cant read any more blocks
+			//or currupted obj
+		}
+		fclose(pFile);
 	}
 }
 

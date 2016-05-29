@@ -293,6 +293,7 @@ void NodeConnection::Listener()
 				packet.sendData(this->Socket); //resending it
 			}else if(!strcmp(packet.command,"version"))
 			{
+				//TODO optimize the object why should be copied the data all the time?
 				packet_version version(packet);
 				this->Version = version.version;
 			}else if(!strcmp(packet.command,"verack"))
@@ -418,81 +419,8 @@ void NodeConnection::Listener()
 				}
 			}else if(!strcmp(packet.command,"object"))
 			{
-				//TODO optimize the object why should be copied the data all the time?
-				object obj(packet);
-				bool check = checkPow(obj.message_payload, obj.Time);
-
-				//if not ignore
-				if (check)
-				{
-					ustring invHash = this->bitmrc->inventoryHash(obj.message_payload);
-					int present = this->bitmrc->sharedObj.insert(obj.message_payload, invHash);
-					
-					sTag tag;
-					memcpy(tag.ch, invHash.c_str(), 32);
-
-					this->bitmrc->new_inv.push(tag);
-
-					if (obj.objectType == type_getpubkey)
-					{
-						packet_getpubkey getpubkey(obj);
-						
-						std::shared_lock<std::shared_timed_mutex> mlock(this->bitmrc->mutex_priv);
-
-						for (unsigned int i = 0; i < this->bitmrc->PrivAddresses.size(); i++)
-						{
-							ustring tag = this->bitmrc->PrivAddresses[i].getTag();
-							if (getpubkey.tag == tag)
-							{
-								if(this->bitmrc->PrivAddresses[i].getLastPubKeyRequest() + 60 * 60 * 24 * 4 < time(NULL))
-									this->bitmrc->sendObj(this->bitmrc->PrivAddresses[i].encodePubKey());
-								//else
-									//printf("PubKey already shared recently");
-							}
-						}
-
-						mlock.unlock();
-					}
-					else if (obj.objectType == type_pubkey)
-					{
-						packet_pubkey pubkey(obj);
-
-						std::shared_lock<std::shared_timed_mutex> mlock(this->bitmrc->mutex_pub);
-
-						for (unsigned int i = 0; i < this->bitmrc->PubAddresses.size(); i++)
-						{
-							if (!this->bitmrc->PubAddresses[i].waitingPubKey())
-								continue;
-							ustring tag = this->bitmrc->PubAddresses[i].getTag();
-							if (pubkey.tag == tag)
-							{
-								this->bitmrc->PubAddresses[i].decodeFromObj(pubkey);
-							}
-						}
-
-						mlock.unlock();
-					}
-					else if (obj.objectType == type_msg)
-					{
-						packet_msg msg(obj);
-
-						if (this->bitmrc->decryptMsg(msg)) //it takes like 1-4 milliseconds
-						{
-							//printf("Message accepted\n");
-						}
-					}
-					else if (obj.objectType == type_broadcast)
-					{
-						packet_broadcast broadcast(obj);
-
-						if (this->bitmrc->decryptMsg(broadcast))
-						{
-							//printf("broadcast decrypted\n");
-						}
-					}
-				}
+				this->bitmrc->processObj(packet);
 			}
-			
 		}
 	}catch(int e)
 	{
