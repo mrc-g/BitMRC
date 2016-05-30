@@ -26,6 +26,8 @@ git submodule update
 ```
 then compile with visual studio and convert if necessary
 
+##### Functionality:
+
 At this stage it can:
 + Read/send messages.
 + Read/send broadcasts.
