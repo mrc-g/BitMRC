@@ -1,7 +1,7 @@
 # BitMRC
 A simple bitmessage client implementation written in c++
 
-It uses crypto++ for cryptography so i included it.
+It uses crypto++ for cryptography so i included the submodule.
 
 For discussion we have a bitmessage chan:
 
