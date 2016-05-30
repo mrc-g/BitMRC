@@ -18,9 +18,13 @@ Address: BM-2cVxGMPpzu1WwnpUwAvcy9aQpuS9deouky
 ```
 if not working because of linking try ./doMakeLinux.sh
 
-###### Windows:
-
-compile with Visual Studio
+###### Windows (Visual Studio):
+open command prompt
+```
+git submodule init
+git submodule update
+```
+then compile with visual studio and convert if necessary
 
 At this stage it can:
 + Read/send messages.
