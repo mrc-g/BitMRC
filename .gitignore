@@ -16,3 +16,8 @@
 *.ipdb
 *.ilk
 *.suo
+*.dat
+*.exe
+/BitMRC/save
+*.db
+/UpgradeLog.htm
