@@ -22,13 +22,11 @@
 #ifndef STORAGEINTERFACE_H_
 #define STORAGEINTERFACE_H_
 
-class Storable;
-
 using namespace std;
 
 #include <string>
 #include <vector>
-#include <Unique_Key.h>
+#include <Storage/Unique_Key.h>
 
 class Storable;
 

@@ -7,8 +7,8 @@
  *      Storage backend for sqlite3 flat file db
  *
  */
-#include <StorageInterface.h>
-#include <Storage_sqlite3.h>
+#include <Storage/StorageInterface.h>
+#include <Storage/Storage_sqlite3.h>
 /*
  * this has been taken from pybitmessage 0.5.8
 CREATE TABLE inbox (msgid blob, toaddress text, fromaddress text, subject text, received text, message text, folder text, encodingtype int, read bool, sighash blob, UNIQUE(msgid) ON CONFLICT REPLACE)''' )
@@ -27,14 +27,45 @@ INSERT INTO settings VALUES('version','10')''')
 INSERT INTO settings VALUES('lastvacuumtime',?)''', (
 CREATE TABLE objectprocessorqueue (objecttype int, data blob, UNIQUE(objecttype, data) ON CONFLICT REPLACE)''' )
 */
-#include <StorageInterface.h>
-#include <Storage_sqlite3.h>
 #include <vector>
 #include <iostream>
-vector<Storable *> Storage::storable_list;
-//vector<Storable *> Storage_sqlite3::storable_list ;
+#include <mutex>
+#include <stdint.h>
+#include <sqlite3.h> /** need to use: packages libsqlite3-dev and sqlite3 on linux */
 
+vector<Storable *> Storage::storable_list;
+
+/** \brief helper for determining if passed int value is an sqlite3 error code
+ *
+ */
+static int Storage_sqlite3::is_sqlite_error(int errin) {
+
+	return 0;
+}
+/** \brief the needed callback function
+ *
+ */
+static int Storage_sqlite3::q_callback(void* param ,int count, char** keys, char** values) {
+
+	return 0;
+}
+void Storage_sqlite3::close() {
+	if (db!=NULL)
+		sqlite3_close(db);
+}
+
+/** \brief init the client data module
+ * this also includes the sqlite-backend for the client
+ *
+ */
+uint32_t Storage_sqlite3::init() {
+	db = NULL;
+	return 0;
+}
+/** \brief
+ */
 Storage_sqlite3::Storage_sqlite3() {
+	init();
 	storable_list.clear();
 }
 Storage_sqlite3::~Storage_sqlite3() {

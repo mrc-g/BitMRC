@@ -17,6 +17,10 @@ Address: BM-2cVxGMPpzu1WwnpUwAvcy9aQpuS9deouky
 #make
 ```
 if not working because of linking try ./doMakeLinux.sh
+install packages :
+- g++ >= 4.9
+- libsqlite3-dev
+- qlite3
 
 ###### Windows (Visual Studio):
 open command prompt
