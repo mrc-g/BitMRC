@@ -1,5 +1,5 @@
 project(BitMRC CXX)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.11) # 2.8.11 learned target_include_directories
 include(GNUInstallDirs)
 set(CRYPTOPP_INC ${CMAKE_SOURCE_DIR}/libcryptopp)
 set(CRYPTOPP_SRC ${CMAKE_SOURCE_DIR}/libcryptopp)
