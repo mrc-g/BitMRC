@@ -17,6 +17,19 @@ Address: BM-2cVxGMPpzu1WwnpUwAvcy9aQpuS9deouky
 #make
 ```
 if not working because of linking try ./doMakeLinux.sh
+<<<<<<< HEAD
+=======
+
+install packages :
+- cmake >= 2.8.11
+  see http://askubuntu.com/questions/610291/how-to-install-cmake-3-2-on-ubuntu-14-04
+- g++ >= 4.9
+  see http://askubuntu.com/questions/428198/getting-installing-gcc-g-4-9-on-ubuntu for ubuntu/mint etc.
+- libsqlite3-dev
+- libvsqlitepp3
+- sqlite3
+- libcpptest-dev
+>>>>>>> 7a70716... clarify installation requirements
 
 ###### Windows (Visual Studio):
 open command prompt
