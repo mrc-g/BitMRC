@@ -17,8 +17,6 @@ Address: BM-2cVxGMPpzu1WwnpUwAvcy9aQpuS9deouky
 #make
 ```
 if not working because of linking try ./doMakeLinux.sh
-<<<<<<< HEAD
-=======
 
 install packages :
 - cmake >= 2.8.11
@@ -29,7 +27,6 @@ install packages :
 - libvsqlitepp3
 - sqlite3
 - libcpptest-dev
->>>>>>> 7a70716... clarify installation requirements
 
 ###### Windows (Visual Studio):
 open command prompt
