@@ -13,8 +13,12 @@ Address: BM-2cVxGMPpzu1WwnpUwAvcy9aQpuS9deouky
 ##### Compile:
 ###### Linux:
 ```
-#cmake .
-#make
+# cmake . -DENABLE_TESTS
+(if you want the tests to be compiled)
+# cmake . #
+(otherwise)
+
+# make
 ```
 if not working because of linking try ./doMakeLinux.sh
 
