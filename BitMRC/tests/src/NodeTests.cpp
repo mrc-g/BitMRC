@@ -13,6 +13,13 @@
 #include <NodeBlacklist.h>
 class NodeTest : public Test::Suite
 {
+
+private:
+    void init_test();
+	void BlacklistTest();
+	void BlacklistTestBin();
+    //void second_test();
+	NodeBlacklist * bl;
 public:
     NodeTest()
     {
@@ -24,12 +31,6 @@ public:
     ~NodeTest() {
     	delete bl;
     }
-private:
-    void init_test();
-	void BlacklistTest();
-	void BlacklistTestBin();
-    //void second_test();
-	NodeBlacklist * bl;
 };
 void NodeTest::init_test()
 {

@@ -14,4 +14,6 @@ message("CRYPTOPP_BASE is ${CRYPTOPP_BASE}")
 add_executable(BitMRC ${SRCS})
 target_link_libraries(BitMRC cryptopp pthread)
 
-add_subdirectory(tests)
+if(${ENABLE_TESTS})
+	add_subdirectory(tests)
+endif()
