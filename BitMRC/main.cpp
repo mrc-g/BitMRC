@@ -46,9 +46,14 @@ int main()
 			}
 
 			ustring msg;
-			printf("Message to send:\n");
-			scanf("%s", command);
-			msg.fromString(command);
+			msg.clear();
+			printf("Message to send [terminate with a single '.']:\n");
+			command[0]='\0';
+			do {
+				scanf("%s", command);
+				msg.append(command);
+			} while( (strlen(command) >= 2) || (strcmp(".", command)!=0) );
+
 			bitmrc.sendBroadcast(msg, bitmrc.PrivAddresses[fro]); //maybe this should be done in another thread
 			printf("Broadcast sent\n");
 		}
