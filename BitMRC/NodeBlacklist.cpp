@@ -213,7 +213,6 @@ int NodeBlacklist::is_blacklisted(struct addrinfo * ai, int family) {
 	case AF_INET: // do ip4 address conversion
 		struct in_addr ip4_in, ip4_black;
 		while(bl->netaddr_version != 0 && ret>=0) {
-			//printf("%s : check %s\n", __func__, bl->addr);
 			ret = inet_pton(family, (char*)bl->addr, (void*) &ip4_black);
 			if(ret >0) {
 				count++;
@@ -222,7 +221,7 @@ int NodeBlacklist::is_blacklisted(struct addrinfo * ai, int family) {
 					break;
 				}
 			} else {
-				printf("%s : conversion failed\n", __func__);
+				//log( ERROR "%s : conversion failed\n", __func__);
 			}
 		bl++;
 		}
@@ -231,7 +230,7 @@ int NodeBlacklist::is_blacklisted(struct addrinfo * ai, int family) {
 		struct in6_addr ip6_in, ip6_black;
 		break;
 	}
-	printf("bintest:checkd %u elements\n",count);
+
 	return fret;
 }
 /** \brief add a blacklist entry
