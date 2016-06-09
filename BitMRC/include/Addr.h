@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef _ADDR
 #define _ADDR
 #include "utils.h"
@@ -7,18 +7,20 @@
 
 class Addr;
 class PubAddr;
-
+class Unique_Key;
 
 #include <cryptlib.h>
 #include <dsa.h>
 #include <sha.h>
 #include <hex.h>
-#include <Storage/StorageInterface.h>
+
 #include <Storage/Unique_Key.h>
+#include <Storage/Storable.h>
+#include <Storage/Storage.h>
 
 using namespace std;
-
-class PubAddr : public Storable {
+// : public virtual Storable
+class PubAddr {
 public:
 	PubAddr();
 	PubAddr(const PubAddr &that);
@@ -58,9 +60,8 @@ public:
 	ustring getTagE();
 	time_t getLastPubKeyRequest();
 	void setLastPubKeyRequest(time_t time);
-public:
-	/* Storable class methods */
-	Unique_Key & calc_key(Storable & object_in);
+
+	Unique_Key calc_key(Storable & object_in);
 	bool query(Unique_Key &uq_key_in, string & data_out);
 	bool store(Storable & object_in, Unique_Key & key_out);
 	bool delete_storable(Storable & object_in);

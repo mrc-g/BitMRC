@@ -8,6 +8,8 @@
  *
  */
 #include <Storage/StorageInterface.h>
+#include <Storage/Storable.h>
+#include <Storage/Storage.h>
 #include <Storage/Storage_sqlite3.h>
 /*
  * this has been taken from pybitmessage 0.5.8

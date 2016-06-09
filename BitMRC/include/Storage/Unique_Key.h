@@ -5,10 +5,10 @@
  *      Author: steady286
  *      unique key class for use w/ Storage/Storable
  */
-#include <Addr.h>
-
 #ifndef UNIQUE_KEY_H_
 #define UNIQUE_KEY_H_
+
+#include <Addr.h>
 
 class Unique_Key {
 public:
