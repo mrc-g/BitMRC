@@ -1,49 +1,68 @@
 @startuml
 /' use "plantuml" to compile '/
-title Client/Server interaction
+title BitMRC functional interaction chart (incomplete)
+
+
 
 box "BitMRC" #LightBlue
 participant Main as M
-participant Connections as C
+participant ThreadPool as TP
+participant Storage as ST
+end box
+
+box "DataRepresentation"
+participant NodeConn as C
 participant Messages as MS
-participant Services as S
+participant Addr as AD
+participant Jobs as JB
+participant Packet as PACK
 end box
 
-box "DataStorage"
-participant Main as DSM
-participant InQ
-participant OutQ
+box "DataDistribution"
+participant NetIn as NI
+participant NetOut as NO
+participant InQ as INQ
+participant OutQ as OUTQ
 end box
 
-activate M
-M --> C : init()
-M --> MS : init()
-M --> S : init()
+M --> M : DataRepresentation_init()
+M --> TP : init() ... start ()
+TP --> NI : start() (Net listener)
+activate NI
+TP --> JB : start() (Job Processor)
+activate JB
+TP --> NO : start() (Net output)
+activate NO
+NI --> NI : accept()
+NI --> PACK : new()
+NI --> INQ : add(EVENT evt)
+NI --> JB : signal()
+JB --> INQ : evt = get_job()
+JB --> JB : process()
+group is_an_address
 
-M --> C :  startThreads()
-activate C
-C --> C : connect()
-C --> C : run()
-C --> C : accept()
-C --> S : validate()
-C --> C : add/delete
-C --> C : receive()
-C --> InQ : add()
-deactivate C
+AD --> AD : store()
+end
+group is_a_message
+JB --> MS : process()
+JB --> MS : store()
+ group is_broadcast
+MS --> JB : new(EVENT bcast)
+MS --> OUTQ : add(bcast)
+ end
+MS --> JB : new(EVENT ack)
+MS --> OUTQ : add(ack)
 
-M --> MS :  startThreads()
-activate MS
-MS --> MS : accept()
-MS --> MS : run()
-deactivate C
+NO --> OUTQ : evt = get_job()
+NO --> MS : process()
+NO --> NO : send() 
+end
 
-MS --> InQ : wait()
-MS --> MS : process()
-MS --> S : validate()
-MS --> S : decode()
+deactivate NI
 
-M --> C : send()
-deactivate M
+
+
+
 
 
 @enduml

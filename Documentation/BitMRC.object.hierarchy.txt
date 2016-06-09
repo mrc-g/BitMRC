@@ -1,0 +1,66 @@
+@startuml
+/' use "plantuml" to compile '/
+title BitMRC class diagram
+
+
+class Storage {
+	+Storage()
+	+~Storage()
+	+virtual bool register_storable(Storable * object) 
+	+virtual Storage * new_Storage()
+	+virtual bool open(std::string path, std::string user, std::string password)
+	+virtual bool close(Storage &) 
+	+virtual void flush(Storage &)
+	+virtual Storable & find_by_key(Unique_Key &)
+	#static vector<Storable *> storable_list 
+}
+class SQLiteStorage {
+	+bool register_storable(Storable * object) 
+	+Storage * new_Storage()
+	+bool open(std::string path, std::string user, std::string password)
+	+bool close(Storage &) 
+	+void flush(Storage &)
+}
+class MySQLStorage {
+	+bool register_storable(Storable * object) 
+	+Storage * new_Storage()
+	+bool open(std::string path, std::string user, std::string password)
+	+bool close(Storage &) 
+	+void flush(Storage &)
+	+Storable & find_by_key(Unique_Key &)
+}
+class Storable {
+	+virtual  Unique_Key & calc_key(Storable & object_in);
+	+virtual  bool query(Unique_Key &uq_key_in, string & data_out);
+	+virtual  bool store(Storable & object_in, Unique_Key & key_out);
+	+virtual  bool delete_storable(Storable & object_in);
+	+virtual  bool delete_storable(Unique_Key & key_in);	
+	+Storable & find_by_key(Unique_Key &)
+}
+class Addr {
+}
+class Packet {
+}
+class NodeConnection {
+}
+class Unique_Key {
+	+Unique_Key()
+	+~Unique_Key()
+	#std::string key;
+	+bool create_from_addr(Addr &);
+	+bool operator==(Addr &);
+}
+note right of Unique_Key
+we may extend this to allow operation on all other Storables as well
+end note
+Storable <|-- Addr
+Storable <|-- Packet
+Storable <|-- NodeConnection
+Storage <|-- SQLiteStorage
+Storage <|-- MySQLStorage
+Unique_Key -- Storable : use
+Storable -- Storage : register
+note top of Storage
+registered Storables may be saved via its store() method
+end note 
+@enduml
