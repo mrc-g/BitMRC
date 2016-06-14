@@ -8,6 +8,8 @@ SET(CMAKE_DEPENDS_CHECK_CXX
   "/home/blueboxes/Projects/BitMRC/BitMRC/BitMRC.cpp" "/home/blueboxes/Projects/BitMRC/BitMRC/CMakeFiles/BitMRC.dir/BitMRC.cpp.o"
   "/home/blueboxes/Projects/BitMRC/BitMRC/NodeBlacklist.cpp" "/home/blueboxes/Projects/BitMRC/BitMRC/CMakeFiles/BitMRC.dir/NodeBlacklist.cpp.o"
   "/home/blueboxes/Projects/BitMRC/BitMRC/NodeConnection.cpp" "/home/blueboxes/Projects/BitMRC/BitMRC/CMakeFiles/BitMRC.dir/NodeConnection.cpp.o"
+  "/home/blueboxes/Projects/BitMRC/BitMRC/Storage/Storage_sqlite3.cpp" "/home/blueboxes/Projects/BitMRC/BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o"
+  "/home/blueboxes/Projects/BitMRC/BitMRC/Storage/Unique_Key.cpp" "/home/blueboxes/Projects/BitMRC/BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o"
   "/home/blueboxes/Projects/BitMRC/BitMRC/base58.cpp" "/home/blueboxes/Projects/BitMRC/BitMRC/CMakeFiles/BitMRC.dir/base58.cpp.o"
   "/home/blueboxes/Projects/BitMRC/BitMRC/endian.cpp" "/home/blueboxes/Projects/BitMRC/BitMRC/CMakeFiles/BitMRC.dir/endian.cpp.o"
   "/home/blueboxes/Projects/BitMRC/BitMRC/main.cpp" "/home/blueboxes/Projects/BitMRC/BitMRC/CMakeFiles/BitMRC.dir/main.cpp.o"
@@ -30,6 +32,7 @@ SET(CMAKE_TARGET_LINKED_INFO_FILES
 SET(CMAKE_C_TARGET_INCLUDE_PATH
   "/usr/local/include/cryptopp"
   "BitMRC/include"
+  "BitMRC/Storage/include"
   "/usr/include/c++/4.9.3"
   "/usr/include/c++"
   )

@@ -14,7 +14,7 @@ find_library(CRYPTOPP_BASE
 message("CRYPTOPP_BASE is ${CRYPTOPP_BASE}")
 	
 add_executable(BitMRC ${SRCS})
-target_link_libraries(BitMRC cryptopp pthread)
+target_link_libraries(BitMRC cryptopp pthread sqlite3)
 
 if(${ENABLE_TESTS})
 	add_subdirectory(tests)

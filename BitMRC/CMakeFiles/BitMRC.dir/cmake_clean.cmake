@@ -9,6 +9,8 @@ FILE(REMOVE_RECURSE
   "CMakeFiles/BitMRC.dir/pow.cpp.o"
   "CMakeFiles/BitMRC.dir/utils.cpp.o"
   "CMakeFiles/BitMRC.dir/NodeBlacklist.cpp.o"
+  "CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o"
+  "CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o"
   "BitMRC.pdb"
   "BitMRC"
 )
