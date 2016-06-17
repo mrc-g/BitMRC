@@ -32,6 +32,16 @@ install packages :
 - sqlite3
 - libcpptest-dev
 
+install packages :
+- cmake >= 2.8.11
+  see http://askubuntu.com/questions/610291/how-to-install-cmake-3-2-on-ubuntu-14-04
+- g++ >= 4.9
+  see http://askubuntu.com/questions/428198/getting-installing-gcc-g-4-9-on-ubuntu for ubuntu/mint etc.
+- libsqlite3-dev
+- libvsqlitepp3
+- sqlite3
+- libcpptest-dev
+
 ###### Windows (Visual Studio):
 open command prompt
 ```

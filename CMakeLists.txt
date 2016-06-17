@@ -5,7 +5,8 @@ set(CRYPTOPP_INC ${CMAKE_SOURCE_DIR}/libcryptopp)
 set(CRYPTOPP_SRC ${CMAKE_SOURCE_DIR}/libcryptopp)
 set(CMAKE_VERBOSE_MAKEFILE false)
  
-include_directories(/usr/local/include/cryptopp ${CMAKE_SOURCE_DIR}/BitMRC/include
+include_directories(/usr/local/include/cryptopp 
+	${CMAKE_SOURCE_DIR}/BitMRC/include ${CMAKE_SOURCE_DIR}/BitMRC/Storage/include
 	/usr/include/c++/4.9.3 /usr/include/c++)
 
 execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version OUTPUT_VARIABLE CXX_VER)
@@ -40,10 +41,15 @@ ExternalProject_Add(libcryptopp
 		STAMP_DIR ${CRYPTOPP_SRC}
 		)
 add_subdirectory(BitMRC)
+<<<<<<< HEAD
 #
 # todo: move this to ccmake config 
 # for now enable by cmake -DENABLE_TRIALS=1
 if(${ENABLE_TRIALS})
   add_subdirectory(trial)
 endif()
+=======
+add_executable(dns trial/dns.cpp)
+add_executable(thread_test trial/thread_test.cpp)
+>>>>>>> f553967ee288c9b055deed40625c957b4c5ca0da
 

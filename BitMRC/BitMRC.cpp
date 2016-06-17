@@ -27,7 +27,7 @@ void BitMRC::init()
 
 	ZeroMemory(&hints, sizeof(hints));
 
-	NodeBlacklist * bl = new NodeBlacklist();
+	NodeBlacklist bl;
 
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
@@ -41,9 +41,8 @@ void BitMRC::init()
 	{
 		for (addrinfo *ptr = result; ptr != NULL; ptr = ptr->ai_next) {
 			if (ptr->ai_family == AF_INET) {
-				if (bl->is_blacklisted(ptr, AF_INET) == 0) {
+				if (bl.is_blacklisted(ptr, AF_INET) == 0) {
 					sockaddr_ipv4 = (sockaddr_in *)ptr->ai_addr;
-					printf("Adding : %s\n", inet_ntoa(sockaddr_ipv4->sin_addr));
 					this->connectNode(new NodeConnection(inet_ntoa(sockaddr_ipv4->sin_addr), "8444", this));
 				}
 			}
@@ -62,11 +61,11 @@ void BitMRC::init()
 		{
 			if (ptr->ai_family == AF_INET)
 			{
-
 				sockaddr_ipv4 = (sockaddr_in *)ptr->ai_addr;
-				/*printf(inet_ntoa(sockaddr_ipv4->sin_addr));
-				printf("\n");*/
-				this->connectNode(new NodeConnection(inet_ntoa(sockaddr_ipv4->sin_addr), "8080", this));
+				if (bl.is_blacklisted(ptr, AF_INET) == 0) {
+					sockaddr_ipv4 = (sockaddr_in *)ptr->ai_addr;
+					this->connectNode(new NodeConnection(inet_ntoa(sockaddr_ipv4->sin_addr), "8080", this));
+				}
 			}
 		}
 
@@ -75,7 +74,7 @@ void BitMRC::init()
 #ifndef LINUX
 	WSACleanup();
 #endif
-	delete bl;
+
 	if (1)//for now i leave this active, I noticed that sometimes bootstrap dns work but no ip is working.
 	{
 		//printf("Node bootstrapping failed!\n");

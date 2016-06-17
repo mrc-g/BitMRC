@@ -2,7 +2,9 @@ project(BitMRC_Server CXX)
 cmake_minimum_required(VERSION 2.8)
 
 set(SRCS Addr.cpp base58.cpp BitMRC.cpp endian.cpp main.cpp 
-	NodeConnection.cpp packet.cpp pow.cpp utils.cpp NodeBlacklist.cpp)
+	NodeConnection.cpp packet.cpp pow.cpp utils.cpp NodeBlacklist.cpp
+	Storage/Unique_Key.cpp Storage/Storage_sqlite3.cpp 
+	)
 	
 find_library(CRYPTOPP_BASE 
 	NAMES libcryptopp.a
@@ -12,7 +14,7 @@ find_library(CRYPTOPP_BASE
 message("CRYPTOPP_BASE is ${CRYPTOPP_BASE}")
 	
 add_executable(BitMRC ${SRCS})
-target_link_libraries(BitMRC cryptopp pthread)
+target_link_libraries(BitMRC cryptopp pthread sqlite3)
 
 if(${ENABLE_TESTS})
 	add_subdirectory(tests)
