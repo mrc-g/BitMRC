@@ -60,6 +60,7 @@ void thread_test::start() {
 void thread_test::stop() {
 
 }
+#if 0
 class thread_test {
 private:
 	thread thread_new_packets;
@@ -95,7 +96,7 @@ public:
 
 	}
 };
-
+#endif
 int main(int argc, char ** argv) {
 
 	thread_test t;
