@@ -12,8 +12,8 @@
 using namespace std;
 
 class Storage_sqlite3 {
-public:
-	static int q_callback (void* param ,int count, char** keys, char** values);
+private:
+	int q_callback (void* param ,int count, char** keys, char** values);
 public:
 	int is_sqlite_error(int errin);
 	void close();
@@ -27,6 +27,7 @@ public:
 private:
 	sqlite3 *db;
 	mutable shared_timed_mutex mutex;
+	static vector<Storable *> storable_list;
 
 
 };

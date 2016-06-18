@@ -282,6 +282,52 @@ BitMRC/CMakeFiles/BitMRC.dir/NodeBlacklist.cpp.o.provides: BitMRC/CMakeFiles/Bit
 
 BitMRC/CMakeFiles/BitMRC.dir/NodeBlacklist.cpp.o.provides.build: BitMRC/CMakeFiles/BitMRC.dir/NodeBlacklist.cpp.o
 
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o: BitMRC/CMakeFiles/BitMRC.dir/flags.make
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o: BitMRC/Storage/Unique_Key.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/blueboxes/Projects/BitMRC/CMakeFiles $(CMAKE_PROGRESS_11)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o"
+	cd /home/blueboxes/Projects/BitMRC/BitMRC && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o -c /home/blueboxes/Projects/BitMRC/BitMRC/Storage/Unique_Key.cpp
+
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.i"
+	cd /home/blueboxes/Projects/BitMRC/BitMRC && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/blueboxes/Projects/BitMRC/BitMRC/Storage/Unique_Key.cpp > CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.i
+
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.s"
+	cd /home/blueboxes/Projects/BitMRC/BitMRC && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/blueboxes/Projects/BitMRC/BitMRC/Storage/Unique_Key.cpp -o CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.s
+
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o.requires:
+.PHONY : BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o.requires
+
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o.provides: BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o.requires
+	$(MAKE) -f BitMRC/CMakeFiles/BitMRC.dir/build.make BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o.provides.build
+.PHONY : BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o.provides
+
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o.provides.build: BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o
+
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o: BitMRC/CMakeFiles/BitMRC.dir/flags.make
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o: BitMRC/Storage/Storage_sqlite3.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/blueboxes/Projects/BitMRC/CMakeFiles $(CMAKE_PROGRESS_12)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o"
+	cd /home/blueboxes/Projects/BitMRC/BitMRC && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o -c /home/blueboxes/Projects/BitMRC/BitMRC/Storage/Storage_sqlite3.cpp
+
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.i"
+	cd /home/blueboxes/Projects/BitMRC/BitMRC && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/blueboxes/Projects/BitMRC/BitMRC/Storage/Storage_sqlite3.cpp > CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.i
+
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.s"
+	cd /home/blueboxes/Projects/BitMRC/BitMRC && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/blueboxes/Projects/BitMRC/BitMRC/Storage/Storage_sqlite3.cpp -o CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.s
+
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o.requires:
+.PHONY : BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o.requires
+
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o.provides: BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o.requires
+	$(MAKE) -f BitMRC/CMakeFiles/BitMRC.dir/build.make BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o.provides.build
+.PHONY : BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o.provides
+
+BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o.provides.build: BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o
+
 # Object files for target BitMRC
 BitMRC_OBJECTS = \
 "CMakeFiles/BitMRC.dir/Addr.cpp.o" \
@@ -293,7 +339,9 @@ BitMRC_OBJECTS = \
 "CMakeFiles/BitMRC.dir/packet.cpp.o" \
 "CMakeFiles/BitMRC.dir/pow.cpp.o" \
 "CMakeFiles/BitMRC.dir/utils.cpp.o" \
-"CMakeFiles/BitMRC.dir/NodeBlacklist.cpp.o"
+"CMakeFiles/BitMRC.dir/NodeBlacklist.cpp.o" \
+"CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o" \
+"CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o"
 
 # External object files for target BitMRC
 BitMRC_EXTERNAL_OBJECTS =
@@ -308,6 +356,8 @@ BitMRC/BitMRC: BitMRC/CMakeFiles/BitMRC.dir/packet.cpp.o
 BitMRC/BitMRC: BitMRC/CMakeFiles/BitMRC.dir/pow.cpp.o
 BitMRC/BitMRC: BitMRC/CMakeFiles/BitMRC.dir/utils.cpp.o
 BitMRC/BitMRC: BitMRC/CMakeFiles/BitMRC.dir/NodeBlacklist.cpp.o
+BitMRC/BitMRC: BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o
+BitMRC/BitMRC: BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o
 BitMRC/BitMRC: BitMRC/CMakeFiles/BitMRC.dir/build.make
 BitMRC/BitMRC: BitMRC/CMakeFiles/BitMRC.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable BitMRC"
@@ -327,6 +377,8 @@ BitMRC/CMakeFiles/BitMRC.dir/requires: BitMRC/CMakeFiles/BitMRC.dir/packet.cpp.o
 BitMRC/CMakeFiles/BitMRC.dir/requires: BitMRC/CMakeFiles/BitMRC.dir/pow.cpp.o.requires
 BitMRC/CMakeFiles/BitMRC.dir/requires: BitMRC/CMakeFiles/BitMRC.dir/utils.cpp.o.requires
 BitMRC/CMakeFiles/BitMRC.dir/requires: BitMRC/CMakeFiles/BitMRC.dir/NodeBlacklist.cpp.o.requires
+BitMRC/CMakeFiles/BitMRC.dir/requires: BitMRC/CMakeFiles/BitMRC.dir/Storage/Unique_Key.cpp.o.requires
+BitMRC/CMakeFiles/BitMRC.dir/requires: BitMRC/CMakeFiles/BitMRC.dir/Storage/Storage_sqlite3.cpp.o.requires
 .PHONY : BitMRC/CMakeFiles/BitMRC.dir/requires
 
 BitMRC/CMakeFiles/BitMRC.dir/clean:

@@ -35,19 +35,19 @@ CREATE TABLE objectprocessorqueue (objecttype int, data blob, UNIQUE(objecttype,
 #include <stdint.h>
 #include <sqlite3.h> /** need to use: packages libsqlite3-dev and sqlite3 on linux */
 
-vector<Storable *> Storage::storable_list;
+static vector<Storable *> Storage_sqlite3::storable_list;
 
 /** \brief helper for determining if passed int value is an sqlite3 error code
  *
  */
-static int Storage_sqlite3::is_sqlite_error(int errin) {
+int Storage_sqlite3::is_sqlite_error(int errin) {
 
 	return 0;
 }
 /** \brief the needed callback function
  *
  */
-static int Storage_sqlite3::q_callback(void* param ,int count, char** keys, char** values) {
+int Storage_sqlite3::q_callback(void* param ,int count, char** keys, char** values) {
 
 	return 0;
 }

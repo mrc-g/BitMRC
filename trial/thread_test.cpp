@@ -9,6 +9,7 @@
 #include <unistd.h>
 #endif
 using namespace std;
+
 #include <thread_test.h>
 static int thread_test::running ;
 
