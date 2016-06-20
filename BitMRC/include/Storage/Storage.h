@@ -8,9 +8,10 @@
 #ifndef STORAGE_H_
 #define STORAGE_H_
 
+using namespace std;
+class Storable;
 #include <string.h>
 
-class Storable;
 #include <Storage/Unique_Key.h>
 #include <Storage/Storable.h>
 class Storage {

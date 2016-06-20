@@ -46,12 +46,13 @@ int main()
 			}
 
 			ustring msg;
+			const char blanc[] = {" "};
 			msg.clear();
 			printf("Message to send [terminate with a single '.']:\n");
 			command[0]='\0';
 			do {
 				if (msg.length()>0)
-					msg.append(" ");
+					msg.append(blanc);
 				scanf("%s\n", command); /* todo : keep an eye on the max length */
 			} while( (strlen(command) >= 2) || (strcmp(".", command)!=0) );
 			printf("Sending..\n");

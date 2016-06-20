@@ -687,8 +687,26 @@ void PubAddr::setLastPubKeyRequest(time_t time)
 
 
 
-
-
+/* Storable baseclass methods */
+Unique_Key PubAddr::calc_key(Storable & object_in) {
+	Unique_Key ret;
+	return ret;
+}
+bool PubAddr::query(Unique_Key &uq_key_in, string & data_out) {
+	return false;
+}
+bool PubAddr::store(Storable & object_in, Unique_Key & key_out) {
+	return false;
+}
+bool PubAddr::delete_storable(Storable & object_in) {
+	return false;
+}
+bool PubAddr::delete_storable(Unique_Key & key_in) {
+	return false;
+}
+Storable & 	PubAddr::find_by_key(Unique_Key &) {
+	return *this;
+}
 
 
 

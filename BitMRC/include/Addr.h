@@ -19,8 +19,7 @@ class Unique_Key;
 #include <Storage/Storage.h>
 
 using namespace std;
-// : public virtual Storable
-class PubAddr {
+class PubAddr: public Storable {
 public:
 	PubAddr();
 	PubAddr(const PubAddr &that);
@@ -60,13 +59,14 @@ public:
 	ustring getTagE();
 	time_t getLastPubKeyRequest();
 	void setLastPubKeyRequest(time_t time);
-
+public:
+	/* storable base class methods */
 	Unique_Key calc_key(Storable & object_in);
 	bool query(Unique_Key &uq_key_in, string & data_out);
 	bool store(Storable & object_in, Unique_Key & key_out);
 	bool delete_storable(Storable & object_in);
 	bool delete_storable(Unique_Key & key_in);
-
+	Storable & 	find_by_key(Unique_Key &);
 protected:
 	ustring pubSigningKey;
 	ustring pubEncryptionKey;
