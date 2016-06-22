@@ -23,6 +23,9 @@ bool Unique_Key::operator==(Addr & addr_in) {
 	return false;
 }
 
-
+bool Unique_Key::set_key(std::string key_in) {
+	this->key = key_in;
+	return true;
+}
 
 

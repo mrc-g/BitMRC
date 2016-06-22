@@ -19,6 +19,7 @@ private:
 public:
 	bool create_from_addr(Addr &);
 	bool operator==(Addr &);
+	bool set_key(std::string key_in);
 };
 
 
