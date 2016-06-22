@@ -32,7 +32,7 @@ public:
 		return true;
 	}
 	Storable & 	find_by_key(Unique_Key & key_in) {
-		Storable val;
+		StorableTest val;
 		return val;
 	}
 	void init_test();
@@ -55,7 +55,7 @@ void StorableTest::init_test()
     TEST_ASSERT(1 == 1);
 }
 void StorableTest::TestA() {
-	Storable strbl;
+	StorableTest strbl;
 	Unique_Key uq = strbl.calc_key(strbl);
 
 	TEST_ASSERT(1 == 1);
