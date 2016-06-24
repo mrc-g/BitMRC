@@ -13,10 +13,24 @@ Address: BM-2cVxGMPpzu1WwnpUwAvcy9aQpuS9deouky
 ##### Compile:
 ###### Linux:
 ```
-#cmake .
-#make
+# cmake . -DENABLE_TESTS
+(if you want the tests to be compiled)
+# cmake . #
+(otherwise)
+
+# make
 ```
 if not working because of linking try ./doMakeLinux.sh
+
+install packages :
+- cmake >= 2.8.11
+  see http://askubuntu.com/questions/610291/how-to-install-cmake-3-2-on-ubuntu-14-04
+- g++ >= 4.9
+  see http://askubuntu.com/questions/428198/getting-installing-gcc-g-4-9-on-ubuntu for ubuntu/mint etc.
+- libsqlite3-dev
+- libvsqlitepp3
+- sqlite3
+- libcpptest-dev
 
 ###### Windows (Visual Studio):
 open command prompt
@@ -25,6 +39,8 @@ git submodule init
 git submodule update
 ```
 then compile with visual studio and convert if necessary
+
+##### Functionality:
 
 At this stage it can:
 + Read/send messages.

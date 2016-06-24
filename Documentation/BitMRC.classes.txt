@@ -1,0 +1,8 @@
+@startuml
+/' use "plantuml" to compile '/
+title BitMRC class diagram
+BitMRC *-- Addr
+BitMRC *-- NodeConnection
+BitMRC *-- Packet
+
+@enduml
