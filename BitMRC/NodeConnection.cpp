@@ -350,6 +350,10 @@ void NodeConnection::Listener()
 				this->state = 2;
 			}else if(!strcmp(packet.command,"addr"))
 			{
+				//todo add a method for broadcasting addr
+				//for now just pass broadcast this packet
+				this->bitmrc->send(packet);
+
 				packet_addr addr(packet);
 				for(unsigned int i=0;i<addr.addr_list.size();i++)
 				{
