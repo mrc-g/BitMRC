@@ -16,6 +16,7 @@ public:
 	~Unique_Key();
 private:
 	std::string key;
+	size_type keylen;
 public:
 	bool create_from_addr(Addr &);
 	bool operator==(Addr &);

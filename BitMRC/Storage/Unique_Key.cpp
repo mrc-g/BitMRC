@@ -10,9 +10,9 @@
 #include <sha3.h>
 #include <ios>
 #ifdef DEBUG_UQK
-#define STORABLE_UQK(a) printf a;
+#define DBG_UQK(a) printf a;
 #else
-#define STORABLE_UQK(a)
+#define DBG_UQK(a)
 #endif
 Unique_Key::Unique_Key() {
 
@@ -34,9 +34,14 @@ bool Unique_Key::set_key(std::string key_in) {
 	SHA3 sha(16);
 	sha.CalculateDigest(digest, key_in.c_str(), key_in.length());
 	this->key.assign(digest);
-	cout << ios::hex << digest ;
-//	STORABLE_UQK(("%s: KEY is %s\n", __func__, digest));
+	this->keylen = key_in.length();
+//	cout << ios::hex << digest ;
+	DBG_UQK(("%s: KEY is %s\n", __func__, digest));
 	return true;
+}
+void Unique_Key::print() {
+	unsigned char digest_asc[48];
+
 }
 
 
