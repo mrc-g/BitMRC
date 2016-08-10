@@ -35,7 +35,8 @@ CREATE TABLE objectprocessorqueue (objecttype int, data blob, UNIQUE(objecttype,
 #include <stdint.h>
 #include <sqlite3.h> /** need to use: packages libsqlite3-dev and sqlite3 on linux */
 
-static vector<Storable *> Storage_sqlite3::storable_list;
+vector<Storable *> Storage_sqlite3::storable_list;
+
 
 /** \brief helper for determining if passed int value is an sqlite3 error code
  *
