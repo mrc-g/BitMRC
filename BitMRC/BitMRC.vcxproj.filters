@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="File di intestazione\storage">
+      <UniqueIdentifier>{3beaeead-d9e8-4d03-9d16-a81c6b1eac78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\storage">
+      <UniqueIdentifier>{843305d1-318f-4bba-96e0-74b56a077f2b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -44,6 +50,15 @@
     </ClCompile>
     <ClCompile Include="NodeBlacklist.cpp">
       <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="Storage\Storable.cpp">
+      <Filter>File di origine\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="Storage\Storage_sqlite3.cpp">
+      <Filter>File di origine\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="Storage\Unique_Key.cpp">
+      <Filter>File di origine\storage</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +94,21 @@
     </ClInclude>
     <ClInclude Include="include\utils.h">
       <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Storage\StorageInterface.h">
+      <Filter>File di intestazione\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Storage\Storage_sqlite3.h">
+      <Filter>File di intestazione\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Storage\Storage.h">
+      <Filter>File di intestazione\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Storage\Storable.h">
+      <Filter>File di intestazione\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Storage\Unique_Key.h">
+      <Filter>File di intestazione\storage</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
