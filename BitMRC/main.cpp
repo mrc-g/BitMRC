@@ -51,7 +51,7 @@ int main()
 			command[0]='\0';
 			do {
 				if (msg.length()>0)
-					msg.append(" ");
+					msg.append((unsigned char*)" ");
 				scanf("%s\n", command); /* todo : keep an eye on the max length */
 			} while( (strlen(command) >= 2) || (strcmp(".", command)!=0) );
 			printf("Sending..\n");
@@ -103,9 +103,9 @@ int main()
 			command[0]='\0';
 			do {
 				if (msg.length()>0)
-					msg.append(" ");
+					msg.append((unsigned char*)" ");
 				scanf("%s", command); /* todo : keep an eye on the max length */
-				msg.append(command);
+				msg.append((unsigned char*)command);
 			} while( (strlen(command) >= 2) || (strcmp(".", command)!=0) );
 			printf("Sending..\n");
 			bitmrc.sendMessage(msg, bitmrc.PubAddresses[des], bitmrc.PrivAddresses[fro]); //maybe this should be done in another thread

@@ -589,7 +589,7 @@ void socket_ustring::sendVarInt64(unsigned __int64 i)
 
 void socket_ustring::sendString(string str, int len)
 {
-	if (len > str.length())
+	if ((unsigned int)len > str.length())
 		throw runtime_error("Not enough bytes");
 	int iResult = 0;
 	while (iResult < len)
@@ -604,7 +604,7 @@ void socket_ustring::sendString(string str, int len)
 	
 void socket_ustring::sendUstring(ustring str, int len)
 {
-	if (len > str.length())
+	if ((unsigned int)len > str.length())
 		throw runtime_error("Not enough bytes");
 	int iResult = 0;
 	while (iResult < len)
@@ -1081,7 +1081,7 @@ void file_ustring::writeVarInt64(unsigned __int64 i)
 
 void file_ustring::writeString(string str, int len)
 {
-	if (len > str.length())
+	if ((unsigned int)len > str.length())
 		throw runtime_error("Not enough bytes");
 
 	int iResult = fwrite((char*)str.c_str(), 1, len, this->pFile);
@@ -1092,7 +1092,7 @@ void file_ustring::writeString(string str, int len)
 
 void file_ustring::writeUstring(ustring str, int len)
 {
-	if (len > str.length())
+	if ((unsigned int)len > str.length())
 		throw runtime_error("Not enough bytes");
 
 	int iResult = fwrite((char*)str.c_str(), 1, len, this->pFile);
