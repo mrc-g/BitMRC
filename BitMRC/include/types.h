@@ -42,6 +42,22 @@
 #define CLRMEM(m) ZeroMemory( &hints, sizeof(hints) );
 #endif
 
+/* represent the system table, holding current settings for
+ * the bitmrc
+ */
+typedef struct {
+	uint64_t node_id;
+	uint64_t working_mode; /* which features have been enabled ?*/
+	uint64_t networking_flags; /* use ip4, use ip6 */
+	uint16_t stream_ids[4]; /* we may process at most 4 streams */
+	uint64_t last_startup_timestamp;
+	uint32_t last_startup_result; /* keep track of last startup, so re-start loops can be avoided */
+} bitmrc_sysinfo_t;
 
+
+typedef enum { BITMRC_OK,
+		BITMRC_CLIENT_DB_INIT_BAD = 100 , BITMRC_DB_ACCESS_DENIED, BITMRC_DB_NOT_FOUND, BITMR_DB_OPEN_FAILED, /* db from 100 to 199 */
+		BITMRC_SOME_ERROR = 200,
+		BITMRC_ERR_MAX } enBitMRCError;
 
 #endif /* TYPES_H_ */
