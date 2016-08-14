@@ -39,9 +39,6 @@ bool Unique_Key::set_key(std::string key_in) {
 	DBG_UQK(("%s: KEY is %s\n", __func__, digest));
 	return true;
 }
-void Unique_Key::print() {
-	unsigned char digest_asc[48];
 
-}
 
 

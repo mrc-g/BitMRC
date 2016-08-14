@@ -19,7 +19,8 @@ class Unique_Key;
 #include <Storage/Storage.h>
 
 using namespace std;
-class PubAddr: public Storable {
+// class PubAddr : public Storable {
+class PubAddr {
 public:
 	PubAddr();
 	PubAddr(const PubAddr &that);

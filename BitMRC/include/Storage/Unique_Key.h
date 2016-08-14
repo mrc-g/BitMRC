@@ -9,6 +9,7 @@
 #define UNIQUE_KEY_H_
 
 #include <Addr.h>
+#include <stdlib.h>
 
 class Unique_Key {
 public:
@@ -16,7 +17,7 @@ public:
 	~Unique_Key();
 private:
 	std::string key;
-	size_type keylen;
+	size_t keylen;
 public:
 	bool create_from_addr(Addr &);
 	bool operator==(Addr &);
