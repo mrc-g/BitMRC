@@ -14,6 +14,11 @@ class Storable;
 
 #include <Storage/Unique_Key.h>
 #include <Storage/Storable.h>
+typedef struct {
+	uint32_t query_type;
+	void * data_struct_ptr;
+} query_config_t;
+
 class Storage {
 public:
 	Storage();

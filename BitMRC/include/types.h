@@ -25,6 +25,16 @@
 	// #error "is there a stdint header for win?"
 	#define SLEEP Sleep
 #endif
+
+/* trace macros */
+#define LOG_DB_TO_STDOUT  /*todo: move this to cmake cache variable (ccmake-configurable)*/
+
+#ifdef LOG_DB_TO_STDOUT
+#define LOG_DB(a) printf a
+#else
+#define LOG_DB(a)
+#endif
+
 /* \todo: use stdint.h types only */
 #define __int16 short
 #define __uint16 unsigned short
@@ -42,6 +52,9 @@
 #define CLRMEM(m) ZeroMemory( &hints, sizeof(hints) );
 #endif
 
+
+
+
 /* represent the system table, holding current settings for
  * the bitmrc
  */
@@ -52,12 +65,17 @@ typedef struct {
 	uint16_t stream_ids[4]; /* we may process at most 4 streams */
 	uint64_t last_startup_timestamp;
 	uint32_t last_startup_result; /* keep track of last startup, so re-start loops can be avoided */
+	uint16_t database_version;
 } bitmrc_sysinfo_t;
 
+typedef struct {
+	uint32_t last_insert_id;
+} insert_node_return_t;
 
 typedef enum { BITMRC_OK,
-		BITMRC_CLIENT_DB_INIT_BAD = 100 , BITMRC_DB_ACCESS_DENIED, BITMRC_DB_NOT_FOUND, BITMR_DB_OPEN_FAILED, /* db from 100 to 199 */
+		BITMRC_CLIENT_DB_INIT_BAD = 100 , BITMRC_DB_ACCESS_DENIED, BITMRC_DB_NOT_FOUND, BITMR_DB_OPEN_FAILED, BITMRC_DB_EXEC_FAILED, BITMRC_TABLE_CREATE_FAILED, /* db from 100 to 199 */
 		BITMRC_SOME_ERROR = 200,
+		BITMRC_BAD_PARA = 1000,
 		BITMRC_ERR_MAX } enBitMRCError;
 
 #endif /* TYPES_H_ */

@@ -16,9 +16,6 @@
 extern "C" {
 #endif
 
-typedef struct {
-	uint32_t last_insert_id;
-} insert_node_return_t;
 
 uint32_t sqlt3lnx_init();
 void sqlt3lnx_close();
@@ -31,4 +28,4 @@ void sqlt3lnx_deinit();
 }
 #endif
 
-#endif /* CLIENTDATA_H_ */
+#endif
