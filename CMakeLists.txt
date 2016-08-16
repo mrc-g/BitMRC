@@ -5,6 +5,8 @@ set(CRYPTOPP_INC ${CMAKE_SOURCE_DIR}/libcryptopp)
 set(CRYPTOPP_SRC ${CMAKE_SOURCE_DIR}/libcryptopp)
 set(CMAKE_VERBOSE_MAKEFILE false)
  
+add_definitions("-DDEBUG_UQK")
+ 
 include_directories(/usr/local/include/cryptopp 
 	${CMAKE_SOURCE_DIR}/BitMRC/include ${CMAKE_SOURCE_DIR}/BitMRC/Storage/include
 	/usr/include/c++/4.9.3 /usr/include/c++)
@@ -27,7 +29,7 @@ else()
 	# TODO: add windows definition
 	# TODO: add find_library libcpptest for windows
 endif()
-message("System Type ${CMAKE_SYSTEM} CXXVER IS : ${CXX_VER} CPPTEST is at ${LIBCPPTEST_PATH}")
+#message("System Type ${CMAKE_SYSTEM} CXXVER IS : ${CXX_VER} CPPTEST is at ${LIBCPPTEST_PATH}")
 
 
 include(ExternalProject)
