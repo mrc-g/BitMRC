@@ -29,7 +29,7 @@ Storage_sqlite3::Storage_sqlite3() {
 	db_name.clear();
 	db_user.clear();
 	db_passwd.clear();
-	m_sinfo = {.0};
+	m_sinfo = {};
 }
 /** \brief helper for determining if passed int value is an sqlite3 error code
  *
@@ -41,7 +41,7 @@ int Storage_sqlite3::is_sqlite_error(int errin) {
 /** \brief the needed callback function
  * \todo: generalise
  */
-static int Storage_sqlite3::q_callback(void* param ,int count, char** keys, char** values) {
+int Storage_sqlite3::q_callback(void* param ,int count, char** keys, char** values) {
     LOG_DB(("%s param %x columns: %d\n",__func__, param, count));
 	/* \todo: unify */
     if(param == NULL)
@@ -146,7 +146,7 @@ bool Storage_sqlite3::register_storable(Storable * object) {
 	return true;
 }
 
-uint32_t Storage_sqlite3::sql_exec(uint16_t type, const unsigned char * query) {
+uint32_t Storage_sqlite3::sql_exec(uint16_t type, const char * query) {
 	uint32_t ret = BITMRC_SOME_ERROR;
 	void * x_param = (void*)type;
 	char * errinfo = NULL;
@@ -173,7 +173,7 @@ uint32_t Storage_sqlite3::query_system_table(bitmrc_sysinfo_t * s_info) {
 	if (s_info == NULL) {
 		return BITMRC_BAD_PARA;
 	}
-	query_config_t cfg = { .query_type = query_system, .data_struct_ptr = s_info };
+	query_config_t cfg = {  query_system, s_info };
 	/* keep track of last startup, so re-start loops can be avoided */
 	int sret = sqlite3_exec(db, "select node_id, working_mode, networking_flags,stream_id1, stream_id2, stream_id3, stream_id4, last_startup_timestamp, last_startup_result, database_version from system;",
 				q_callback,(void*)&cfg, &errinfo);
@@ -218,7 +218,7 @@ uint32_t Storage_sqlite3::create_tables() {
 	"CREATE TABLE system (node_id int, working_mode int, networking_flags int, stream_id1 int, stream_id2 int, stream_id3 int, stream_id4 int, last_startup_timestamp int, last_startup_result int, database_version int);",
 	"\0" };
 	int sret;
-	query_config_t cfg = { .query_type = create_table, .data_struct_ptr = NULL};
+	query_config_t cfg = { create_table, NULL};
 	while(strlen(qt[index].query)>0) {
 		/* keep track of last startup, so re-start loops can be avoided */
 		sret = sqlite3_exec(db, qt[index].query, q_callback, (void*)&cfg, &errinfo);
@@ -238,8 +238,8 @@ uint32_t Storage_sqlite3::populate_system_table() {
 	int index = 0;
 	char * errinfo = NULL;
 
-	query_config_t cfg = { .query_type = insert_data, .data_struct_ptr = NULL};
-	unsigned char query[128]={"insert into system (node_id, working_mode, networking_flags, database_version) values (1000,1,1,1);"};
+	query_config_t cfg = { insert_data, NULL};
+	 char query[128]={"insert into system (node_id, working_mode, networking_flags, database_version) values (1000,1,1,1);"};
 	int sret = sqlite3_exec(db, query, q_callback, (void*)&cfg, &errinfo);
 	if((is_sqlite_error(sret)) || errinfo != NULL ) {
 		ret = BITMRC_DB_EXEC_FAILED;

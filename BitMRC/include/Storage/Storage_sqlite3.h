@@ -24,7 +24,7 @@ enum { 	create_table = 1, insert_data = 2,
 		query_system = 3 , update_insert_delete = 4 } enSQL3QueryType;
 
 struct querytype {
-	const unsigned char query[256];
+	const char query[256];
 };
 
 class Storage_sqlite3 {
@@ -39,7 +39,7 @@ public:
 	bool close(Storage & obj_in);
 	void flush(Storage & obj_in);
 	bool register_storable(Storable * object);
-	uint32_t sql_exec(uint16_t type, const unsigned char * query);
+	uint32_t sql_exec(uint16_t type, const char * query);
 private:/** \todo: implement this as storable data */
 	bitmrc_sysinfo_t m_sinfo;
 public: /** \todo: implement this as storable callback */

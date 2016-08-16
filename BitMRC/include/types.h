@@ -22,7 +22,7 @@
 #else
 
 	#define SOCK_TYPE SOCKET
-	// #error "is there a stdint header for win?"
+	#include <stdint.h>
 	#define SLEEP Sleep
 #endif
 
@@ -35,13 +35,6 @@
 #define LOG_DB(a)
 #endif
 
-/* \todo: use stdint.h types only */
-#define __int16 short
-#define __uint16 unsigned short
-#define __uint32 unsigned long
-#define __int32 long
-#define __int64 long long
-#define __uint64 unsigned long long
 
 /* function macros */
 #ifdef LINUX
@@ -51,7 +44,6 @@
 #else
 #define CLRMEM(m) ZeroMemory( &hints, sizeof(hints) );
 #endif
-
 
 
 

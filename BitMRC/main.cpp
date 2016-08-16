@@ -46,7 +46,7 @@ int main()
 			}
 
 			ustring msg;
-			const char blanc[] = {" "};
+			unsigned const char blanc[] = {" "};
 			msg.clear();
 			printf("Message to send [terminate with a single '.']:\n");
 			command[0]='\0';

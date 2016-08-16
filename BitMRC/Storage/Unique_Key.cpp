@@ -32,8 +32,8 @@ bool Unique_Key::operator==(Addr & addr_in) {
 bool Unique_Key::set_key(std::string key_in) {
 	unsigned char digest[24];
 	SHA3 sha(16);
-	sha.CalculateDigest(digest, key_in.c_str(), key_in.length());
-	this->key.assign(digest);
+	sha.CalculateDigest(digest, (const byte*)key_in.c_str(), key_in.length());
+	this->key.assign((const char*)digest);
 	this->keylen = key_in.length();
 //	cout << ios::hex << digest ;
 	DBG_UQK(("%s: KEY is %s\n", __func__, digest));
