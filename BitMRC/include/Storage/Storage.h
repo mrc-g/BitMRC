@@ -8,11 +8,17 @@
 #ifndef STORAGE_H_
 #define STORAGE_H_
 
+using namespace std;
+class Storable;
 #include <string.h>
 
-class Storable;
 #include <Storage/Unique_Key.h>
 #include <Storage/Storable.h>
+typedef struct {
+	uint32_t query_type;
+	void * data_struct_ptr;
+} query_config_t;
+
 class Storage {
 public:
 	Storage();

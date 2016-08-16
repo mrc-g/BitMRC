@@ -685,18 +685,31 @@ void PubAddr::setLastPubKeyRequest(time_t time)
 	this->lastPubKeyRequest = time;
 }
 
+#if 0
+// later ..
 
+/* Storable baseclass methods */
+Unique_Key PubAddr::calc_key(Storable & object_in) {
+	Unique_Key ret;
+	return ret;
+}
+bool PubAddr::query(Unique_Key &uq_key_in, string & data_out) {
+	return false;
+}
+bool PubAddr::store(Storable & object_in, Unique_Key & key_out) {
+	return false;
+}
+bool PubAddr::delete_storable(Storable & object_in) {
+	return false;
+}
+bool PubAddr::delete_storable(Unique_Key & key_in) {
+	return false;
+}
+Storable & 	PubAddr::find_by_key(Unique_Key &) {
+	return *this;
+}
 
-
-
-
-
-
-
-
-
-
-
+#endif
 
 
 Addr::Addr()
@@ -1155,3 +1168,41 @@ ustring Addr::getPubSigningKey()
 	std::shared_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	return this->pubSigningKey;
 }
+
+#if 0
+
+/** \todo: implement methods */
+Unique_Key Addr::calc_key() {
+	Unique_Key uq;
+	unsigned char key_string[120];
+	std::string str;
+	if(generation_time == 0) {
+		/* if no gentime is set, do not use default value for generation as this would
+		 * create only one value */
+		struct timeval tv = {.0};
+		gettimeofday(&tv, NULL);
+		this->generation_time = tv.tv_sec * 1000 * 1000 + tv.tv_usec;
+	}
+	str.assign(key_string);
+	uq.set_key(str);
+
+	STORABLE_DEBUG(("KEY is %s\n", key_string));
+	return uq;
+}
+bool Addr::query(Unique_Key &uq_key_in, string & data_out) {
+	return true;
+}
+bool Addr::store(Storable & object_in, Unique_Key & key_out) {
+	return true;
+}
+bool Addr::delete_storable(Storable & object_in) {
+	return true;
+}
+bool Addr::delete_storable(Unique_Key & key_in) {
+	return true;
+}
+Storable & Addr::find_by_key(Unique_Key & key_in) {
+	StorableTest val;
+	return val;
+}
+#endif
