@@ -7,7 +7,7 @@ set(CMAKE_VERBOSE_MAKEFILE false)
  
 add_definitions("-DDEBUG_UQK")
  
-include_directories(/usr/local/include/cryptopp 
+include_directories(${CMAKE_SOURCE_DIR}/3rdparty/include/cryptopp
 	${CMAKE_SOURCE_DIR}/BitMRC/include ${CMAKE_SOURCE_DIR}/BitMRC/Storage/include
 	/usr/include/c++/4.9.3 /usr/include/c++)
 
@@ -39,7 +39,8 @@ ExternalProject_Add(libcryptopp
 		#GIT_REPOSITORY ${CMAKE_SOURCE_DIR}/../libcryptopp.git
 		PREFIX ${CRYPTOPP_SRC}
 		BUILD_IN_SOURCE 1
-		CONFIGURE_COMMAND cmake . -DCMAKE_INSTALL_PREFIX:STRING=${CMAKE_SOURCE_DIR}/libs
+		CONFIGURE_COMMAND cmake . -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR}/3rdparty/
+		INSTALL_COMMAND make install PREFIX=${CMAKE_SOURCE_DIR}/3rdparty/
 		STAMP_DIR ${CRYPTOPP_SRC}
 		)
 add_subdirectory(BitMRC)
