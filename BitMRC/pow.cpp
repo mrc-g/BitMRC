@@ -16,7 +16,7 @@ ustring		doubleHash(ustring data)
 	return ret;
 }
 
-unsigned __int64		doPow(ustring data)
+uint64_t doPow(ustring data)
 {
 	InitEndian();
 	uint8_t initial_hash[CryptoPP::SHA512::DIGESTSIZE];
@@ -49,7 +49,7 @@ unsigned __int64		doPow(ustring data)
 	return pow_value;
 }
 
-__int64		getTarget(unsigned __int64 length, unsigned __int64 TTL, unsigned __int64 extrabytes, unsigned __int64 noncetrials)
+int64_t	getTarget(uint64_t length, uint64_t TTL, uint64_t extrabytes, uint64_t noncetrials)
 {
 	const uint64_t two_63 = UINT64_C(0x8000000000000000);
 	uint64_t divisor;
@@ -59,7 +59,7 @@ __int64		getTarget(unsigned __int64 length, unsigned __int64 TTL, unsigned __int
 	divisor = ((((length + (uint64_t)extrabytes) * TTL) / UINT64_C(0x10000)) + extrabytes + length) * noncetrials;
 
 	/* We need to divide 2?? by divisor. We can't represent 2?? in
-	* a 64-bit variable so instead we divide 2?³ by the divisor
+	* a 64-bit variable so instead we divide 2?ï¿½ by the divisor
 	* twice and add the result */
 	target = two_63 / divisor * 2;
 	/* If the fractional part of the result would be greater than
@@ -71,23 +71,17 @@ __int64		getTarget(unsigned __int64 length, unsigned __int64 TTL, unsigned __int
 	return target;
 }
 
-bool		checkPow(ustring data, unsigned __int64 TTL, unsigned __int64 extrabytes, unsigned __int64 noncetrial)
-{
-	unsigned __int64 pow = doPow(data);
+bool checkPow(ustring data, uint64_t TTL, uint64_t extrabytes, uint64_t noncetrial) {
+	uint64_t pow = doPow(data);
 	time_t ltime = std::time(nullptr);
-	unsigned __int64 target = getTarget(data.length() - 8, TTL - ltime);
-	if (pow > target)
-	{
+	uint64_t target = getTarget(data.length() - 8, TTL - ltime);
+	if (pow > target) {
 		return false;
-	}
-	else
-	{
+	} else {
 		return true;
 	}
 }
-
-
-__int64		searchPow(ustring data, unsigned __int64 TTL)
+uint64_t searchPow(ustring data, uint64_t TTL)
 {
 	InitEndian();
 	uint8_t initial_hash[CryptoPP::SHA512::DIGESTSIZE];
@@ -104,17 +98,15 @@ __int64		searchPow(ustring data, unsigned __int64 TTL)
 
 	time_t ltime = std::time(nullptr);
 
-	unsigned __int64 target = getTarget(payload.length(), TTL - ltime);
-
-	unsigned __int64 nonce = 0;
+	uint64_t target = getTarget(payload.length(), TTL - ltime);
+	uint64_t nonce = 0;
 
 	char * tmpnonce = new char[8 + CryptoPP::SHA512::DIGESTSIZE];
 
 	for (int i = 0; i < CryptoPP::SHA512::DIGESTSIZE; i++)
 		tmpnonce[8 + i] = initial_hash[i];
 
-	while (pow_value > target)
-	{
+	while (pow_value > target) {
 		nonce++;
 
 		tmpnonce[7] = nonce & 255;
@@ -132,7 +124,7 @@ __int64		searchPow(ustring data, unsigned __int64 TTL)
 
 		/* The POW value is the first 8 bytes of that
 		* as a big-endian number */
-		pow_value = BigLongLong(*(__int64*)(hash2));
+		pow_value = BigLongLong(*(int64_t*)(hash2));
 	}
 	delete[] tmpnonce;
 	return nonce;

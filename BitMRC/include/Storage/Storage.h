@@ -9,9 +9,9 @@
 #define STORAGE_H_
 
 using namespace std;
-class Storable;
-#include <string.h>
 
+#include <string.h>
+#include <vector>
 #include <Storage/Unique_Key.h>
 #include <Storage/Storable.h>
 typedef struct {
@@ -32,7 +32,7 @@ public:
 	virtual bool close(Storage &) = 0;
 	virtual void flush(Storage &) = 0;
 protected:
-	static vector<Storable *> storable_list ;
+	static std::vector<Storable *> storable_list ;
 };
 
 #endif /* STORAGE_H_ */

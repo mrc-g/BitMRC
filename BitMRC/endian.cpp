@@ -8,10 +8,10 @@ extern "C" {
 
 short (*BigShort) ( short s );
 short (*LittleShort) ( short s );
-int (*BigLong) ( __int32 i );
-int (*LittleLong) ( __int32 i );
-__int64 (*BigLongLong) ( __int64 i );
-__int64 (*LittleLongLong) ( __int64 i );
+int (*BigLong) (int32_t i);
+int (*LittleLong) ( int32_t i );
+int64_t (*BigLongLong) ( int64_t i );
+int64_t (*LittleLongLong) ( int64_t i );
 float (*BigFloat) ( float f );
 float (*LittleFloat) ( float f );
 void x() {
@@ -32,7 +32,7 @@ short ShortNoSwap( short s )
 	return s;
 }
 
-int LongSwap (__int32 i)
+int LongSwap (int32_t i)
 {
 	unsigned char b1, b2, b3, b4;
 
@@ -44,12 +44,12 @@ int LongSwap (__int32 i)
 	return ((int)b1 << 24) + ((int)b2 << 16) + ((int)b3 << 8) + b4;
 }
 
-int LongNoSwap( __int32 i )
+int LongNoSwap( int32_t i )
 {
 	return i;
 }
 
-__int64 LongLongSwap (__int64 i)
+int64_t LongLongSwap (int64_t i)
 {
 	unsigned char b1, b2, b3, b4, b5, b6, b7, b8;
 
@@ -62,10 +62,10 @@ __int64 LongLongSwap (__int64 i)
 	b7 = ( i >> 48 ) & 255;
 	b8 = ( i >> 56 ) & 255;
 
-	return ((__int64)b1 << 56) + ((__int64)b2 << 48) + ((__int64)b3 << 40) + ((__int64)b4 << 32) + ((__int64)b5 << 24) + ((__int64)b6 << 16) + ((__int64)b7 << 8) + b8;
+	return ((int64_t)b1 << 56) + ((int64_t)b2 << 48) + ((int64_t)b3 << 40) + ((int64_t)b4 << 32) + ((int64_t)b5 << 24) + ((int64_t)b6 << 16) + ((int64_t)b7 << 8) + b8;
 }
 
-__int64 LongLongNoSwap( __int64 i )
+int64_t LongLongNoSwap( int64_t i )
 {
 	return i;
 }
@@ -93,10 +93,10 @@ float FloatNoSwap( float f )
 
 bool BigEndianSystem;  //you might want to extern this
 
-void InitEndian( void )
+void InitEndian(void)
 {
 	unsigned char SwapTest[2] = { 1, 0 };
-  
+
 	if( *(short *) SwapTest == 1 )
 	{
 		//little endian

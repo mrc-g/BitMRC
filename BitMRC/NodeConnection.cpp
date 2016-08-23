@@ -1,6 +1,6 @@
 #include "NodeConnection.h"
 
-/* \todo: provide baseclass, and subclass for every platform instead of 
+/* \todo: provide baseclass, and subclass for every platform instead of
 feature-toggle-it-out -steady286- */
 NodeConnection::NodeConnection(BitMRC *self)
 {
@@ -138,7 +138,7 @@ bool NodeConnection::Connect()
 	{
 
         // Create a SOCKET for connecting to server
-        Socket = socket(ptr->ai_family, ptr->ai_socktype, 
+        Socket = socket(ptr->ai_family, ptr->ai_socktype,
             ptr->ai_protocol);
         if (Socket == INVALID_SOCKET)
 		{
@@ -185,7 +185,7 @@ bool NodeConnection::Connect()
 
 	packet_version version;
 	version.magic = Magic;
-	
+
 	version.addr_recv.services = NODE_NETWORK;
 	int ip[4];
 	sscanf(this->Ip.c_str(),"%i.%i.%i.%i",&ip[0],&ip[1],&ip[2],&ip[3]);
@@ -195,7 +195,7 @@ bool NodeConnection::Connect()
 		version.addr_recv.IPv6_4.appendInt8(arr[i]);
 	int port;
 	sscanf(this->Port.c_str(),"%i",&port);
-	version.addr_recv.port = (unsigned __int16)port;
+	version.addr_recv.port = (uint16_t)port;
 
 	version.addr_from.services = NODE_NETWORK;
 	char arr2[16] = {	(char)0x00,(char)0x00,(char)0x00,(char)0x00,(char)0x00,(char)0x00,(char)0x00,(char)0x00,
@@ -203,7 +203,7 @@ bool NodeConnection::Connect()
 	for(int i=0; i<16;i++)
 		version.addr_from.IPv6_4.appendInt8(arr2[i]);
 	sscanf(this->Port.c_str(),"%i",&port);
-	version.addr_from.port = (unsigned __int16)port;
+	version.addr_from.port = (uint16_t )port;
 
 	version.nonce = -5399599167942985965;
 	version.stream_numbers.appendInt8(1);
@@ -283,7 +283,7 @@ void NodeConnection::Listener()
 		while(this->Socket != SOCKET_ERROR)
 		{
 			Packet  packet;
-			
+
 			packet.getCommand(this->Socket);
 
 			//printf("%s\n", packet.command); //this printf are not really thread save, and they are only needed for debug
@@ -371,7 +371,7 @@ void NodeConnection::Listener()
 						NodeConnection *tmp_node= new NodeConnection(ip,port, this->bitmrc);
 
 						this->bitmrc->connectNode(tmp_node);
-					}	
+					}
 				}
 			}else if(!strcmp(packet.command,"inv"))
 			{
@@ -384,8 +384,8 @@ void NodeConnection::Listener()
 					{
 						tag += inv.inventory[i].ch[j];
 					}
-					
-					
+
+
 					if (!this->bitmrc->sharedObj.present(tag))
 					{
 						needed.inventory.push_back(inv.inventory[i]);
@@ -412,7 +412,7 @@ void NodeConnection::Listener()
 					if (!ObjPayload.empty())
 					{
 						object obj;
-						
+
 						memset(obj.command, 0x00, sizeof obj.command);
 						strncpy(obj.command, "object", 7);
 

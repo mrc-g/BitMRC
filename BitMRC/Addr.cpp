@@ -3,7 +3,7 @@
 #include <Storage/Storable.h>
 #include <Storage/Storage.h>
 
-PubAddr::PubAddr()
+PubAddr::PubAddr() : Storable()
 {
 	this->lastPubKeyRequest = 0;
 	this->empty = true;
@@ -75,7 +75,7 @@ bool PubAddr::loadAddr(ustring address)
 
 	char retu[100];
 	size_t size2 = 50;
-	if (b58tobin(retu, &size2, (char *)address.getRest(i).c_str()) != true) 
+	if (b58tobin(retu, &size2, (char *)address.getRest(i).c_str()) != true)
 	{
 		return false; //ignoring key not valid
 	}
@@ -87,7 +87,7 @@ bool PubAddr::loadAddr(ustring address)
 	i = 0;
 
 	unsigned int checkPos = _buffer.length() - 4;
-	
+
 	if (checkPos < (unsigned int)0)
 		return false;
 
@@ -108,13 +108,13 @@ bool PubAddr::loadAddr(ustring address)
 	}
 
 	i = 0;
-	
+
 	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	this->address = address;
 
 	int tmp_vers = (int)buffer.getVarInt_B(i);
 	int tmp_stream = (int)buffer.getVarInt_B(i);
-	
+
 	ustring tmp_ripe = buffer.getRest(i);
 
 	if (tmp_ripe.length() > 20)
@@ -167,7 +167,7 @@ bool PubAddr::loadKeys(ustring Skey, ustring Ekey, int nonce, int extra)
 	int length = Ekey.length();
 	if (length == 64)
 	{
-		
+
 		this->pubEncryptionKey += 0x04;
 		this->pubEncryptionKey += Ekey;
 	}
@@ -184,12 +184,12 @@ bool PubAddr::loadKeys(ustring Skey, ustring Ekey, int nonce, int extra)
 	length = Skey.length();
 	if (length == 64)
 	{
-		
+
 
 		this->pubSigningKey += 0x04;
 		this->pubSigningKey += Skey;
 
-		
+
 	}
 	else if (length == 65)
 	{
@@ -485,9 +485,9 @@ ustring PubAddr::encode(ustring pubKA, ustring privKB , ustring pubKB ,ustring p
 	result.appendInt16(32);
 	result.append(pubKB.c_str() + 33, 32);
 	result.fromString(encoded);
-	
 
-	
+
+
 	string HMacPlain;
 
 	HMacPlain += result.toString();
@@ -542,7 +542,7 @@ ustring PubAddr::buildAddressFromKeys(ustring Skey, ustring Ekey, int stream, in
 	CryptoPP::RIPEMD160 hash2;
 	byte digest2[CryptoPP::RIPEMD160::DIGESTSIZE];
 	hash2.CalculateDigest(digest2, digest, sizeof digest);
-	
+
 	ustring ripe;
 	int i = 0;
 	while (digest2[i] == 0x00)
@@ -685,14 +685,14 @@ void PubAddr::setLastPubKeyRequest(time_t time)
 	this->lastPubKeyRequest = time;
 }
 
-#if 0
 // later ..
 
 /* Storable baseclass methods */
-Unique_Key PubAddr::calc_key(Storable & object_in) {
+Unique_Key PubAddr::calc_key() {
 	Unique_Key ret;
 	return ret;
 }
+
 bool PubAddr::query(Unique_Key &uq_key_in, string & data_out) {
 	return false;
 }
@@ -709,7 +709,6 @@ Storable & 	PubAddr::find_by_key(Unique_Key &) {
 	return *this;
 }
 
-#endif
 
 
 Addr::Addr()
@@ -754,7 +753,7 @@ bool Addr::generateRandom()
 	OID CURVE = secp256k1();
 	AutoSeededRandomPool rng;
 
-	
+
 	ECIES<ECP>::PrivateKey privE, privS;
 
 	ustring pubSKey;
@@ -812,7 +811,7 @@ bool Addr::generateRandom()
 		memset(digest2, 0x00, 20);
 		hash2.CalculateDigest(digest2, digest, sizeof digest);
 
-		
+
 		while (digest2[zeros] == 0x00)
 			zeros++;
 	} while (zeros == 0);
@@ -865,9 +864,9 @@ int Addr::generateDeterministic(ustring passphrase, int nonce)
 
 		ustring passP = passphrase;
 		passP.appendVarInt_B(nonce++);
-		
+
 		hash.CalculateDigest(digest, (byte*)passP.c_str(), passP.size());
-		
+
 		Integer x;
 		x.Decode(digest, 32); //first 32 bytes
 		privS.Initialize(CURVE, x);
@@ -876,7 +875,7 @@ int Addr::generateDeterministic(ustring passphrase, int nonce)
 		passP.appendVarInt_B(nonce++);
 
 		hash.CalculateDigest(digest, (byte*)passP.c_str(), passP.size());
-		
+
 		x.Decode(digest, 32);
 		privE.Initialize(CURVE, x);
 
@@ -1019,7 +1018,7 @@ bool Addr::loadKeys(ustring pubE, ustring pubS, ustring privE, ustring privS, in
 	mlock.unlock();
 	if (!this->loadAddr(this->address))
 	{
-		
+
 		return false;
 	}
 
@@ -1038,7 +1037,7 @@ packet_pubkey Addr::encodePubKey()
 	std::mt19937 engine(rd());
 	std::uniform_int_distribution<int> distribution(-300, 300);
 	int random = distribution(engine);
-	
+
 	time_t TTL = 4 * 24 * 60 * 60 + random; //4 days +- 5 min
 	ltime = ltime + TTL;
 
@@ -1119,7 +1118,7 @@ packet_pubkey Addr::encodePubKey()
 
 	plain.appendVarInt_B(sign.size());
 	plain.append((unsigned char*)sign.c_str(), sign.size());
-	
+
 	ECIES<ECP>::PrivateKey priv;
 	ustring pubK = this->getPubOfPriv(this->getTagE());
 	//Integer e;

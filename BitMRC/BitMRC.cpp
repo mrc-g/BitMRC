@@ -99,7 +99,7 @@ void BitMRC::init()
 BitMRC::~BitMRC()
 {
 	this->running = false;
-	
+
 	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_nodes);
 	for (unsigned int i = 0; i < Nodes.size(); i++)
 		Nodes[i]->Close();
@@ -116,7 +116,7 @@ BitMRC::~BitMRC()
 	mlock.unlock();
 
 	this->new_packets.push(Packet());
-	
+
 	this->new_inv.push(sTag());
 
 	if (this->thread_new_packets.joinable())
@@ -124,7 +124,7 @@ BitMRC::~BitMRC()
 
 	if (this->thread_new_inv.joinable())
 		this->thread_new_inv.join();
-	
+
 	if (this->thread_init.joinable())
 		this->thread_init.join();
 
@@ -133,7 +133,7 @@ BitMRC::~BitMRC()
 	std::unique_lock<std::shared_timed_mutex> mlock1(this->mutex_priv);
 	std::unique_lock<std::shared_timed_mutex> mlock2(this->mutex_pub);
 
-	this->PubAddresses.clear(); 
+	this->PubAddresses.clear();
 	this->PrivAddresses.clear();
 }
 
@@ -370,7 +370,7 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 	if (toAddr.waitingPubKey())
 	{
 		this->getPubKey(toAddr); //TODO: make a system for key asked recently
-		
+
 		// Find the address in our pool, as the one we have is only a copy
 		PubAddr* target = nullptr;
 		for (auto i = this->PubAddresses.begin(); i != this->PubAddresses.end(); ++i)
@@ -399,7 +399,7 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 		toAddr = *target;
 	}
 	packet_msg packet;
-	
+
 	time_t ltime = std::time(nullptr);
 	std::uniform_int_distribution<int> distribution(-300, 300);
 	std::mt19937 engine;
@@ -462,7 +462,7 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 
 	ECDSA<ECP, SHA1>::Signer signer(privateKey);
 
-	
+
 	string signature;
 	string mess;
 	ustring mess1;
@@ -471,7 +471,7 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 	mess1.appendInt32(packet.message_payload.getInt32(i));
 	mess1.appendVarInt_B(packet.message_payload.getVarInt_B(i));
 	mess1.appendVarInt_B(packet.message_payload.getVarInt_B(i));
-	
+
 	mess += mess1.toString();
 	mess += msg.toString();
 
@@ -499,7 +499,7 @@ void BitMRC::sendMessage(ustring message, PubAddr toAddr, Addr fromAddr)
 	msg.append((unsigned char*)sign.c_str(), sign.size());
 
 	packet.objectPayload = fromAddr.encode(toAddr.getPubEncryptionKey(), privEKey, pubEKey, msg);
-	
+
 
 	this->sendObj(packet);
 }
@@ -510,7 +510,7 @@ void BitMRC::sendBroadcast(ustring message, Addr address)
 	ustring pubE = address.getPubOfPriv(address.getTagE());
 
 	packet_broadcast packet;
-	
+
 	time_t ltime = std::time(nullptr);
 	std::uniform_int_distribution<int> distribution(-300, 300);
 	std::mt19937 engine;
@@ -625,9 +625,9 @@ void BitMRC::sendObj(object obj)
 	memset(obj.command, 0x00, sizeof obj.command);
 	strncpy(obj.command, "object",7);
 
-	obj.encodePayload(); //time should be already 
+	obj.encodePayload(); //time should be already
 
-	unsigned __int64 nonce = searchPow(obj.message_payload, obj.Time);
+	uint64_t nonce = searchPow(obj.message_payload, obj.Time);
 
 	obj.nonce = nonce;
 
@@ -786,13 +786,13 @@ bool BitMRC::decryptMsg(packet_msg msg)
 				BitMRC::message Mess;
 
 				Mess.to = this->PrivAddresses[address].getAddress();
-				
+
 				PubAddr from;
 				ustring addr = from.buildAddressFromKeys(pubSigningKey, pubEncryptionKey, stream, version);
 
 				from.loadAddr(addr);
 				from.loadKeys(pubSigningKey, pubEncryptionKey, Nonce, Extra);
-				
+
 				this->addAddr(from); //saving it
 
 				Mess.from = addr;
@@ -1168,7 +1168,7 @@ void BitMRC::save(string path)
 {
 	FILE * pFile = fopen(path.c_str(), "wb");
 	FILE * kFile = fopen("keys.dat", "wb");
-	
+
 	if (!pFile)
 		return;
 	if (!kFile)

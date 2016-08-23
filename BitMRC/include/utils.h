@@ -2,7 +2,7 @@
 #pragma once
 #endif
 
-#ifndef _UTILS 
+#ifndef _UTILS
 #define _UTILS
 using namespace std;
 
@@ -35,26 +35,26 @@ public:
 	void appendInt8(unsigned char i);
 
 	//big endian
-	void appendInt16(__int16 i);
-	
+	void appendInt16(int16_t i);
+
 	//big endian
-	void appendInt32(__int32 i);
-	
+	void appendInt32(int32_t i);
+
 	//big endian
-	void appendInt64(__int64 i);
+	void appendInt64(int64_t i);
 
 	//append varint that use 1-3-5-9 byte with the structures:
 	//	1	byte
 	//  3   0xfd + short
 	//  5	0xfe + uint32
 	//	9	0xff + uint64
-	void appendVarInt_B(unsigned __int64 i);
+	void appendVarInt_B(uint64_t i);
 
 	//append varint 32, little endian
-	void appendVarInt32(unsigned __int32 i);
+	void appendVarInt32(uint32_t i);
 
 	//append varint 64, little endian
-	void appendVarInt64(unsigned __int64 i);
+	void appendVarInt64(uint64_t i);
 
 	//append a string prefixed by a varint representing the length
 	void appendVarString(string str);
@@ -72,26 +72,26 @@ public:
 	unsigned char getInt8(unsigned int& i);
 
 	//get a signed short
-	__int16 getInt16(unsigned int& i);
+	int16_t getInt16(unsigned int& i);
 
 	//get a signed int32
-	__int32 getInt32(unsigned int& i);
+	int32_t getInt32(unsigned int& i);
 
 	//get a signed int64
-	__int64 getInt64(unsigned int& i);
+	int64_t getInt64(unsigned int& i);
 
 	//get varint that use 1-3-5-9 byte with the structures:
 	//	1	byte
 	//  3   0xfd + short
 	//  5	0xfe + uint32
 	//	9	0xff + uint64
-	__int64 getVarInt_B(unsigned int& i);
+	int64_t getVarInt_B(unsigned int& i);
 
 	//get varint 32, little endian
-	__int32 getVarInt32(unsigned int& i);
+	int32_t getVarInt32(unsigned int& i);
 
 	//get varint 32, little endian
-	__int64 getVarInt64(unsigned int& i);
+	int64_t getVarInt64(unsigned int& i);
 
 	//get a string segment from i for len bytes
 	string getString(int len, unsigned int& i);
@@ -141,26 +141,26 @@ public:
 	void sendByte(unsigned char i);
 
 	//big endian
-	void sendInt16(__int16 i);
-	
+	void sendInt16(int16_t i);
+
 	//big endian
-	void sendInt32(__int32 i);
-	
+	void sendInt32(int32_t i);
+
 	//big endian
-	void sendInt64(__int64 i);
+	void sendInt64(int64_t i);
 
 	//send varint that use 1-3-5-9 byte with the structures:
 	//	1	byte
 	//  3   0xfd + short
 	//  5	0xfe + uint32
 	//	9	0xff + uint64
-	void sendVarInt_B(unsigned __int64 i);
+	void sendVarInt_B(uint64_t i);
 
 	//send varint 32, little endian
-	void sendVarInt32(unsigned __int32 i);
+	void sendVarInt32(uint32_t i);
 
 	//send varint 64, little endian
-	void sendVarInt64(unsigned __int64 i);
+	void sendVarInt64(uint64_t i);
 
 	//send a string without prefix
 	void sendString(string str, int len);
@@ -190,26 +190,26 @@ public:
 	unsigned char getInt8();
 
 	//get a signed short
-	__int16 getInt16();
+	int16_t getInt16();
 
 	//get a signed int32
-	__int32 getInt32();
+	int32_t getInt32();
 
 	//get a signed int64
-	__int64 getInt64();
+	int64_t getInt64();
 
 	//get varint that use 1-3-5-9 byte with the structures:
 	//	1	byte
 	//  3   0xfd + short
 	//  5	0xfe + uint32
 	//	9	0xff + uint64
-	__int64 getVarInt_B();
+	int64_t getVarInt_B();
 
 	//get varint 32, little endian
-	__int32 getVarInt32();
+	int32_t getVarInt32();
 
 	//get varint 32, little endian
-	__int64 getVarInt64();
+	int64_t getVarInt64();
 
 	//get a string segment from i for len bytes
 	string getString(int len);
@@ -246,26 +246,26 @@ public:
 	void writeByte(unsigned char i);
 
 	//big endian
-	void writeInt16(__int16 i);
+	void writeInt16(int16_t i);
 
 	//big endian
-	void writeInt32(__int32 i);
+	void writeInt32(int32_t i);
 
 	//big endian
-	void writeInt64(__int64 i);
+	void writeInt64(int64_t i);
 
 	//write varint that use 1-3-5-9 byte with the structures:
 	//	1	byte
 	//  3   0xfd + short
 	//  5	0xfe + uint32
 	//	9	0xff + uint64
-	void writeVarInt_B(unsigned __int64 i);
+	void writeVarInt_B(uint64_t i);
 
 	//write varint 32, little endian
-	void writeVarInt32(unsigned __int32 i);
+	void writeVarInt32(uint32_t i);
 
 	//write varint 64, little endian
-	void writeVarInt64(unsigned __int64 i);
+	void writeVarInt64(uint64_t i);
 
 	//write a string without prefix
 	void writeString(string str, int len);
@@ -295,26 +295,26 @@ public:
 	unsigned char getInt8();
 
 	//get a signed short
-	__int16 getInt16();
+	int16_t getInt16();
 
 	//get a signed int32
-	__int32 getInt32();
+	int32_t getInt32();
 
 	//get a signed int64
-	__int64 getInt64();
+	int64_t getInt64();
 
 	//get varint that use 1-3-5-9 byte with the structures:
 	//	1	byte
 	//  3   0xfd + short
 	//  5	0xfe + uint32
 	//	9	0xff + uint64
-	__int64 getVarInt_B();
+	int64_t getVarInt_B();
 
 	//get varint 32, little endian
-	__int32 getVarInt32();
+	int32_t getVarInt32();
 
 	//get varint 32, little endian
-	__int64 getVarInt64();
+	int64_t getVarInt64();
 
 	//get a string segment from i for len bytes
 	string getString(int len);
@@ -346,12 +346,12 @@ public:
 #include <thread>
 #include <mutex>
 #include <condition_variable>
- 
+
 template <typename T>
 class Queue
 {
  public:
- 
+
   T pop()
   {
     std::unique_lock<std::mutex> mlock(mutex_);
@@ -363,7 +363,7 @@ class Queue
     queue_.pop();
     return item;
   }
- 
+
   void pop(T& item)
   {
     std::unique_lock<std::mutex> mlock(mutex_);
@@ -374,7 +374,7 @@ class Queue
     item = queue_.front();
     queue_.pop();
   }
- 
+
   void push(const T& item)
   {
     std::unique_lock<std::mutex> mlock(mutex_);
@@ -382,7 +382,7 @@ class Queue
     mlock.unlock();
     cond_.notify_one();
   }
- 
+
   void push(T&& item)
   {
     std::unique_lock<std::mutex> mlock(mutex_);
@@ -398,7 +398,7 @@ class Queue
 	  mlock.unlock();
 	  return ret;
   }
- 
+
  private:
   std::queue<T> queue_;
   std::mutex mutex_;
@@ -409,7 +409,7 @@ template<typename T>
 class hash_table
 {
 public:
-	
+
 	std::shared_timed_mutex mutex_;
 
 	typedef struct linked_node_struct
@@ -552,7 +552,7 @@ public:
 			}
 			prec = cur;
 			cur = cur->next;
-			
+
 		}
 
 		prec->next = new linked_node;
@@ -589,4 +589,4 @@ public:
 	}
 };
 
-#endif 
+#endif

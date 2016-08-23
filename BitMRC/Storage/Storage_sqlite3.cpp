@@ -41,8 +41,8 @@ int Storage_sqlite3::is_sqlite_error(int errin) {
 /** \brief the needed callback function
  * \todo: generalise
  */
-int Storage_sqlite3::q_callback(void* param ,int count, char** keys, char** values) {
-    LOG_DB(("%s param %x columns: %d\n",__func__, param, count));
+int Storage_sqlite3::q_callback(void* param, int count, char** keys, char** values) {
+    LOG_DB(("%s param %p columns: %d\n",__func__, param, count));
 	/* \todo: unify */
     if(param == NULL)
     	return 1;
@@ -51,19 +51,27 @@ int Storage_sqlite3::q_callback(void* param ,int count, char** keys, char** valu
 		LOG_DB((" create tables\n"));
  	} else if (cfg->query_type == query_system) {
  		/* system table has been queried */
- 		LOG_DB((" system table queried\n"));
  		bitmrc_sysinfo_t *si = (bitmrc_sysinfo_t*)cfg->data_struct_ptr;
- 		si->node_id = (uint64_t)atoi(values[0]);
- 		si->working_mode = atoi(values[1]);
- 		si->networking_flags = atoi(values[2]);
- 		si->stream_ids[0] = atoi(values[3]);
- 		si->stream_ids[1] = atoi(values[4]);
- 		si->stream_ids[2] = atoi(values[5]);
- 		si->stream_ids[3] = atoi(values[6]);
- 		si->last_startup_timestamp = atoi(values[7]);
- 		si->last_startup_result = atoi(values[8]);
- 		si->database_version = (uint16_t)atoi(values[9]);
- 		LOG_DB(("node_id %llu db_version %hu\n", si->node_id, si->database_version));
+
+ 		while(count>0) {
+ 			LOG_DB((" system table:%s == %s\n", values[count-1], keys[count-1]));
+ 			count--;
+ 		}
+ 		si->node_id = (uint64_t)atoi(keys[0]);
+ 		si->database_version = (uint16_t)atoi(keys[9]);
+#if 0
+ 		si->node_id = (uint64_t)atoi(keys[0]);
+ 		si->working_mode = atoi(keys[1]);
+ 		si->networking_flags = atoi(keys[2]);
+ 		si->stream_ids[0] = (uint16_t)atoi(keys[3]);
+ 		si->stream_ids[1] = (uint16_t)atoi(keys[4]);
+ 		si->stream_ids[2] = (uint16_t)atoi(keys[5]);
+ 		si->stream_ids[3] = (uint16_t)atoi(keys[6]);
+ 		si->last_startup_timestamp = atoi(keys[7]);
+ 		si->last_startup_result = atoi(keys[8]);
+ 		si->database_version = (uint16_t)atoi(keys[9]);
+#endif
+ 		// LOG_DB(("node_id %llu db_version %hu\n", si->node_id, si->database_version));
 	} else if ( cfg->query_type == insert_data) {
 
 		/* node storable has been stored , last_insert_id() returned as only field
@@ -148,7 +156,9 @@ bool Storage_sqlite3::register_storable(Storable * object) {
 
 uint32_t Storage_sqlite3::sql_exec(uint16_t type, const char * query) {
 	uint32_t ret = BITMRC_SOME_ERROR;
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
 	void * x_param = (void*)type;
+#pragma GCC diagnostic warning "-Wint-to-pointer-cast"
 	char * errinfo = NULL;
 	int sret = sqlite3_exec(db, query, q_callback, x_param, &errinfo);
 	if((is_sqlite_error(sret)) || errinfo != NULL ) {
