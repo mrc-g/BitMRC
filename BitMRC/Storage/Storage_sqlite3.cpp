@@ -42,7 +42,7 @@ int Storage_sqlite3::is_sqlite_error(int errin) {
  * \todo: generalise
  */
 int Storage_sqlite3::q_callback(void* param ,int count, char** keys, char** values) {
-    LOG_DB(("%s param %x columns: %d\n",__func__, param, count));
+    LOG_DB(("%s param %p columns: %d\n",__func__, param, count));
 	/* \todo: unify */
     if(param == NULL)
     	return 1;
@@ -63,7 +63,7 @@ int Storage_sqlite3::q_callback(void* param ,int count, char** keys, char** valu
  		si->last_startup_timestamp = atoi(values[7]);
  		si->last_startup_result = atoi(values[8]);
  		si->database_version = (uint16_t)atoi(values[9]);
- 		LOG_DB(("node_id %llu db_version %hu\n", si->node_id, si->database_version));
+ 		// LOG_DB(("node_id %llu db_version %hu\n", si->node_id, si->database_version));
 	} else if ( cfg->query_type == insert_data) {
 
 		/* node storable has been stored , last_insert_id() returned as only field
@@ -148,7 +148,9 @@ bool Storage_sqlite3::register_storable(Storable * object) {
 
 uint32_t Storage_sqlite3::sql_exec(uint16_t type, const char * query) {
 	uint32_t ret = BITMRC_SOME_ERROR;
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
 	void * x_param = (void*)type;
+#pragma GCC diagnostic warning "-Wint-to-pointer-cast"
 	char * errinfo = NULL;
 	int sret = sqlite3_exec(db, query, q_callback, x_param, &errinfo);
 	if((is_sqlite_error(sret)) || errinfo != NULL ) {
