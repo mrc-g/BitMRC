@@ -1,6 +1,6 @@
 @startuml
 /' use "plantuml" to compile '/
-title BitMRC functional interaction chart (incomplete)
+title BitMRC functional interaction
 
 
 
