@@ -6,6 +6,9 @@
  */
 #include <sqlite3.h>
 #include <Storage/Storable.h>
+#include <Storage/Storage.h>
+#include <types.h>
+#include <shared_mutex>
 #ifndef STORAGE_SQLITE3_H_
 #define STORAGE_SQLITE3_H_
 
@@ -55,7 +58,7 @@ public:
 #endif
 private:
 	sqlite3 *db;
-	mutable shared_timed_mutex mutex;
+	mutable std::shared_timed_mutex mutex;
 	static vector<Storable *> storable_list;
 	std::string db_name;
 	std::string db_user;

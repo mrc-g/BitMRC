@@ -8,8 +8,10 @@
 #ifndef UNIQUE_KEY_H_
 #define UNIQUE_KEY_H_
 
-#include <Addr.h>
+
 #include <stdlib.h>
+
+class Addr;
 
 class Unique_Key {
 public:
@@ -23,7 +25,6 @@ public:
 	bool operator==(Addr &);
 	bool set_key(std::string key_in);
 };
-
 
 
 #endif /* UNIQUE_KEY_H_ */

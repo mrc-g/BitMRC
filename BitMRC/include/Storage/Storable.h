@@ -18,11 +18,11 @@ enum Storable_Type { STORABLE_NONE, STORABLE_TEST, STORABLE_ADDRESS, STORABLE_NO
 
 class Storable {
 public:
-	Storable() : type(STORABLE_NONE) {};
+	Storable() {};
 	~Storable() {};
 public:
 	virtual  Unique_Key calc_key() = 0;
-	virtual  bool query(Unique_Key &uq_key_in, string & data_out) = 0;
+	virtual  bool query(Unique_Key &uq_key_in, std::string & data_out) = 0;
 	virtual  bool store(Storable & object_in, Unique_Key & key_out) = 0;
 	virtual  bool delete_storable(Storable & object_in) = 0;
 	virtual  bool delete_storable(Unique_Key & key_in) = 0;

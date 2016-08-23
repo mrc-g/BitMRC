@@ -1,4 +1,6 @@
+#ifndef LINUX
 #pragma once
+#endif
 #ifndef _NODE_CONNECTION
 #define _NODE_CONNECTION
 
@@ -93,7 +95,7 @@ public:
 
 	//holds the socket
 	SOCK_TYPE Socket;
-	
+
 	//packets queue for multi threading
 	Queue<Packet> Packets;
 

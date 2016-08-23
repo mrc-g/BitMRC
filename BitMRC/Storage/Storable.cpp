@@ -6,12 +6,11 @@
  */
 
 #include <Storage/Storable.h>
-/*
+#if 0
 Storable::Storable() {
 
 }
 Storable::~Storable() {
 
 }
-*/
-
+#endif
