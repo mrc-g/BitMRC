@@ -10,7 +10,6 @@ add_definitions("-DDEBUG_UQK")
 include_directories(${CMAKE_SOURCE_DIR}/3rdparty/include/cryptopp
  	${CMAKE_SOURCE_DIR}/BitMRC/include ${CMAKE_SOURCE_DIR}/BitMRC/Storage/include
  	/usr/include/c++/4.9.3 /usr/include/c++)
- 
 
 execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version OUTPUT_VARIABLE CXX_VER)
 
