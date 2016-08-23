@@ -11,14 +11,21 @@
 #include <stdint.h>
 #include <unistd.h> /*sleep */
 
+#define __int32 DONTUSEME
+#define __uint32 DONTUSEME
+#define __int16 DONTUSEME
+#define __uint16 DONTUSEME
+#define __uint64 DONTUSEME
+#define __int64 DONTUSEME
+
 	#define SOCK_TYPE int
 	#define WSADATA int /* \todo: this is a hack just to compile NodeConnection*/
 	#define INVALID_SOCKET -1
 	#define SOCKET_ERROR -1
-	#define BYTE char 
+	#define BYTE char
 	#define DWORD unsigned long
 	#define ZeroMemory(a,b) memset(a,0,b)
-	#define WSAStartup(a,b) 
+	#define WSAStartup(a,b)
 #else
 
 	#define SOCK_TYPE SOCKET

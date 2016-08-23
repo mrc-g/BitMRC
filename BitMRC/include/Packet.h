@@ -32,10 +32,10 @@ using namespace CryptoPP;
 
 using namespace std;
 
-const __int32 Version = 3;
+const int32_t Version = 3;
 
-const char User_Agent[]= {0x2f, 0x50, 0x79, 0x42, 0x69, 0x74, 0x6d, 
-	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x3a, 0x30, 
+const char User_Agent[]= {0x2f, 0x50, 0x79, 0x42, 0x69, 0x74, 0x6d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x3a, 0x30,
 	0x2e, 0x34, 0x2e, 0x34, 0x2f};
 
 enum EncodingType
@@ -62,11 +62,11 @@ enum ObjectType
 
 struct Network_address
 {
-	unsigned __int32	time;
-	unsigned __int32	stream;
-	unsigned __int64	services;
-	ustring				IPv6_4;
-	unsigned __int16	port;
+	uint32_t time;
+	uint32_t stream;
+	uint64_t services;
+	ustring	IPv6_4;
+	uint16_t port;
 };
 
 struct sTag
@@ -74,7 +74,7 @@ struct sTag
 	char ch[32];
 };
 
-const unsigned __int32 Magic = {0xE9BEB4D9};
+const uint32_t Magic = {0xE9BEB4D9};
 
 class Packet
 {
@@ -84,19 +84,19 @@ public:
 	Packet(ustring data);
 
 	//magic
-	unsigned __int32	magic;
+	uint32_t magic;
 
 	//command null padded
-	char				command[12];
+	char command[12];
 
 	//lenght of payload in bytes
-	unsigned __int32	lenght;
+	uint32_t lenght;
 
 	//checksum: first 4 bytes of sha512(payload)
 	char checksum[4];
 
 	//payload: can be a message or an object
-	ustring				message_payload;
+	ustring message_payload;
 
 	//gets the data until it reachs the command
 	void getCommand(SOCK_TYPE socket);
@@ -124,30 +124,29 @@ public:
 	}
 
 	//version
-	__int32				version;
+	int32_t version;
 	//service
-	unsigned __int64	services;
+	uint64_t services;
 	//UNIX timestamp in seconds
-	__int64				timestamp;
+	uint64_t timestamp;
 	//the net_addr of the receiver (not including the time and stream number)
 	Network_address		addr_recv;
 	//the net_addr of the emitting node (not including the time and the stream number and the ip is ignored by the receiver)
 	Network_address		addr_from;
 	//random nonce used to detect connections to self
-	unsigned __int64	nonce;
+	uint64_t nonce;
 	//user agent: 0x00 if is 0 bytes long
-	ustring				user_agent;
+	ustring	user_agent;
 	//list of stream number that the emitting node is interested in, not more than 160000
-	ustring				stream_numbers;
+	ustring	stream_numbers;
 
 	//gets data
-	void decodeData()
-	{
+	void decodeData() {
 		unsigned int i=0;
 		this->version = this->message_payload.getInt32(i);
 		this->services = this->message_payload.getInt64(i);
 		this->timestamp = this->message_payload.getInt64(i);
-		
+
 		this->addr_recv.services = this->message_payload.getInt64(i);
 		this->addr_recv.IPv6_4.clear();
 		for(int j=0;j<16;j++)
@@ -235,7 +234,7 @@ public:
 	void decodeData()
 	{
 		unsigned int i=0;
-		__int64 size=0;
+		int64_t size=0;
 		size = this->message_payload.getVarInt_B(i);
 		for(int j=0;j<size;j++)
 		{
@@ -289,7 +288,7 @@ public:
 	void decodeData()
 	{
 		unsigned int i=0;
-		__int64 size = this->message_payload.getVarInt_B(i);
+		int64_t size = this->message_payload.getVarInt_B(i);
 		for (int j = 0; j < size; j++)
 		{
 			sTag tag;
@@ -336,7 +335,7 @@ public:
 	void decodeData()
 	{
 		unsigned int i = 0;
-		__int64 size = this->message_payload.getVarInt_B(i);
+		int64_t size = this->message_payload.getVarInt_B(i);
 		for (int j = 0; j < size; j++)
 		{
 			sTag tag;
@@ -378,22 +377,22 @@ public:
 	}
 
 	//random nonce used for the Proof Of Work
-	unsigned __int64	nonce;
+	uint64_t nonce;
 
 	//TTL (should be in seconds): not more than 28 days + 3 hours in the future
-	__int64	Time;
+	int64_t	Time;
 
 	//object type to be decoded.
-	unsigned __int32	objectType;
+	uint32_t objectType;
 
 	//object payload, the fields depend on the object type
-	ustring				objectPayload;
+	ustring	objectPayload;
 
 	//object version
-	unsigned __int64	version;
+	uint64_t version;
 
 	//stream number
-	unsigned __int64	stream;
+	uint64_t stream;
 
 	//decodes data
 	void decodeData()
@@ -439,7 +438,7 @@ public:
 		this->objectPayload = obj.objectPayload;
 		this->decodeObject();
 	}
-	
+
 	bool isTag;
 
 	//tag if version is >=4

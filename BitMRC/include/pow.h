@@ -20,24 +20,24 @@ ustring		doubleHash(ustring data);
 //input:	nonce
 //			payload
 //output:	first 8 bytes of the pow
-unsigned __int64		doPow(ustring data);
+uint64_t doPow(ustring data);
 
 //input:	length
 //			TTL
 //			extrabytes	= 1000
 //			noncetrials = 1000
 //output:	target
-__int64		getTarget(unsigned __int64 length, unsigned __int64 TTL, unsigned __int64 extrabytes = 1000, unsigned __int64 noncetrials = 1000);
+int64_t getTarget(uint64_t length, uint64_t TTL, uint64_t extrabytes = 1000, uint64_t noncetrials = 1000);
 
 //input		nonce
 //			payload
 //			extrabytes = 1000
 //			noncetrials = 1000
 //output:	check if is correct
-bool		checkPow(ustring data, unsigned __int64 TTL, unsigned __int64 extrabytes = 1000, unsigned __int64 noncetrials = 1000);
+bool checkPow(ustring data, uint64_t TTL, uint64_t extrabytes = 1000, uint64_t noncetrials = 1000);
 
 //input:	payload
 //output:	nonce found
-__int64		searchPow(ustring data, unsigned __int64 TTL);
+uint64_t searchPow(ustring data, uint64_t TTL);
 
 #endif

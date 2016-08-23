@@ -21,7 +21,7 @@ void ustring::appendInt8(unsigned char i)
 	this->operator+=(i);
 }
 
-void ustring::appendInt16(__int16 i)
+void ustring::appendInt16(int16_t i)
 {
 
 	unsigned char b1, b2;
@@ -33,7 +33,7 @@ void ustring::appendInt16(__int16 i)
 	this->appendInt8(b1);
 }
 
-void ustring::appendInt32(__int32 i)
+void ustring::appendInt32(int32_t i)
 {
 
 	unsigned char b1, b2, b3, b4;
@@ -42,7 +42,7 @@ void ustring::appendInt32(__int32 i)
 	b2 = ( i >> 8 ) & 255;
 	b3 = ( i >>16 ) & 255;
 	b4 = ( i >>24 ) & 255;
-		
+
 	this->appendInt8(b4);
 	this->appendInt8(b3);
 	this->appendInt8(b2);
@@ -50,7 +50,7 @@ void ustring::appendInt32(__int32 i)
 
 }
 
-void ustring::appendInt64(__int64 i)
+void ustring::appendInt64(int64_t i)
 {
 	unsigned char b1, b2, b3, b4, b5, b6, b7, b8;
 
@@ -62,7 +62,7 @@ void ustring::appendInt64(__int64 i)
 	b6 = ( i >> 40 ) & 255;
 	b7 = ( i >> 48 ) & 255;
 	b8 = ( i >> 56 ) & 255;
-	
+
 	this->appendInt8(b8);
 	this->appendInt8(b7);
 	this->appendInt8(b6);
@@ -70,20 +70,20 @@ void ustring::appendInt64(__int64 i)
 	this->appendInt8(b4);
 	this->appendInt8(b3);
 	this->appendInt8(b2);
-	this->appendInt8(b1);	
+	this->appendInt8(b1);
 }
 
-void ustring::appendVarInt_B(unsigned __int64 i)
+void ustring::appendVarInt_B(uint64_t  i)
 {
     if(i < 0)
         return; // FIXME: throw exception or something
-   
+
     if (i < 253)
 	{
 		this->appendInt8( (unsigned char) i );
         return;
 	}
-	else if ((i >= 253) && (i < 65536)) 
+	else if ((i >= 253) && (i < 65536))
 	{
         this->appendInt8( (unsigned char) 253 );
 		this->appendInt16( (unsigned short) i );
@@ -92,19 +92,19 @@ void ustring::appendVarInt_B(unsigned __int64 i)
     else if ((i >= 65536) && (i < 4294967296))
 	{
         this->appendInt8( (unsigned char) 254 );
-		this->appendInt32( (unsigned __int32)(i));
+		this->appendInt32( (uint32_t )(i));
 		return;
 	}
     else if (i >= 4294967296)
 	{
         this->appendInt8( (unsigned char) 255 );
-		this->appendInt64( (unsigned __int64) i );
+		this->appendInt64( (uint64_t ) i );
 		return;
 	}
 	return;
 }
 
-void ustring::appendVarInt32(unsigned __int32 i)
+void ustring::appendVarInt32(uint32_t  i)
 {
 	while (i >= 0x80) {
 		this->appendInt8(static_cast<unsigned char>( i | 0x80 ));
@@ -114,13 +114,13 @@ void ustring::appendVarInt32(unsigned __int32 i)
 	return;
 }
 
-void ustring::appendVarInt64(unsigned __int64 i)
+void ustring::appendVarInt64(uint64_t  i)
 {
 	// Splitting into 32-bit pieces gives better performance on 32-bit
 	// processors.
-	unsigned __int32 part0 = static_cast<unsigned __int32>( i );
-	unsigned __int32 part1 = static_cast<unsigned __int32>( i >> 28 );
-	unsigned __int32 part2 = static_cast<unsigned __int32>( i >> 56 );
+	uint32_t  part0 = static_cast<uint32_t >( i );
+	uint32_t  part1 = static_cast<uint32_t >( i >> 28 );
+	uint32_t  part2 = static_cast<uint32_t >( i >> 56 );
 
 	int size;
 
@@ -195,28 +195,28 @@ unsigned char ustring::getInt8(unsigned int& i)
 	return this->operator[](i++);
 }
 
-__int16 ustring::getInt16(unsigned int& i)
+int16_t ustring::getInt16(unsigned int& i)
 {
-	__int16 ret;
-	ret = (__int16)(((unsigned __int16)this->getInt8(i) << 8) + (unsigned __int16)this->getInt8(i));
+	int16_t ret;
+	ret = (int16_t)(((uint16_t )this->getInt8(i) << 8) + (uint16_t )this->getInt8(i));
 	return ret;
 }
 
-__int32 ustring::getInt32(unsigned int& i)
+int32_t ustring::getInt32(unsigned int& i)
 {
-	__int32 ret;
-	ret = (__int32)(((unsigned __int32)this->getInt8(i) << 24) + ((unsigned __int32)this->getInt8(i) << 16) + ((unsigned __int32)this->getInt8(i) << 8) + (unsigned __int32)this->getInt8(i));
+	int32_t ret;
+	ret = (int32_t)(((uint32_t )this->getInt8(i) << 24) + ((uint32_t )this->getInt8(i) << 16) + ((uint32_t )this->getInt8(i) << 8) + (uint32_t )this->getInt8(i));
 	return ret;
 }
 
-__int64 ustring::getInt64(unsigned int& i)
+int64_t ustring::getInt64(unsigned int& i)
 {
-	__int64 ret;
-	ret = (__int64)(((unsigned __int64)this->getInt8(i) << 56) + ((unsigned __int64)this->getInt8(i) << 48) + ((unsigned __int64)this->getInt8(i) << 40) + ((unsigned __int64)this->getInt8(i) << 32) + ((unsigned __int64)this->getInt8(i) << 24) + ((unsigned __int64)this->getInt8(i) << 16) + ((unsigned __int64)this->getInt8(i) << 8) + (unsigned __int64)this->getInt8(i));
+	int64_t ret;
+	ret = (int64_t)(((uint64_t )this->getInt8(i) << 56) + ((uint64_t )this->getInt8(i) << 48) + ((uint64_t )this->getInt8(i) << 40) + ((uint64_t )this->getInt8(i) << 32) + ((uint64_t )this->getInt8(i) << 24) + ((uint64_t )this->getInt8(i) << 16) + ((uint64_t )this->getInt8(i) << 8) + (uint64_t )this->getInt8(i));
 	return ret;
 }
 
-__int64 ustring::getVarInt_B(unsigned int& i)
+int64_t ustring::getVarInt_B(unsigned int& i)
 {
 	unsigned char firstByte;
 
@@ -233,29 +233,29 @@ __int64 ustring::getVarInt_B(unsigned int& i)
 		return ((unsigned short)this->getInt8(i) << 8) + (unsigned short)this->getInt8(i);
 	}
     if (firstByte == 254) {
-		return ((unsigned __int32)this->getInt8(i) << 24) + ((unsigned __int32)this->getInt8(i) << 16) + ((unsigned __int32)this->getInt8(i) << 8) + (unsigned __int32)this->getInt8(i);
+		return ((uint32_t )this->getInt8(i) << 24) + ((uint32_t )this->getInt8(i) << 16) + ((uint32_t )this->getInt8(i) << 8) + (uint32_t )this->getInt8(i);
 	}
     if (firstByte == 255) {
-        return ((unsigned __int64)this->getInt8(i) << 56) + ((unsigned __int64)this->getInt8(i) << 48) + ((unsigned __int64)this->getInt8(i) << 40) + ((unsigned __int64)this->getInt8(i) << 32) + ((unsigned __int64)this->getInt8(i) << 24) + ((unsigned __int64)this->getInt8(i) << 16) + ((unsigned __int64)this->getInt8(i) << 8) + (unsigned __int64)this->getInt8(i);
+        return ((uint64_t )this->getInt8(i) << 56) + ((uint64_t )this->getInt8(i) << 48) + ((uint64_t )this->getInt8(i) << 40) + ((uint64_t )this->getInt8(i) << 32) + ((uint64_t )this->getInt8(i) << 24) + ((uint64_t )this->getInt8(i) << 16) + ((uint64_t )this->getInt8(i) << 8) + (uint64_t )this->getInt8(i);
 	}
 	return 0;
 }
 
-__int32 ustring::getVarInt32(unsigned int& i)
+int32_t ustring::getVarInt32(unsigned int& i)
 {
-	__int32 b;
-	__int32 result = 0;
+	int32_t b;
+	int32_t result = 0;
 
 	for(unsigned int j=0; (j < 5 ) && (i < this->length()); j++)
 	{
-		b = (unsigned __int32)this->getInt8(i);	result += b << 7*j;	if (!(b & 0x80)) goto done;
+		b = (uint32_t )this->getInt8(i);	result += b << 7*j;	if (!(b & 0x80)) goto done;
 		result -= 0x80;
 	}
 
 	// If the input is larger than 32 bits, we still need to read it all
 	// and discard the high-order bits. max - max32 = 10 - 5 = 5
 	for (unsigned int j = 0; (j < 5) && (j < this->length()); j++) {
-		b = (unsigned __int32)this->getInt8(i); if (!(b & 0x80)) goto done;
+		b = (uint32_t )this->getInt8(i); if (!(b & 0x80)) goto done;
 	}
 
 	// We have overrun the maximum size of a varint (10 bytes).  Assume
@@ -267,21 +267,21 @@ done:
 	return result;
 }
 
-__int64 ustring::getVarInt64(unsigned int& i)
+int64_t ustring::getVarInt64(unsigned int& i)
 {
-	__int64 b;
-	__int64 result = 0;
+	int64_t b;
+	int64_t result = 0;
 
 	for(int j=0; (j < 5 ) && (i < this->length()); j++)
 	{
-		b = (unsigned __int64)this->getInt8(i);	result += b << 7*j;	if (!(b & 0x80)) goto done;
+		b = (uint64_t )this->getInt8(i);	result += b << 7*j;	if (!(b & 0x80)) goto done;
 		result -= 0x80;
 	}
 
 	// If the input is larger than 32 bits, we still need to read it all
 	// and discard the high-order bits. max - max32 = 10 - 5 = 5
 	for (unsigned int j = 0; (j < 5) && (j < this->length()); j++) {
-		b = (unsigned __int64)this->getInt8(i); if (!(b & 0x80)) goto done;
+		b = (uint64_t )this->getInt8(i); if (!(b & 0x80)) goto done;
 	}
 
 	// We have overrun the maximum size of a varint (10 bytes).  Assume
@@ -414,7 +414,7 @@ void socket_ustring::sendByte(unsigned char i)
     }
 }
 
-void socket_ustring::sendInt16(__int16 i)
+void socket_ustring::sendInt16(int16_t i)
 {
 
 	unsigned char b1, b2;
@@ -426,7 +426,7 @@ void socket_ustring::sendInt16(__int16 i)
 	this->sendByte(b1);
 }
 
-void socket_ustring::sendInt32(__int32 i)
+void socket_ustring::sendInt32(int32_t i)
 {
 
 	unsigned char b1, b2, b3, b4;
@@ -435,7 +435,7 @@ void socket_ustring::sendInt32(__int32 i)
 	b2 = ( i >> 8 ) & 255;
 	b3 = ( i >>16 ) & 255;
 	b4 = ( i >>24 ) & 255;
-		
+
 	this->sendByte(b4);
 	this->sendByte(b3);
 	this->sendByte(b2);
@@ -443,7 +443,7 @@ void socket_ustring::sendInt32(__int32 i)
 
 }
 
-void socket_ustring::sendInt64(__int64 i)
+void socket_ustring::sendInt64(int64_t i)
 {
 	unsigned char b1, b2, b3, b4, b5, b6, b7, b8;
 
@@ -455,7 +455,7 @@ void socket_ustring::sendInt64(__int64 i)
 	b6 = ( i >> 40 ) & 255;
 	b7 = ( i >> 48 ) & 255;
 	b8 = ( i >> 56 ) & 255;
-	
+
 	this->sendByte(b8);
 	this->sendByte(b7);
 	this->sendByte(b6);
@@ -463,20 +463,20 @@ void socket_ustring::sendInt64(__int64 i)
 	this->sendByte(b4);
 	this->sendByte(b3);
 	this->sendByte(b2);
-	this->sendByte(b1);	
+	this->sendByte(b1);
 }
 
-void socket_ustring::sendVarInt_B(unsigned __int64 i)
+void socket_ustring::sendVarInt_B(uint64_t  i)
 {
     if(i < 0)
         return; // FIXME: throw exception or something
-   
+
     if (i < 253)
 	{
 		this->sendByte( (unsigned char) i );
         return;
 	}
-	else if ((i >= 253) && (i < 65536)) 
+	else if ((i >= 253) && (i < 65536))
 	{
         this->sendByte( (unsigned char) 253 );
 		this->sendInt16( (unsigned short) i );
@@ -485,19 +485,19 @@ void socket_ustring::sendVarInt_B(unsigned __int64 i)
     else if ((i >= 65536) && (i < 4294967296))
 	{
         this->sendByte( (unsigned char) 254 );
-		this->sendInt32( (unsigned __int32)(i));
+		this->sendInt32( (uint32_t )(i));
 		return;
 	}
     else if (i >= 4294967296)
 	{
         this->sendByte( (unsigned char) 255 );
-		this->sendInt64( (unsigned __int64) i );
+		this->sendInt64( (uint64_t ) i );
 		return;
 	}
 	return;
 }
 
-void socket_ustring::sendVarInt32(unsigned __int32 i)
+void socket_ustring::sendVarInt32(uint32_t  i)
 {
 	while (i >= 0x80) {
 		this->sendByte(static_cast<unsigned char>( i | 0x80 ));
@@ -507,13 +507,13 @@ void socket_ustring::sendVarInt32(unsigned __int32 i)
 	return;
 }
 
-void socket_ustring::sendVarInt64(unsigned __int64 i)
+void socket_ustring::sendVarInt64(uint64_t  i)
 {
 	// Splitting into 32-bit pieces gives better performance on 32-bit
 	// processors.
-	unsigned __int32 part0 = static_cast<unsigned __int32>( i );
-	unsigned __int32 part1 = static_cast<unsigned __int32>( i >> 28 );
-	unsigned __int32 part2 = static_cast<unsigned __int32>( i >> 56 );
+	uint32_t  part0 = static_cast<uint32_t >( i );
+	uint32_t  part1 = static_cast<uint32_t >( i >> 28 );
+	uint32_t  part2 = static_cast<uint32_t >( i >> 56 );
 
 	int size;
 
@@ -577,7 +577,7 @@ void socket_ustring::sendVarInt64(unsigned __int64 i)
 		tmp_s.appendInt8( static_cast<unsigned char>((part0  >> j*7   ) | 0x80));
 	}
 
-	
+
 
 	unsigned char tmp= tmp_s[tmp_s.length()-1];
 	tmp_s[tmp_s.length()-1] = tmp & 0x7F;
@@ -601,7 +601,7 @@ void socket_ustring::sendString(string str, int len)
 		}
 	}
 }
-	
+
 void socket_ustring::sendUstring(ustring str, int len)
 {
 	if ((unsigned int)len > str.length())
@@ -624,7 +624,7 @@ void socket_ustring::sendString(string str)
 		this->sendByte(str[i]);
 	}
 }
-	
+
 void socket_ustring::sendUstring(ustring str)
 {
 	for(unsigned int i=0; i<str.length();i++)
@@ -673,28 +673,28 @@ unsigned char socket_ustring::getInt8()
 	}
 }
 
-__int16 socket_ustring::getInt16()
+int16_t socket_ustring::getInt16()
 {
-	__int16 ret;
-	ret = (__int16)(((unsigned __int16)this->getInt8() << 8) + (unsigned __int16)this->getInt8());
+	int16_t ret;
+	ret = (int16_t)(((uint16_t )this->getInt8() << 8) + (uint16_t )this->getInt8());
 	return ret;
 }
 
-__int32 socket_ustring::getInt32()
+int32_t socket_ustring::getInt32()
 {
-	__int32 ret;
-	ret = (__int32)(((unsigned __int32)this->getInt8() << 24) + ((unsigned __int32)this->getInt8() << 16) + ((unsigned __int32)this->getInt8() << 8) + (unsigned __int32)this->getInt8());
+	int32_t ret;
+	ret = (int32_t)(((uint32_t )this->getInt8() << 24) + ((uint32_t )this->getInt8() << 16) + ((uint32_t )this->getInt8() << 8) + (uint32_t )this->getInt8());
 	return ret;
 }
 
-__int64 socket_ustring::getInt64()
+int64_t socket_ustring::getInt64()
 {
-	__int64 ret;
-	ret = (__int64)(((unsigned __int64)this->getInt8() << 56) + ((unsigned __int64)this->getInt8() << 48) + ((unsigned __int64)this->getInt8() << 40) + ((unsigned __int64)this->getInt8() << 32) + ((unsigned __int64)this->getInt8() << 24) + ((unsigned __int64)this->getInt8() << 16) + ((unsigned __int64)this->getInt8() << 8) + (unsigned __int64)this->getInt8());
+	int64_t ret;
+	ret = (int64_t)(((uint64_t )this->getInt8() << 56) + ((uint64_t )this->getInt8() << 48) + ((uint64_t )this->getInt8() << 40) + ((uint64_t )this->getInt8() << 32) + ((uint64_t )this->getInt8() << 24) + ((uint64_t )this->getInt8() << 16) + ((uint64_t )this->getInt8() << 8) + (uint64_t )this->getInt8());
 	return ret;
 }
 
-__int64 socket_ustring::getVarInt_B()
+int64_t socket_ustring::getVarInt_B()
 {
 	unsigned char firstByte;
 
@@ -707,29 +707,29 @@ __int64 socket_ustring::getVarInt_B()
 		return ((unsigned short)this->getInt8() << 8) + (unsigned short)this->getInt8();
 	}
     if (firstByte == 254) {
-		return ((unsigned __int32)this->getInt8() << 24) + ((unsigned __int32)this->getInt8() << 16) + ((unsigned __int32)this->getInt8() << 8) + (unsigned __int32)this->getInt8();
+		return ((uint32_t )this->getInt8() << 24) + ((uint32_t )this->getInt8() << 16) + ((uint32_t )this->getInt8() << 8) + (uint32_t )this->getInt8();
 	}
     if (firstByte == 255) {
-        return ((unsigned __int64)this->getInt8() << 56) + ((unsigned __int64)this->getInt8() << 48) + ((unsigned __int64)this->getInt8() << 40) + ((unsigned __int64)this->getInt8() << 32) + ((unsigned __int64)this->getInt8() << 24) + ((unsigned __int64)this->getInt8() << 16) + ((unsigned __int64)this->getInt8() << 8) + (unsigned __int64)this->getInt8();
+        return ((uint64_t )this->getInt8() << 56) + ((uint64_t )this->getInt8() << 48) + ((uint64_t )this->getInt8() << 40) + ((uint64_t )this->getInt8() << 32) + ((uint64_t )this->getInt8() << 24) + ((uint64_t )this->getInt8() << 16) + ((uint64_t )this->getInt8() << 8) + (uint64_t )this->getInt8();
 	}
 	return 0;
 }
 
-__int32 socket_ustring::getVarInt32()
+int32_t socket_ustring::getVarInt32()
 {
-	__int32 b;
-	__int32 result = 0;
+	int32_t b;
+	int32_t result = 0;
 
 	for(int j=0; j < 5; j++)
 	{
-		b = (unsigned __int32)this->getInt8();	result += b << 7*j;	if (!(b & 0x80)) goto done;
+		b = (uint32_t )this->getInt8();	result += b << 7*j;	if (!(b & 0x80)) goto done;
 		result -= 0x80;
 	}
 
 	// If the input is larger than 32 bits, we still need to read it all
 	// and discard the high-order bits. max - max32 = 10 - 5 = 5
 	for (int j = 0; j < 5; j++) {
-		b = (unsigned __int32)this->getInt8(); if (!(b & 0x80)) goto done;
+		b = (uint32_t )this->getInt8(); if (!(b & 0x80)) goto done;
 	}
 
 	// We have overrun the maximum size of a varint (10 bytes).  Assume
@@ -740,21 +740,21 @@ done:
 	return result;
 }
 
-__int64 socket_ustring::getVarInt64()
+int64_t socket_ustring::getVarInt64()
 {
-	__int64 b;
-	__int64 result = 0;
+	int64_t b;
+	int64_t result = 0;
 
 	for(int j=0; j < 5 ; j++)
 	{
-		b = (unsigned __int64)this->getInt8();	result += b << 7*j;	if (!(b & 0x80)) goto done;
+		b = (uint64_t )this->getInt8();	result += b << 7*j;	if (!(b & 0x80)) goto done;
 		result -= 0x80;
 	}
 
 	// If the input is larger than 32 bits, we still need to read it all
 	// and discard the high-order bits. max - max32 = 10 - 5 = 5
 	for (int j = 0; j < 5 ; j++) {
-		b = (unsigned __int64)this->getInt8(); if (!(b & 0x80)) goto done;
+		b = (uint64_t )this->getInt8(); if (!(b & 0x80)) goto done;
 	}
 
 	// We have overrun the maximum size of a varint (10 bytes).  Assume
@@ -897,7 +897,7 @@ void file_ustring::writeByte(unsigned char i)
 	}
 }
 
-void file_ustring::writeInt16(__int16 i)
+void file_ustring::writeInt16(int16_t i)
 {
 
 	unsigned char b1, b2;
@@ -909,7 +909,7 @@ void file_ustring::writeInt16(__int16 i)
 	this->writeByte(b1);
 }
 
-void file_ustring::writeInt32(__int32 i)
+void file_ustring::writeInt32(int32_t i)
 {
 
 	unsigned char b1, b2, b3, b4;
@@ -926,7 +926,7 @@ void file_ustring::writeInt32(__int32 i)
 
 }
 
-void file_ustring::writeInt64(__int64 i)
+void file_ustring::writeInt64(int64_t i)
 {
 	unsigned char b1, b2, b3, b4, b5, b6, b7, b8;
 
@@ -949,7 +949,7 @@ void file_ustring::writeInt64(__int64 i)
 	this->writeByte(b1);
 }
 
-void file_ustring::writeVarInt_B(unsigned __int64 i)
+void file_ustring::writeVarInt_B(uint64_t  i)
 {
 	if (i < 0)
 		return; // FIXME: throw exception or something
@@ -968,19 +968,19 @@ void file_ustring::writeVarInt_B(unsigned __int64 i)
 	else if ((i >= 65536) && (i < 4294967296))
 	{
 		this->writeByte((unsigned char)254);
-		this->writeInt32((unsigned __int32)(i));
+		this->writeInt32((uint32_t )(i));
 		return;
 	}
 	else if (i >= 4294967296)
 	{
 		this->writeByte((unsigned char)255);
-		this->writeInt64((unsigned __int64)i);
+		this->writeInt64((uint64_t )i);
 		return;
 	}
 	return;
 }
 
-void file_ustring::writeVarInt32(unsigned __int32 i)
+void file_ustring::writeVarInt32(uint32_t  i)
 {
 	while (i >= 0x80) {
 		this->writeByte(static_cast<unsigned char>(i | 0x80));
@@ -990,13 +990,13 @@ void file_ustring::writeVarInt32(unsigned __int32 i)
 	return;
 }
 
-void file_ustring::writeVarInt64(unsigned __int64 i)
+void file_ustring::writeVarInt64(uint64_t  i)
 {
 	// Splitting into 32-bit pieces gives better performance on 32-bit
 	// processors.
-	unsigned __int32 part0 = static_cast<unsigned __int32>(i);
-	unsigned __int32 part1 = static_cast<unsigned __int32>(i >> 28);
-	unsigned __int32 part2 = static_cast<unsigned __int32>(i >> 56);
+	uint32_t  part0 = static_cast<uint32_t >(i);
+	uint32_t  part1 = static_cast<uint32_t >(i >> 28);
+	uint32_t  part2 = static_cast<uint32_t >(i >> 56);
 
 	int size;
 
@@ -1163,28 +1163,28 @@ unsigned char file_ustring::getInt8()
 	return (unsigned char)byte[0];
 }
 
-__int16 file_ustring::getInt16()
+int16_t file_ustring::getInt16()
 {
-	__int16 ret;
-	ret = (__int16)(((unsigned __int16)this->getInt8() << 8) + (unsigned __int16)this->getInt8());
+	int16_t ret;
+	ret = (int16_t)(((uint16_t )this->getInt8() << 8) + (uint16_t )this->getInt8());
 	return ret;
 }
 
-__int32 file_ustring::getInt32()
+int32_t file_ustring::getInt32()
 {
-	__int32 ret;
-	ret = (__int32)(((unsigned __int32)this->getInt8() << 24) + ((unsigned __int32)this->getInt8() << 16) + ((unsigned __int32)this->getInt8() << 8) + (unsigned __int32)this->getInt8());
+	int32_t ret;
+	ret = (int32_t)(((uint32_t )this->getInt8() << 24) + ((uint32_t )this->getInt8() << 16) + ((uint32_t )this->getInt8() << 8) + (uint32_t )this->getInt8());
 	return ret;
 }
 
-__int64 file_ustring::getInt64()
+int64_t file_ustring::getInt64()
 {
-	__int64 ret;
-	ret = (__int64)(((unsigned __int64)this->getInt8() << 56) + ((unsigned __int64)this->getInt8() << 48) + ((unsigned __int64)this->getInt8() << 40) + ((unsigned __int64)this->getInt8() << 32) + ((unsigned __int64)this->getInt8() << 24) + ((unsigned __int64)this->getInt8() << 16) + ((unsigned __int64)this->getInt8() << 8) + (unsigned __int64)this->getInt8());
+	int64_t ret;
+	ret = (int64_t)(((uint64_t )this->getInt8() << 56) + ((uint64_t )this->getInt8() << 48) + ((uint64_t )this->getInt8() << 40) + ((uint64_t )this->getInt8() << 32) + ((uint64_t )this->getInt8() << 24) + ((uint64_t )this->getInt8() << 16) + ((uint64_t )this->getInt8() << 8) + (uint64_t )this->getInt8());
 	return ret;
 }
 
-__int64 file_ustring::getVarInt_B()
+int64_t file_ustring::getVarInt_B()
 {
 	unsigned char firstByte;
 
@@ -1197,29 +1197,29 @@ __int64 file_ustring::getVarInt_B()
 		return ((unsigned short)this->getInt8() << 8) + (unsigned short)this->getInt8();
 	}
 	if (firstByte == 254) {
-		return ((unsigned __int32)this->getInt8() << 24) + ((unsigned __int32)this->getInt8() << 16) + ((unsigned __int32)this->getInt8() << 8) + (unsigned __int32)this->getInt8();
+		return ((uint32_t )this->getInt8() << 24) + ((uint32_t )this->getInt8() << 16) + ((uint32_t )this->getInt8() << 8) + (uint32_t )this->getInt8();
 	}
 	if (firstByte == 255) {
-		return ((unsigned __int64)this->getInt8() << 56) + ((unsigned __int64)this->getInt8() << 48) + ((unsigned __int64)this->getInt8() << 40) + ((unsigned __int64)this->getInt8() << 32) + ((unsigned __int64)this->getInt8() << 24) + ((unsigned __int64)this->getInt8() << 16) + ((unsigned __int64)this->getInt8() << 8) + (unsigned __int64)this->getInt8();
+		return ((uint64_t )this->getInt8() << 56) + ((uint64_t )this->getInt8() << 48) + ((uint64_t )this->getInt8() << 40) + ((uint64_t )this->getInt8() << 32) + ((uint64_t )this->getInt8() << 24) + ((uint64_t )this->getInt8() << 16) + ((uint64_t )this->getInt8() << 8) + (uint64_t )this->getInt8();
 	}
 	return 0;
 }
 
-__int32 file_ustring::getVarInt32()
+int32_t file_ustring::getVarInt32()
 {
-	__int32 b;
-	__int32 result = 0;
+	int32_t b;
+	int32_t result = 0;
 
 	for (int j = 0; j < 5; j++)
 	{
-		b = (unsigned __int32)this->getInt8();	result += b << 7 * j;	if (!(b & 0x80)) goto done;
+		b = (uint32_t )this->getInt8();	result += b << 7 * j;	if (!(b & 0x80)) goto done;
 		result -= 0x80;
 	}
 
 	// If the input is larger than 32 bits, we still need to read it all
 	// and discard the high-order bits. max - max32 = 10 - 5 = 5
 	for (int j = 0; j < 5; j++) {
-		b = (unsigned __int32)this->getInt8(); if (!(b & 0x80)) goto done;
+		b = (uint32_t )this->getInt8(); if (!(b & 0x80)) goto done;
 	}
 
 	// We have overrun the maximum size of a varint (10 bytes).  Assume
@@ -1230,21 +1230,21 @@ done:
 	return result;
 }
 
-__int64 file_ustring::getVarInt64()
+int64_t file_ustring::getVarInt64()
 {
-	__int64 b;
-	__int64 result = 0;
+	int64_t b;
+	int64_t result = 0;
 
 	for (int j = 0; j < 5; j++)
 	{
-		b = (unsigned __int64)this->getInt8();	result += b << 7 * j;	if (!(b & 0x80)) goto done;
+		b = (uint64_t )this->getInt8();	result += b << 7 * j;	if (!(b & 0x80)) goto done;
 		result -= 0x80;
 	}
 
 	// If the input is larger than 32 bits, we still need to read it all
 	// and discard the high-order bits. max - max32 = 10 - 5 = 5
 	for (int j = 0; j < 5; j++) {
-		b = (unsigned __int64)this->getInt8(); if (!(b & 0x80)) goto done;
+		b = (uint64_t )this->getInt8(); if (!(b & 0x80)) goto done;
 	}
 
 	// We have overrun the maximum size of a varint (10 bytes).  Assume
@@ -1277,7 +1277,7 @@ ustring file_ustring::getUstring(int len)
 {
 	ustring ret;
 	unsigned char *tmp = new unsigned char[len]; //this will boost it
-	
+
 	int iResult = fread(tmp, 1, len, this->pFile);
 	if (iResult != len)
 	{
