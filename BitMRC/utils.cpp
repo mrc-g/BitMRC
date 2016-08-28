@@ -1,8 +1,45 @@
 #include "utils.h"
+#include <ctype.h>
 #ifdef LINUX
 #include <sys/types.h>
 #include <sys/socket.h>
 #endif
+
+void ustring::toBCD(const unsigned char in, unsigned char out[2]) {
+	out[0] = ((in >> 4)&0x0f) + 48;
+	if((char)out[0] > 57) out[0] += 39; /* > '9' ?? -> add 39, so > 'a' */
+	out[1] = (unsigned char)(in & 0x0f) + 48;
+	if((unsigned char)out[1] > 57) out[1] += 39;
+
+}
+string ustring::toHexString() {
+		string hex, print, ret;
+		unsigned char hchar[2];
+		ret.clear();
+		for(unsigned int i=0;i<this->length();i++) {
+
+			if (((i%16)==0) && i>0) {
+					ret += "|" + hex + "|" + print + "|\n";
+					hex.clear(); print.clear();
+			}
+
+			if (isprint(this->operator[](i)))
+				print += this->operator[](i);
+			else
+				print +='.';
+			toBCD(this->operator[](i), hchar);
+			hex += hchar[0];
+			hex += hchar[1];
+			hex += ' ';
+
+			if ( i == this->length()-1) {
+					ret += "|" + hex + "|" + print + "|\n";
+			}
+		}
+
+		return ret;
+}
+
 string ustring::toString()
 {
 	string ret;

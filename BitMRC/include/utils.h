@@ -28,6 +28,9 @@ public:
 	//convert to string
 	string toString();
 
+	// convert to hex dump
+	string toHexString();
+
 	//append from string
 	void fromString(string from);
 
@@ -116,6 +119,8 @@ public:
 
 	//sum two ustring
 	//ustring operator+(ustring adder);
+private:
+	void toBCD(const unsigned char in, unsigned char out[2]);
 };
 #ifdef LINUX
 /*\todo: move this to proper location -steady-
