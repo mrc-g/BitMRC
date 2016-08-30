@@ -1,0 +1,56 @@
+@startuml
+/' use "plantuml" to compile '/
+title BitMRC branching model
+
+box "Marco managed" #LightBlue
+master -> version_X : branch
+note left of master : generic stuff
+note left of version_X 
+ a specific version branch 
+ versions contain a collection of features
+end note
+master --> hotfix_N : branch
+hotfix_N --> hotfix_N : apply patch
+hotfix_N --> master : merge
+master --> version_X : merge hotfix_N
+end box
+
+box "Developer A" #LigthGrey
+version_X -> forkA : clone(fork)
+activate forkA
+forkA -> forkA : work
+version_X --> forkA : merge hotfix_N
+forkA -> forkA : commit
+forkA -> version_X : pull request
+forkA -> version_X : accept/deny
+activate version_X
+version_X -> version_X : merge
+version_X -> version_X : test
+version_X -> master : merge stable
+deactivate version_X
+deactivate forkA
+end box
+
+
+box "Developer B" #LigthGrey
+version_X -> forkB : clone(fork)
+activate forkB
+forkB -> forkB : work
+version_X --> forkB : merge hotfix_N
+forkB -> forkB : commit
+forkB -> version_X : pull request
+forkB -> version_X : accept/deny
+activate version_X
+version_X -> version_X : merge
+version_X -> version_X : test
+version_X -> master : merge stable
+deactivate version_X
+deactivate forkA
+end box
+
+
+
+
+
+
+@enduml
