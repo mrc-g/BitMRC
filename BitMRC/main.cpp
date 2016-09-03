@@ -39,7 +39,7 @@ int main()
 			printf("Select from address: ");
 			unsigned int fro;
 			scanf("%d", &fro);
-			if (fro < 0 || fro >= bitmrc.PubAddresses.size())
+			if (fro < 0 || fro >= bitmrc.PrivAddresses.size())
 			{
 				printf("Incorrect selection\n");
 				continue;
@@ -92,7 +92,7 @@ int main()
 			printf("Select from address: ");
 			unsigned int fro;
 			scanf("%d", &fro);
-			if (fro < 0 || fro >= bitmrc.PubAddresses.size())
+			if (fro < 0 || fro >= bitmrc.PrivAddresses.size())
 			{
 				printf("Incorrect selection\n");
 				continue;
