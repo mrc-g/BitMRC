@@ -111,12 +111,19 @@ bool PubAddr::loadAddr(ustring address)
 
 	std::unique_lock<std::shared_timed_mutex> mlock(this->mutex_);
 	this->address = address;
+	int tmp_vers;
+	int tmp_stream;
+	ustring tmp_ripe;
+	try {
+		tmp_vers = (int)buffer.getVarInt_B(i);
+		tmp_stream = (int)buffer.getVarInt_B(i);
 
-	int tmp_vers = (int)buffer.getVarInt_B(i);
-	int tmp_stream = (int)buffer.getVarInt_B(i);
-
-	ustring tmp_ripe = buffer.getRest(i);
-
+		tmp_ripe = buffer.getRest(i);
+	}
+	catch (...)
+	{
+		return false;
+	}
 	if (tmp_ripe.length() > 20)
 		return false; //too long
 
