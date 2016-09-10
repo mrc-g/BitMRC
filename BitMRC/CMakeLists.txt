@@ -19,6 +19,6 @@ target_link_libraries(BitMRC cryptopp pthread sqlite3)
 
 message("CRYPTOPPBASE: ${CRYPTOPP_BASE}")
 if(${ENABLE_TESTS})
-	add_definitions("-DENABLE_TESTS")
+	add_definitions("-DENABLE_TESTS -DDEBUG_STORABLES")
 	add_subdirectory(tests)
 endif()

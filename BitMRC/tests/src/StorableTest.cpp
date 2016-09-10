@@ -10,6 +10,7 @@
 #include <Storage/Storage.h>
 #include <sys/time.h>
 #include <sha3.h>
+#include <utils.h>
 
 #ifdef DEBUG_STORABLES
 #define STORABLE_DEBUG(a) printf a;
@@ -66,7 +67,11 @@ Unique_Key StorableTest::calc_key() {
 	unsigned char key_string[120];
 	// SHA3_256 sha;
 
-	std::string str;
+	std::string tmp_str;
+	ustring str;
+
+	tmp_str.clear();
+	str.clear();
 	if(generation_time == 0) {
 		/* if no gentime is set, do not use default value for generation as this would
 		 * create only one value */
@@ -74,11 +79,18 @@ Unique_Key StorableTest::calc_key() {
 		gettimeofday(&tv, NULL);
 		this->generation_time = tv.tv_sec * 1000 * 1000 + tv.tv_usec;
 	}
+	/* key format : type and time so we can search for specific objects generated at certain times */
 	sprintf(key_string, "%05hu%llu", this->type, this->generation_time);
+	tmp_str.assign(key_string);
 	str.assign(key_string);
-	uq.set_key(str);
-
-	STORABLE_DEBUG(("KEY is %s\n", key_string));
+	uq.set_key(tmp_str);
+#ifdef DEBUG_STORABLES
+	std::string hex_str;
+	hex_str.clear();
+	hex_str = str.toHexString();
+	STORABLE_DEBUG(("%s %s KEY is (%s) \n", __FILE__, __func__, key_string));
+	STORABLE_DEBUG(("%s %s HEX is \n%s\n", __FILE__, __func__, hex_str.c_str()));
+#endif
 	return uq;
 }
 bool StorableTest::query(Unique_Key &uq_key_in, string & data_out) {

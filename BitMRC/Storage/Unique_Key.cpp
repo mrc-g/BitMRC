@@ -35,8 +35,6 @@ bool Unique_Key::set_key(std::string key_in) {
 	sha.CalculateDigest(digest, (const byte*)key_in.c_str(), key_in.length());
 	this->key.assign((const char*)digest);
 	this->keylen = key_in.length();
-//	cout << ios::hex << digest ;
-	DBG_UQK(("%s: KEY is %s\n", __func__, digest));
 	return true;
 }
 
