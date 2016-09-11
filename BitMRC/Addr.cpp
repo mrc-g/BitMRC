@@ -7,6 +7,7 @@ PubAddr::PubAddr() : Storable()
 {
 	this->lastPubKeyRequest = 0;
 	this->empty = true;
+	this->Storable::type = STORABLE_PUBADDRESS;
 }
 
 PubAddr::PubAddr(const PubAddr &that)
@@ -718,10 +719,11 @@ Storable & 	PubAddr::find_by_key(Unique_Key &) {
 
 
 
-Addr::Addr()
+Addr::Addr() : PubAddr()
 {
 	this->lastPubKeyRequest = 0;
 	this->empty = true;
+	this->Addr::Storable::type = STORABLE_PRIVADDR;
 }
 
 

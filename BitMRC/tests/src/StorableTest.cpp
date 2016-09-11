@@ -11,17 +11,13 @@
 #include <sys/time.h>
 #include <sha3.h>
 #include <utils.h>
+#include <Addr.h>
 
-#ifdef DEBUG_STORABLES
-#define STORABLE_DEBUG(a) printf a;
-#else
-#define STORABLE_DEBUG(a)
-#endif
 
 class StorableTest : public Storable, public Test::Suite
 {
 public:
-	Unique_Key calc_key();
+	//Unique_Key calc_key();
 	bool query(Unique_Key &uq_key_in, string & data_out);
 	bool store(Storable & object_in, Unique_Key & key_out);
 	bool delete_storable(Storable & object_in);
@@ -30,6 +26,7 @@ public:
 public:
 	void init_test();
 	void TestA();
+	void TestAddr();
 public:
 	StorableTest();
     ~StorableTest();
@@ -41,6 +38,14 @@ void StorableTest::TestA() {
 	StorableTest strbl;
 	Unique_Key uq = strbl.calc_key();
 	TEST_ASSERT(1 == 1);
+}
+
+
+void StorableTest::TestAddr() {
+
+	PubAddr pa;
+	Unique_Key uk = pa.calc_key();
+
 }
 #if 0
 void StorableTest::TestB() {
@@ -57,11 +62,11 @@ StorableTest::StorableTest() {
 	type = STORABLE_TEST;
 	generation_time = 0;
 	TEST_ADD(StorableTest::TestA)
-	//TEST_ADD(StorableTest::TestB)
+	TEST_ADD(StorableTest::TestAddr)
     // TEST_ADD(EndianTest::second_test)
 }
 StorableTest::~StorableTest() {};
-
+#if 0
 Unique_Key StorableTest::calc_key() {
 	Unique_Key uq;
 	unsigned char key_string[120];
@@ -93,6 +98,7 @@ Unique_Key StorableTest::calc_key() {
 #endif
 	return uq;
 }
+#endif
 bool StorableTest::query(Unique_Key &uq_key_in, string & data_out) {
 	return true;
 }
