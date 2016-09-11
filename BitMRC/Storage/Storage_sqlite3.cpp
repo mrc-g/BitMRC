@@ -183,7 +183,8 @@ uint32_t Storage_sqlite3::query_system_table(bitmrc_sysinfo_t * s_info) {
 	if (s_info == NULL) {
 		return BITMRC_BAD_PARA;
 	}
-	query_config_t cfg = {  query_system, s_info };
+	query_config_t cfg; cfg.query_type = query_system; cfg.data_struct_ptr = s_info ;
+
 	/* keep track of last startup, so re-start loops can be avoided */
 	int sret = sqlite3_exec(db, "select node_id, working_mode, networking_flags,stream_id1, stream_id2, stream_id3, stream_id4, last_startup_timestamp, last_startup_result, database_version from system;",
 				q_callback,(void*)&cfg, &errinfo);
@@ -224,7 +225,8 @@ uint32_t Storage_sqlite3::create_tables() {
 	"CREATE TABLE system (node_id int, working_mode int, networking_flags int, stream_id1 int, stream_id2 int, stream_id3 int, stream_id4 int, last_startup_timestamp int, last_startup_result int, database_version int);",
 	"\0" };
 	int sret;
-	query_config_t cfg = { create_table, NULL};
+	query_config_t cfg; cfg.query_type = create_table; cfg.data_struct_ptr = NULL;
+
 	while(strlen(qt[index].query)>0) {
 		/* keep track of last startup, so re-start loops can be avoided */
 		sret = sqlite3_exec(db, qt[index].query, q_callback, (void*)&cfg, &errinfo);
