@@ -21,3 +21,5 @@
 /BitMRC/save
 *.db
 /UpgradeLog.htm
+/Release/save
+/Debug/sqlite3.dll

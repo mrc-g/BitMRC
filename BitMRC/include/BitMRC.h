@@ -57,11 +57,14 @@ public:
 	std::shared_timed_mutex mutex_nodes;
 	std::shared_timed_mutex mutex_subs;
 
+	//starts threads
 	void start();
 
+	//process an incoming object, this is probably done in the connections sockets
 	void processObj(object obj);
 
 	void getPubKey(PubAddr address);
+
 
 	void sendMessage(ustring message, PubAddr toAddr, Addr fromAddr);
 	void sendBroadcast(ustring message, Addr address);

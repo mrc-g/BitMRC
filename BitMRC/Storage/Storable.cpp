@@ -11,10 +11,11 @@ Storable::Storable() {
 #ifdef LINUX
 	struct timeval tv = {.0};
 	gettimeofday(&tv, NULL);
-	this->generation_time = tv.tv_sec * 1000 * 1000 + tv.tv_usec;
+	this->generation_time = (uint64_t)tv.tv_sec * 1000 * 1000 + tv.tv_usec;
 #else
-	this->generation_time = 1451602800 ; /* 1.Jan.2016 00:00 */
-	#error "fixme"
+	struct timeval tv = { .0 };
+	gettimeofday(&tv, NULL);
+	this->generation_time = (uint64_t)tv.tv_sec * 1000 * 1000 + tv.tv_usec;
 #endif
 }
 Storable::~Storable() {
@@ -22,7 +23,7 @@ Storable::~Storable() {
 }
 Unique_Key Storable::calc_key() {
 	Unique_Key uq;
-	unsigned char key_string[120];
+	char key_string[120];
 	std::string tmp_str;
 	ustring str;
 
@@ -31,7 +32,7 @@ Unique_Key Storable::calc_key() {
 	/* key format : type and time so we can search for specific objects generated at certain times */
 	sprintf(key_string, "%05hu%012llu", this->type, this->generation_time);
 	tmp_str.assign(key_string);
-	str.assign(key_string);
+	str.assign((unsigned char*)key_string);
 	uq.set_key(tmp_str);
 #ifdef DEBUG_STORABLES
 	std::string hex_str;

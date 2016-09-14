@@ -314,7 +314,7 @@ uint32_t Storage_sqlite3::populate_system_table() {
 			};
 	/* then: create queries for inserting settings and execute */
 	while(strlen(st[index].key)>0) {
-		unsigned char insert_query[256];
+		char insert_query[256];
 		sprintf(insert_query, "insert into settings (key,value) values ('%s','%s');",st[index].key, st[index].value);
 		sret = sqlite3_exec(db, insert_query, q_callback, (void*)&cfg, &errinfo);
 		if((is_sqlite_error(sret)) || errinfo != NULL ) {
