@@ -119,6 +119,8 @@ BitMRC::~BitMRC()
 
 	this->new_inv.push(sTag());
 
+	this->objects.push(object());
+
 	if (this->thread_new_packets.joinable())
 		this->thread_new_packets.join();
 
@@ -127,6 +129,9 @@ BitMRC::~BitMRC()
 
 	if (this->thread_init.joinable())
 		this->thread_init.join();
+
+	if (this->thread_object_pow.joinable())
+		this->thread_object_pow.join();
 
 	this->save("save");
 
@@ -143,14 +148,13 @@ void BitMRC::start()
 	this->thread_new_packets = thread(&BitMRC::listen_packets, this);
 	this->thread_new_inv = thread(&BitMRC::listen_inv, this);
 	this->thread_init = thread(&BitMRC::init, this);
+	this->thread_object_pow = thread(&BitMRC::processPOW, this);
 }
 
 void BitMRC::processObj(object obj)
 {
-	bool check = checkPow(obj.message_payload, obj.Time);
-
 	//if not ignore
-	if (check)
+	if (this->validateObj(obj))
 	{
 		ustring invHash = this->inventoryHash(obj.message_payload);
 		int present = this->sharedObj.insert(obj.message_payload, invHash);
@@ -625,31 +629,34 @@ void BitMRC::sendObj(object obj)
 	memset(obj.command, 0x00, sizeof obj.command);
 	strncpy(obj.command, "object",7);
 
-	obj.encodePayload(); //time should be already
+	obj.encodePayload(); //time should be already set
 
-	uint64_t nonce = searchPow(obj.message_payload, obj.Time);
-
-	obj.nonce = nonce;
-
-	obj.encodePayload();
-
-	this->propagate(obj);
+	this->objects.push(obj);
 }
+
+void BitMRC::processPOW()
+{
+	while (this->running)
+	{
+		object obj = this->objects.pop();
+
+		if (strncmp("object", obj.command, sizeof obj.command))
+			continue;
+
+		uint64_t nonce = searchPow(obj.message_payload, obj.Time); //TODO: this needs to terminate in case of this->running == false
+
+		obj.nonce = nonce;
+
+		obj.encodePayload();
+
+		this->propagate(obj);
+	}
+}
+
 
 void BitMRC::propagate(object obj)
 {
-	if (obj.message_payload.length() > UINT64_C(0x40000)) //2^16
-		return;
-
-	if (!checkPow(obj.message_payload, obj.Time))
-		return;
-
-	time_t ltime = std::time(nullptr);
-
-	if (obj.Time - ltime > 28 * 24 * 60 * 60 + 10800)
-		return;
-
-	if (obj.Time - ltime < -3600)
+	if (!this->validateObj(obj))
 		return;
 
 	ustring invHash = this->inventoryHash(obj.message_payload);
@@ -665,6 +672,29 @@ void BitMRC::send(Packet packet)
 {
 	packet.setChecksum_Lenght_Magic();
 	this->new_packets.push(packet);
+}
+
+bool BitMRC::validateObj(object obj)
+{
+	//too large
+	if (obj.message_payload.length() > UINT64_C(0x40000)) //2^16
+		return false;
+
+	time_t ltime = std::time(nullptr);
+
+	//too much time
+	if (obj.Time - ltime > 28 * 24 * 60 * 60 + 10800)
+		return false;
+
+	//too in the past
+	if (obj.Time - ltime < -3600)
+		return false;
+
+	//wrong pow
+	if (!checkPow(obj.message_payload, obj.Time))
+		return false;
+
+	return true;
 }
 
 bool BitMRC::decryptMsg(packet_msg msg)

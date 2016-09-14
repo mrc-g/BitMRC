@@ -48,6 +48,9 @@ public:
 
 	Queue<sTag> new_inv; //this will store the new inv to be shared with every node, done by another thread
 
+	//store a queue for the object that needs POW and to be propagated
+	Queue<object> objects;
+
 	hash_table<message> messages;
 	
 	hash_table<ustring> sharedObj;
@@ -70,12 +73,15 @@ public:
 	void sendBroadcast(ustring message, Addr address);
 
 	void sendObj(object payload);
+	void processPOW();
 
 	//check and propagate the inv intead of sending the obj directly
 	void propagate(object obj);
 
 	//send the packet directly
 	void send(Packet packet);
+
+	bool validateObj(object obj);
 
 	bool decryptMsg(packet_msg msg);
 	bool decryptMsg(packet_broadcast msg);
@@ -92,6 +98,7 @@ public:
 	thread thread_new_packets;
 	thread thread_new_inv;
 	thread thread_init;
+	thread thread_object_pow;
 
 	bool running;
 
