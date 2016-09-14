@@ -7,7 +7,7 @@ set(TEST_SRC src/EndianTest.cpp)
 add_executable(SQLiteTest ../Storage/Storage_sqlite3.cpp src/SQLiteTest.cpp)
 add_executable(EndianTest ../endian.cpp src/EndianTest.cpp)
 add_executable(NodeConnTest ../NodeBlacklist.cpp src/NodeTests.cpp)
-add_executable(StorableTest src/StorableTest.cpp ../Addr.cpp  ../Storage/Unique_Key.cpp ../base58.cpp ../utils.cpp)
+add_executable(StorableTest src/StorableTest.cpp ../Addr.cpp  ../Storage/Unique_Key.cpp ../base58.cpp ../utils.cpp ../Storage/Storable.cpp)
 add_executable(UtilsTest src/UtilsTest.cpp ../utils.cpp)
 
 

@@ -10,24 +10,32 @@
 
 #ifndef STORABLE_H_
 #define STORABLE_H_
-
+#ifdef LINUX
+#include <sys/time.h>
+#endif
 #include <string>
 #include <Storage/Unique_Key.h>
 
-enum Storable_Type { STORABLE_NONE, STORABLE_TEST, STORABLE_ADDRESS, STORABLE_NODE, STORABLE_MESSAGE, STORABLE_KEY };
+#ifdef DEBUG_STORABLES
+#define STORABLE_DEBUG(a) printf a;
+#else
+#define STORABLE_DEBUG(a)
+#endif
+
+enum Storable_Type { STORABLE_NONE, STORABLE_TEST, STORABLE_PUBADDRESS, STORABLE_PRIVADDR, STORABLE_NODE, STORABLE_MESSAGE, STORABLE_KEY, STORABLE_SETTINGS, STORABLE_MAX};
 
 class Storable {
 public:
-	Storable() {};
-	~Storable() {};
+	Storable();
+	~Storable();
 public:
-	virtual  Unique_Key calc_key() = 0;
+	Unique_Key calc_key();
 	virtual  bool query(Unique_Key &uq_key_in, std::string & data_out) = 0;
 	virtual  bool store(Storable & object_in, Unique_Key & key_out) = 0;
 	virtual  bool delete_storable(Storable & object_in) = 0;
 	virtual  bool delete_storable(Unique_Key & key_in) = 0;
 	virtual Storable & find_by_key(Unique_Key &) = 0;
-public:
+protected:
 	uint16_t type;
 	uint64_t generation_time;
 };

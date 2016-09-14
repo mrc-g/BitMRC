@@ -29,6 +29,10 @@ enum { 	create_table = 1, insert_data = 2,
 struct querytype {
 	const char query[256];
 };
+struct settingstype {
+	const char key[64];
+	const char value[64];
+};
 
 class Storage_sqlite3 {
 private:

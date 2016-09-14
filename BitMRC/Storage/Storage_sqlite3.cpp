@@ -87,7 +87,7 @@ void Storage_sqlite3::close() {
 }
 
 /** \brief init the client data module
- * this also includes the sqlite-backend for the client
+ * this also includes the sqlite-backend used
  */
 uint32_t Storage_sqlite3::init() {
 	db = NULL;
@@ -183,7 +183,8 @@ uint32_t Storage_sqlite3::query_system_table(bitmrc_sysinfo_t * s_info) {
 	if (s_info == NULL) {
 		return BITMRC_BAD_PARA;
 	}
-	query_config_t cfg = {  query_system, s_info };
+	query_config_t cfg; cfg.query_type = query_system; cfg.data_struct_ptr = s_info ;
+
 	/* keep track of last startup, so re-start loops can be avoided */
 	int sret = sqlite3_exec(db, "select node_id, working_mode, networking_flags,stream_id1, stream_id2, stream_id3, stream_id4, last_startup_timestamp, last_startup_result, database_version from system;",
 				q_callback,(void*)&cfg, &errinfo);
@@ -218,22 +219,18 @@ uint32_t Storage_sqlite3::create_tables() {
 	"CREATE TABLE whitelist (label text, address text, enabled bool);",
 	"CREATE TABLE pubkeys (address text, addressversion int, transmitdata blob, time int, usedpersonally text, UNIQUE(address) ON CONFLICT REPLACE);",
 	"CREATE TABLE inventory (hash blob, objecttype int, streamnumber int, payload blob, expirestime integer, tag blob, UNIQUE(hash) ON CONFLICT REPLACE);",
-	"INSERT INTO subscriptions VALUES('Bitmessage new releases/announcements','BM-GtovgYdgs7qXPkoYaRgrLFuFKz1SFpsw',1);",
-	"INSERT INTO subscriptions VALUES('BitMRC Development Channel','BM-2cVxGMPpzu1WwnpUwAvcy9aQpuS9deouky',1);",
 	"CREATE TABLE settings (key blob, value blob, UNIQUE(key) ON CONFLICT REPLACE);",
-	"INSERT INTO settings VALUES('version','10');",
-	"INSERT INTO settings VALUES('lastvacuumtime',?);",
 	"CREATE TABLE objectprocessorqueue (objecttype int, data blob, UNIQUE(objecttype, data) ON CONFLICT REPLACE);" ,
 	/* bitmrc additions */
 	"CREATE TABLE system (node_id int, working_mode int, networking_flags int, stream_id1 int, stream_id2 int, stream_id3 int, stream_id4 int, last_startup_timestamp int, last_startup_result int, database_version int);",
 	"\0" };
 	int sret;
-	query_config_t cfg = { create_table, NULL};
+	query_config_t cfg; cfg.query_type = create_table; cfg.data_struct_ptr = NULL;
+
 	while(strlen(qt[index].query)>0) {
 		/* keep track of last startup, so re-start loops can be avoided */
 		sret = sqlite3_exec(db, qt[index].query, q_callback, (void*)&cfg, &errinfo);
 		if((is_sqlite_error(sret)) || errinfo != NULL ) {
-			ret = BITMRC_DB_EXEC_FAILED;
 			LOG_DB(("%s : sqlite3 exec error  %d (%s)\n",__func__ , sret, errinfo));
 			sqlite3_free(errinfo);
 			ret = BITMRC_TABLE_CREATE_FAILED;
@@ -243,20 +240,90 @@ uint32_t Storage_sqlite3::create_tables() {
 	last_error = ret;
 	return ret;
 }
+/** \brief this sets the BitMRC system values like db-version
+ * in the db-table "system". We store version-relevant data, so we can provide automatic db
+ * updates more easily
+ */
 uint32_t Storage_sqlite3::populate_system_table() {
 	uint32_t ret = BITMRC_OK;
-	int index = 0;
+	int index = 0, sret;
 	char * errinfo = NULL;
+	/* pass the type of query plus additional data ptr to query for use in q_callback */
+	query_config_t cfg; cfg.query_type = insert_data, cfg.data_struct_ptr = NULL;
 
-	query_config_t cfg = { insert_data, NULL};
-	 char query[128]={"insert into system (node_id, working_mode, networking_flags, database_version) values (1000,1,1,1);"};
-	int sret = sqlite3_exec(db, query, q_callback, (void*)&cfg, &errinfo);
-	if((is_sqlite_error(sret)) || errinfo != NULL ) {
-		ret = BITMRC_DB_EXEC_FAILED;
-		LOG_DB(("%s : sqlite3 exec error  %d (%s)\n",__func__ , sret, errinfo));
-		sqlite3_free(errinfo);
-		ret = BITMRC_TABLE_CREATE_FAILED;
+	struct querytype qt[] = {
+	 {"insert into system (node_id, working_mode, networking_flags, database_version) values (1000,1,1,1);"},
+	 {"INSERT INTO subscriptions VALUES('Bitmessage new releases/announcements','BM-GtovgYdgs7qXPkoYaRgrLFuFKz1SFpsw',1);"},
+	 {"INSERT INTO subscriptions VALUES('BitMRC Development Channel','BM-2cVxGMPpzu1WwnpUwAvcy9aQpuS9deouky',1);"}
+	};
+	/* first, do completed queries */
+	while(strlen(qt[index].query)>0) {
+		/* keep track of last startup, so re-start loops can be avoided */
+		sret = sqlite3_exec(db, qt[index].query, q_callback, (void*)&cfg, &errinfo);
+		if((is_sqlite_error(sret)) || errinfo != NULL ) {
+			ret = BITMRC_DB_EXEC_FAILED;
+			LOG_DB(("%s : sqlite3 exec error  %d (%s)\n",__func__ , sret, errinfo));
+			sqlite3_free(errinfo);
+			last_error = ret;
+		}
+		index++;
 	}
-
+	/* insert settings from keys.dat */
+	struct settingstype st[] = {
+			{{"settingsversion"},{"10"}},
+			{{"port"},{"8444"}},
+			{{"timeformat"},{"%%a, %%d %%b %%Y  %%I:%%M %%p"}},
+			{{"blackwhitelist"},{"black"}},
+			{{"startonlogon"},{"False"}},
+			{{"minimizetotray"},{"True"}},
+			{{"showtraynotifications"},{"True"}},
+			{{"startintray"},{"False"}},
+			{{"socksproxytype"},{"none"}},
+			{{"sockshostname"},{"localhost"}},
+			{{"socksport"},{"9050"}},
+			{{"socksauthentication"},{"False"}},
+			{{"sockslisten"},{"False"}},
+			{{"socksusername"},{""}},
+			{{"sockspassword"},{""}},
+			{{"keysencrypted"},{"false"}},
+			{{"messagesencrypted"},{"false"}},
+			{{"defaultnoncetrialsperbyte"},{"1000"}},
+			{{"defaultpayloadlengthextrabytes"},{"1000"}},
+			{{"minimizeonclose"},{"false"}},
+			{{"maxacceptablenoncetrialsperbyte"},{"20000000000"}},
+			{{"maxacceptablepayloadlengthextrabytes"},{"20000000000"}},
+			{{"userlocale"},{"de"}},
+			{{"useidenticons"},{"True"}},
+			{{"identiconsuffix"},{"pZByMut5ZkZN"}},
+			{{"replybelow"},{"False"}},
+			{{"maxdownloadrate"},{"250"}},
+			{{"maxuploadrate"},{"75"}},
+			{{"stopresendingafterxdays"},{"21.0"}},
+			{{"stopresendingafterxmonths"},{"0.0"}},
+			{{"namecoinrpctype"},{"namecoind"}},
+			{{"namecoinrpchost"},{"localhost"}},
+			{{"namecoinrpcuser"},{""}},
+			{{"namecoinrpcpassword"},{""}},
+			{{"namecoinrpcport"},{"8336"}},
+			{{"sendoutgoingconnections"},{"True"}},
+			{{"willinglysendtomobile"},{"False"}},
+			{{"ttl"},{"417641"}},
+			{{"trayonclose"},{"False"}},
+			{{"version"},{"10"}},
+			{{"lastvacuumtime"},{"?"}}, {{"\0"}, {"\0"}}
+			};
+	/* then: create queries for inserting settings and execute */
+	while(strlen(st[index].key)>0) {
+		unsigned char insert_query[256];
+		sprintf(insert_query, "insert into settings (key,value) values ('%s','%s');",st[index].key, st[index].value);
+		sret = sqlite3_exec(db, insert_query, q_callback, (void*)&cfg, &errinfo);
+		if((is_sqlite_error(sret)) || errinfo != NULL ) {
+			ret = BITMRC_DB_EXEC_FAILED;
+			LOG_DB(("%s : sqlite3 exec [%s] error  %d (%s)\n",__func__ , insert_query, sret, errinfo));
+			sqlite3_free(errinfo);
+			last_error = ret;
+		}
+		index++;
+	}
 	return ret;
 }
