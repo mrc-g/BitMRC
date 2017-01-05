@@ -64,11 +64,13 @@ public:
 	/* storable base class methods */
 	Unique_Key calc_key();
 	bool query(Unique_Key &uq_key_in, string & data_out);
-	bool store(Storable & object_in, Unique_Key & key_out);
+	bool store();
 	bool delete_storable(Storable & object_in);
 	bool delete_storable(Unique_Key & key_in);
-	Storable & 	find_by_key(Unique_Key &);
-
+	bool find_by_key(Unique_Key &);
+	char * get_update_query();
+	char * get_load_query();
+	bool is_public_address();
 protected:
 	ustring pubSigningKey;
 	ustring pubEncryptionKey;
@@ -92,6 +94,7 @@ protected:
 	ustring address;
 	ustring tag;
 	ustring tagE;
+
 };
 
 
@@ -124,6 +127,17 @@ public:
 	//with prefix 0x04
 	ustring getPubSigningKey();
 
+	bool is_public_address();
+public:
+	/* storable base class methods */
+	Unique_Key calc_key();
+	bool query(Unique_Key &uq_key_in, string & data_out);
+	bool store();
+	bool delete_storable(Storable & object_in);
+	bool delete_storable(Unique_Key & key_in);
+	bool find_by_key(Unique_Key &);
+	char * get_update_query() ;
+	char * get_load_query();
 private:
 	ustring pubSigningKey;
 	ustring privSigningKey;

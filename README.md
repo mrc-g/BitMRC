@@ -18,10 +18,16 @@ Address: BM-2cVxGMPpzu1WwnpUwAvcy9aQpuS9deouky
 # cmake . #
 (otherwise)
 
+# create the mysql - db if used:
+
+$> BitMRC/etc/create_db.sh
+
 # make
 ```
 install packages :
-- cmake >= 2.8.11
+- cmake >= 2.8.11 Ubuntu 12.04
+  see https://launchpad.net/~kalakris/+archive/ubuntu/cmake
+- cmake >= 2.8.11 Ubuntu 14.04
   see http://askubuntu.com/questions/610291/how-to-install-cmake-3-2-on-ubuntu-14-04
 - g++ >= 4.9
   see http://askubuntu.com/questions/428198/getting-installing-gcc-g-4-9-on-ubuntu for ubuntu/mint etc.
@@ -37,6 +43,11 @@ git submodule init
 git submodule update
 ```
 then compile with visual studio and convert if necessary
+
+#### Documentation
+See Documentation/Manual for paper documentation (work-in-progress).
+To compile the manual use "pdflatex BitMRC.tex"
+
 
 ##### Functionality:
 
@@ -61,3 +72,4 @@ But it cannot:
 + Can handle only v4 address and pubkey
 + It only resend ack but it does not use it
 + It doesn't support ipv6
+

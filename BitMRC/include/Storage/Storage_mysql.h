@@ -1,71 +1,59 @@
 /*
- * Storage_sqlite3.h
+ * Storage_mysql.h
  *
- *  Created on: 01.06.2016
+ *  Created on: 22.12.2016
  *      Author: steady286
  */
-#include <sqlite3.h>
+#include <mysql/mysql.h>
 #include <Storage/Storable.h>
 #include <Storage/Storage.h>
 #include <Storage/StorableQueryConfig.h>
 #include <types.h>
 #include <shared_mutex>
-#ifndef STORAGE_SQLITE3_H_
-#define STORAGE_SQLITE3_H_
+#ifndef STORAGE_MYSQL_H_
+#define STORAGE_MYSQL_H_
 
 using namespace std;
 
-#if 0
-enum { key_unused = 0, key_used = 1 } enKeyFlags;
-enum { 	create_table = 1, insert_data = 2,
-		query_system = 3 , update_insert_delete = 4 } enSQL3QueryType;
-
-struct querytype {
-	char query[512];
-};
-struct settingstype {
-	const char key[64];
-	const char value[64];
-};
-#endif
-class Storage_sqlite3 : public Storage {
-private:
-	static int q_callback (void* param ,int count, char** keys, char** values);
+class Storage_mysql : public Storage {
 protected:
-
-	static sqlite3 * getDb();
+	static MYSQL* getDb();
+public:
+	Storage_mysql();
+	~Storage_mysql();
 public:
 	int is_sqlite_error(int errin);
-	bool close();
-	Storage_sqlite3();
-	~Storage_sqlite3();
 	bool open(std::string path, std::string user, std::string password);
-	bool close(Storage & obj_in);
+	bool close();
 	void flush(Storage & obj_in);
 	bool register_storable(Storable * object);
 	QueryResult * sql_exec(StorableQueryConfig*);
-	bool prepareResultRow(sqlite3_stmt *pStmt, QueryResult * qr);
+
 private:/** \todo: implement this as storable data */
 	bitmrc_sysinfo_t m_sinfo;
 public: /** \todo: implement this as storable callback */
 	uint32_t query_system_table(bitmrc_sysinfo_t * s_info);
 	uint32_t create_tables();
 	uint32_t populate_system_table();
-	static sqlite3 *db;
+	uint32_t get_row_count();
+	bool prepareResultRow(MYSQL_RES *res, QueryResult * qr);
+	static MYSQL *db;
 private:
 	uint32_t init();
 #ifdef ENABLE_TESTS
 public:
+	bool drop_tables();
 	uint32_t init(const char * db_path);
 #endif
 private:
-	sqlite3_stmt * pStmt;
 	mutable std::shared_timed_mutex mutex;
 	static vector<Storable *> storable_list;
+	int init_complete;
 	std::string db_name;
 	std::string db_user;
 	std::string db_passwd;
-	int init_complete;
+	uint32_t row_count;
 	uint32_t last_error;
+
 };
 #endif /* STORAGE_SQLITE3_H_ */

@@ -6,7 +6,7 @@
 #include <random>
 
 #include "Addr.h"
-
+#include <Storage/Storage_mysql.h>
 class BitMRC;
 
 #include "NodeConnection.h"
@@ -48,8 +48,11 @@ public:
 
 	Queue<sTag> new_inv; //this will store the new inv to be shared with every node, done by another thread
 
+	//store a queue for the object that needs POW and to be propagated
+	Queue<object> objects;
+
 	hash_table<message> messages;
-	
+
 	hash_table<ustring> sharedObj;
 
 	std::shared_timed_mutex mutex_priv;
@@ -57,22 +60,28 @@ public:
 	std::shared_timed_mutex mutex_nodes;
 	std::shared_timed_mutex mutex_subs;
 
+	//starts threads
 	void start();
 
+	//process an incoming object, this is probably done in the connections sockets
 	void processObj(object obj);
 
 	void getPubKey(PubAddr address);
+
 
 	void sendMessage(ustring message, PubAddr toAddr, Addr fromAddr);
 	void sendBroadcast(ustring message, Addr address);
 
 	void sendObj(object payload);
+	void processPOW();
 
 	//check and propagate the inv intead of sending the obj directly
 	void propagate(object obj);
 
 	//send the packet directly
 	void send(Packet packet);
+
+	bool validateObj(object obj);
 
 	bool decryptMsg(packet_msg msg);
 	bool decryptMsg(packet_broadcast msg);
@@ -84,11 +93,14 @@ public:
 	void addAddr(Addr address);
 	void addSubscription(PubAddr address);
 
+	Storage_mysql * getStorage();
+
 	void connectNode(NodeConnection *node);
 
 	thread thread_new_packets;
 	thread thread_new_inv;
 	thread thread_init;
+	thread thread_object_pow;
 
 	bool running;
 
@@ -99,6 +111,8 @@ public:
 
 	void load(string path);
 	void save(string path);
+
+	Storage_mysql * strg = NULL;
 
 };
 

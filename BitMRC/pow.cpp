@@ -54,7 +54,7 @@ int64_t	getTarget(uint64_t length, uint64_t TTL, uint64_t extrabytes, uint64_t n
 	const uint64_t two_63 = UINT64_C(0x8000000000000000);
 	uint64_t divisor;
 	uint64_t target;
-	if (TTL < 300)
+	if ((int32_t)TTL < 300 && (int32_t)TTL > -3600)
 		TTL = 300;
 	divisor = ((((length + (uint64_t)extrabytes) * TTL) / UINT64_C(0x10000)) + extrabytes + length) * noncetrials;
 
