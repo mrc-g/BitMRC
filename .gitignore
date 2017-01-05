@@ -22,3 +22,4 @@
 *.db
 /UpgradeLog.htm
 Options.cmake
+CMakeFiles
