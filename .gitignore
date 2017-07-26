@@ -23,3 +23,5 @@
 /UpgradeLog.htm
 Options.cmake
 CMakeFiles
+/Release/save
+/Debug/sqlite3.dll

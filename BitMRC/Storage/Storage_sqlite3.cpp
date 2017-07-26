@@ -375,7 +375,7 @@ uint32_t Storage_sqlite3::create_tables() {
 	// todo: 	"CREATE TABLE pubkeys (address varchar(255), addressversion int, signkey varchar(255), enckey varchar(255), time int, usedpersonally varchar(255), constraint c_uq_address UNIQUE KEY (address));",
 	"CREATE TABLE pubkeys (address text, addressversion int, transmitdata blob, time int, usedpersonally text, UNIQUE(address) ON CONFLICT REPLACE);",
 	"CREATE TABLE inventory (hash blob, objecttype int, streamnumber int, payload blob, expirestime integer, tag blob, UNIQUE(hash) ON CONFLICT REPLACE);",
-	"CREATE TABLE settings (key_namel blob, val blob, UNIQUE(key_name) ON CONFLICT REPLACE);",
+	"CREATE TABLE settings (key_name blob, val blob, UNIQUE(key_name) ON CONFLICT REPLACE);",
 	"CREATE TABLE objectprocessorqueue (objecttype int, data blob, UNIQUE(objecttype, data) ON CONFLICT REPLACE);" ,
 	/* bitmrc additions */
 	"CREATE TABLE system (node_id int, working_mode int, networking_flags int, stream_id1 int, stream_id2 int, stream_id3 int, stream_id4 int, last_startup_timestamp int, last_startup_result int, database_version int, config_name text, UNIQUE(config_name) ON CONFLICT REPLACE);",
