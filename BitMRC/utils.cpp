@@ -1,5 +1,6 @@
 #include "utils.h"
 #include <ctype.h>
+#include <ostream>
 #ifdef LINUX
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -12,6 +13,25 @@ void ustring::toBCD(const unsigned char in, unsigned char out[2]) {
 	if((unsigned char)out[1] > 57) out[1] += 39;
 
 }
+/** \brief : generate an ascii representation from binary data
+ * \todo: adhere to DRY paradigm
+ *
+ */
+string ustring::toHexString(unsigned char * in, uint16_t count) {
+			string ret;
+			char hchar[4];
+			ret.clear();
+			uint16_t idx = 0;
+
+			for(;idx < count; idx++) {
+				toBCD(in[idx], hchar);
+				hchar[2]='\0';
+				ret.append(hchar);
+			}
+			// printf("to HexString returns %u bytes, value %s\n", ret.length(), ret.c_str());
+			return ret;
+}
+
 string ustring::toHexString() {
 		string hex, print, ret;
 		unsigned char hchar[2];
@@ -285,7 +305,10 @@ int32_t ustring::getVarInt32(unsigned int& i)
 
 	for(unsigned int j=0; (j < 5 ) && (i < this->length()); j++)
 	{
-		b = (uint32_t )this->getInt8(i);	result += b << 7*j;	if (!(b & 0x80)) goto done;
+		b = (uint32_t )this->getInt8(i);
+		result += b << 7*j;
+		if (!(b & 0x80))
+			goto done;
 		result -= 0x80;
 	}
 
@@ -298,7 +321,7 @@ int32_t ustring::getVarInt32(unsigned int& i)
 	// We have overrun the maximum size of a varint (10 bytes).  Assume
 	// the data is corrupt.
 	i = -1;
-	return NULL;
+	return 0;
 done:
 
 	return result;
@@ -1360,3 +1383,24 @@ void file_ustring::setFile(FILE * file)
 {
 	this->pFile = file;
 }
+
+
+#ifndef LINUX
+int
+gettimeofday(struct timeval * tp, struct timezone * tzp)
+{
+	FILETIME    file_time;
+	SYSTEMTIME  system_time;
+	ULARGE_INTEGER ularge;
+
+	GetSystemTime(&system_time);
+	SystemTimeToFileTime(&system_time, &file_time);
+	ularge.LowPart = file_time.dwLowDateTime;
+	ularge.HighPart = file_time.dwHighDateTime;
+
+	tp->tv_sec = (long)((ularge.QuadPart - epoch) / 10000000L);
+	tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
+
+	return 0;
+}
+#endif

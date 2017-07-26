@@ -21,3 +21,5 @@
 /BitMRC/save
 *.db
 /UpgradeLog.htm
+Options.cmake
+CMakeFiles

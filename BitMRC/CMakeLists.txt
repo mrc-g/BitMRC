@@ -6,7 +6,12 @@ cmake_minimum_required(VERSION 2.8)
 
 set(SRCS Addr.cpp base58.cpp BitMRC.cpp endian.cpp main.cpp
 	NodeConnection.cpp packet.cpp pow.cpp utils.cpp NodeBlacklist.cpp
-	Storage/Storable.cpp Storage/Unique_Key.cpp Storage/Storage_sqlite3.cpp)
+	Storage/Storable.cpp Storage/Unique_Key.cpp
+	Storage/Storage_sqlite3.cpp Storage/Storage_mysql.cpp
+	Configuration.cpp Storage/StorableConfiguration.cpp
+	Storage/QueryResultElement.cpp Storage/QueryResult.cpp Storage/StorableQueryConfig.cpp
+	Storage/RowSpec.cpp Storage/ColumnSpec.cpp
+	Storage/StorableConfiguration.cpp)
 
 find_library(CRYPTOPP_BASE
 	NAMES libcryptopp.a
@@ -15,7 +20,7 @@ find_library(CRYPTOPP_BASE
 
 link_directories(${CMAKE_SOURCE_DIR}/3rdparty/lib)
 add_executable(BitMRC ${SRCS})
-target_link_libraries(BitMRC cryptopp pthread sqlite3)
+target_link_libraries(BitMRC cryptopp pthread sqlite3 mysqlclient)
 
 message("CRYPTOPPBASE: ${CRYPTOPP_BASE}")
 if(${ENABLE_TESTS})

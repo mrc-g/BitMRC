@@ -7,3 +7,4 @@
 - introduce abstract classes for win/linux stuff (eg. NodeConnection) and subclass... -steady-
 - fix endian.cpp : use stdint.h types -steady-
 
+- fix Storage_sqlite3 insert query problems. inserts create 'library routine called out of sync' errors on subsequent queries -steady-

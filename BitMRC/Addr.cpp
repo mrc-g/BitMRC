@@ -7,6 +7,7 @@ PubAddr::PubAddr() : Storable()
 {
 	this->lastPubKeyRequest = 0;
 	this->empty = true;
+	this->Storable::type = STORABLE_PUBADDRESS;
 }
 
 PubAddr::PubAddr(const PubAddr &that)
@@ -697,14 +698,32 @@ void PubAddr::setLastPubKeyRequest(time_t time)
 /* Storable baseclass methods */
 Unique_Key PubAddr::calc_key() {
 	Unique_Key ret;
+#ifdef DEBUG_STORABLE
+	cout << "PubAddr calc_key()" << endl;
+#endif
 	return ret;
 }
 
 bool PubAddr::query(Unique_Key &uq_key_in, string & data_out) {
 	return false;
 }
-bool PubAddr::store(Storable & object_in, Unique_Key & key_out) {
-	return false;
+bool PubAddr::store() {
+
+	Unique_Key out = calc_key();
+	char * query = get_update_query();
+	QueryResult * qr = NULL;
+	uint32_t ui_out ;
+	bool bret = false;
+
+	StorableQueryConfig q_cfg(SQC_UPDATE, query, 1, NULL);
+	strg->sql_exec(&q_cfg);
+	if ( q_cfg.getBitMRCError() == BITMRC_OK) {
+		qr = q_cfg.getQueryResult();
+		if (qr) {
+			bret = qr->getFieldUint32("database_version", &ui_out);
+		}
+	}
+	return bret;
 }
 bool PubAddr::delete_storable(Storable & object_in) {
 	return false;
@@ -712,16 +731,47 @@ bool PubAddr::delete_storable(Storable & object_in) {
 bool PubAddr::delete_storable(Unique_Key & key_in) {
 	return false;
 }
-Storable & 	PubAddr::find_by_key(Unique_Key &) {
-	return *this;
+bool PubAddr::find_by_key(Unique_Key &) {
+	return false;
+}
+/** Storable Baseclass member functions */
+char * PubAddr::get_update_query() {
+
+	static char query[384];
+	char b58pubSkey[128];
+	char b58pubEkey[128];
+	size_t b58sz = 128;
+
+	ustring tmp = getPubSigningKey();
+	char * src = tmp.toString().c_str();
+	b58enc(b58pubSkey, &b58sz, src, tmp.length());
+
+	tmp = getPubEncryptionKey();
+	src = tmp.toString().c_str();
+	b58enc(b58pubEkey, &b58sz, src, tmp.length());
+
+	ustring addr = buildAddressFromKeys(getPubSigningKey(), getPubEncryptionKey(), getStream(), getVersion());
+
+	sprintf(query, "call save_address_and_pubkey ('unlabeled','%s',%u,%u,'%s','%s','%s',0);",
+				addr.toString().c_str(), getVersion(), getStream(),  "2017-01-01 00:00:01"/* todo: impl util_getTimeStamp()*/ ,
+				b58pubSkey, b58pubEkey);
+
+	return query;
+}
+char * PubAddr::get_load_query() {
+	return Storable::no_query;
+}
+bool PubAddr::is_public_address() {
+	return true;
 }
 
 
-
-Addr::Addr()
+Addr::Addr() : PubAddr()
 {
 	this->lastPubKeyRequest = 0;
 	this->empty = true;
+	this->Addr::Storable::type = STORABLE_PRIVADDR;
+
 }
 
 
@@ -848,45 +898,45 @@ int Addr::generateDeterministic(ustring passphrase, int nonce)
 	int nonce_old = nonce;
 	int stream = 1;
 	int version = 4;
-
+	int sign_nonce = nonce, enc_nonce = nonce+1;
 	OID CURVE = secp256k1();
 	AutoSeededRandomPool rng;
 
-
 	ECIES<ECP>::PrivateKey privE, privS;
-
+	ECIES<ECP>::PublicKey pubE, pubS;
+	CryptoPP::RIPEMD160 ripe_hash;
+	CryptoPP::SHA512 sha512_hash;
 	ustring pubSKey;
 	ustring pubEKey;
 
 	string encoded;
 	size_t len;
 
-	byte digest2[CryptoPP::RIPEMD160::DIGESTSIZE];
-
+	byte ripe_digest[CryptoPP::RIPEMD160::DIGESTSIZE];
 	int zeros = 0;
 	do
 	{
-		CryptoPP::SHA512 hash;
-		byte digest[CryptoPP::SHA512::DIGESTSIZE];
+		pubEKey.clear();
+		pubSKey.clear();
+
+		byte sha_digest[CryptoPP::SHA512::DIGESTSIZE];
 
 		ustring passP = passphrase;
-		passP.appendVarInt_B(nonce++);
+		passP.appendVarInt_B(sign_nonce); sign_nonce+=2;
 
-		hash.CalculateDigest(digest, (byte*)passP.c_str(), passP.size());
+		sha512_hash.CalculateDigest(sha_digest, (byte*)passP.c_str(), passP.size());
 
 		Integer x;
-		x.Decode(digest, 32); //first 32 bytes
+		x.Decode(sha_digest, 32); //first 32 bytes
 		privS.Initialize(CURVE, x);
 
 		passP = passphrase;
-		passP.appendVarInt_B(nonce++);
+		passP.appendVarInt_B(enc_nonce); enc_nonce+=2;
 
-		hash.CalculateDigest(digest, (byte*)passP.c_str(), passP.size());
-
-		x.Decode(digest, 32);
+		sha512_hash.CalculateDigest(sha_digest, (byte*)passP.c_str(), passP.size());
+		x.Decode(sha_digest, 32);
 		privE.Initialize(CURVE, x);
 
-		ECIES<ECP>::PublicKey pubE, pubS;
 		privE.MakePublicKey(pubE);
 		privS.MakePublicKey(pubS);
 
@@ -898,9 +948,8 @@ int Addr::generateDeterministic(ustring passphrase, int nonce)
 		pubE.GetPublicElement().y.Encode(StringSink(encoded).Ref(), len);
 
 		pubEKey.clear();
-		pubEKey += 0x04;
+		//pubEKey += 0x04;
 		pubEKey.fromString(encoded);
-
 
 		encoded.clear();
 		len = pubS.GetPublicElement().x.MinEncodedSize();
@@ -910,24 +959,23 @@ int Addr::generateDeterministic(ustring passphrase, int nonce)
 		pubS.GetPublicElement().y.Encode(StringSink(encoded).Ref(), len);
 
 		pubSKey.clear();
-		pubSKey += 0x04;
+		//pubSKey += 0x04;
 		pubSKey.fromString(encoded);
 
-
-		memset(digest, 0, SHA512::DIGESTSIZE);
+		memset(sha_digest, 0, CryptoPP::SHA512::DIGESTSIZE);
 
 		ustring buffer;
+		buffer.clear();
 		buffer += pubSKey;
 		buffer += pubEKey;
 
-		hash.CalculateDigest(digest, (byte*)buffer.c_str(), buffer.length());
+		sha512_hash.CalculateDigest(sha_digest, (byte*)buffer.c_str(), buffer.length());
 
-		CryptoPP::RIPEMD160 hash2;
-		memset(digest2, 0x00, 20);
-		hash2.CalculateDigest(digest2, digest, sizeof digest);
+		memset(ripe_digest, 0x00, CryptoPP::RIPEMD160::DIGESTSIZE);
+		ripe_hash.CalculateDigest(ripe_digest, sha_digest, CryptoPP::SHA512::DIGESTSIZE /*sizeof sha_digest*/);
 
 
-		while (digest2[zeros] == 0x00)
+		while (sha_digest[zeros] == 0x00)
 			zeros++;
 	} while (zeros == 0);
 
@@ -948,7 +996,7 @@ int Addr::generateDeterministic(ustring passphrase, int nonce)
 	if (!this->loadKeys(pubEKey, pubSKey, privEKey, privSKey, stream, version))
 		return nonce_old;
 
-	return nonce;
+	return sign_nonce;
 }
 
 bool Addr::loadKeys(ustring pubE, ustring pubS, ustring privE, ustring privS, int stream, int version)
@@ -1175,17 +1223,21 @@ ustring Addr::getPubSigningKey()
 	return this->pubSigningKey;
 }
 
-#if 0
 
-/** \todo: implement methods */
+
+/** Storable Baseclass member functions */
+
 Unique_Key Addr::calc_key() {
 	Unique_Key uq;
-	unsigned char key_string[120];
+	char key_string[120];
+#ifdef DEBUG_STORABLE
+	cout << "Addr calc_key()" << endl;
+#endif
 	std::string str;
 	if(generation_time == 0) {
 		/* if no gentime is set, do not use default value for generation as this would
 		 * create only one value */
-		struct timeval tv = {.0};
+		struct timeval tv ; tv.tv_sec =0; tv.tv_usec = 0;
 		gettimeofday(&tv, NULL);
 		this->generation_time = tv.tv_sec * 1000 * 1000 + tv.tv_usec;
 	}
@@ -1195,11 +1247,31 @@ Unique_Key Addr::calc_key() {
 	STORABLE_DEBUG(("KEY is %s\n", key_string));
 	return uq;
 }
+
 bool Addr::query(Unique_Key &uq_key_in, string & data_out) {
 	return true;
 }
-bool Addr::store(Storable & object_in, Unique_Key & key_out) {
-	return true;
+bool Addr::store() {
+	bool bret = false;
+#if 0
+	Unique_Key out = calc_key();
+	char * query = get_update_query();
+	QueryResult * qr = NULL;
+	uint32_t ui_out ;
+
+	StorableQueryConfig q_cfg(SQC_UPDATE, query, 1, NULL);
+	strg->sql_exec(&q_cfg);
+	if ( q_cfg.getBitMRCError() == BITMRC_OK) {
+		qr = q_cfg.getQueryResult();
+		if (qr) {
+			bret = qr->getFieldUint32("database_version", &ui_out);
+		}
+	}
+#endif
+	return bret;
+}
+bool Addr::is_public_address() {
+	return false;
 }
 bool Addr::delete_storable(Storable & object_in) {
 	return true;
@@ -1207,8 +1279,25 @@ bool Addr::delete_storable(Storable & object_in) {
 bool Addr::delete_storable(Unique_Key & key_in) {
 	return true;
 }
-Storable & Addr::find_by_key(Unique_Key & key_in) {
-	StorableTest val;
-	return val;
+bool Addr::find_by_key(Unique_Key & key_in) {
+	return false;
 }
-#endif
+char * Addr::get_update_query() {
+	static char query[140] ;
+	ustring addr;
+	if(this->is_public_address() == true)
+		addr = buildAddressFromKeys(getPrivSigningKey(), getPrivEncryptionKey(), getStream(), getVersion());
+	else
+		addr = buildAddressFromKeys(getPubSigningKey(), getPubEncryptionKey(), getStream(), getVersion());
+
+	sprintf(query, "call save_address('unlabeled','%s',%u,%u,'%s');",
+				addr.toString().c_str() , getVersion(), getStream(),  "2017-01-01 00:00:01"/* todo: impl util_getTimeStamp()*/ );
+
+	return query;
+}
+char * Addr::get_load_query() {
+	static char query[140] ;
+	ustring priv_addr = buildAddressFromKeys(getPrivSigningKey(), getPrivEncryptionKey(), getStream(), getVersion());
+	sprintf(query, "select addressversion, transmitdata, time, usedpersonally from pubkeys where address = '%s';", priv_addr.c_str());
+	return query;
+}
