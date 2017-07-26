@@ -7,6 +7,14 @@
 
 #ifndef BITMRC_TYPES_H_
 #define BITMRC_TYPES_H_
+
+/* when tests are enabled, expose internal functions */
+#ifdef ENABLE_TESTS
+#define _PRIVATE_
+#else
+#define _PRIVATE_ static
+#endif
+
 #ifdef LINUX
 #include <stdint.h>
 #include <unistd.h> /*sleep */
@@ -34,7 +42,7 @@
 #endif
 
 /* trace macros */
-#define LOG_DB_TO_STDOUT  /*todo: move this to cmake cache variable (ccmake-configurable)*/
+
 
 #ifdef LOG_DB_TO_STDOUT
 #define LOG_DB(a) printf a
@@ -72,7 +80,9 @@ typedef struct {
 } insert_node_return_t;
 
 typedef enum { BITMRC_OK,
-		BITMRC_CLIENT_DB_INIT_BAD = 100 , BITMRC_DB_ACCESS_DENIED, BITMRC_DB_NOT_FOUND, BITMR_DB_OPEN_FAILED, BITMRC_DB_EXEC_FAILED, BITMRC_TABLE_CREATE_FAILED, /* db from 100 to 199 */
+		/* db from 100 to 199 */
+		BITMRC_CLIENT_DB_INIT_BAD = 100 , BITMRC_DB_ACCESS_DENIED, BITMRC_DB_NOT_FOUND, BITMR_DB_OPEN_FAILED, BITMRC_DB_EXEC_FAILED,
+		BITMRC_DB_TABLE_NOT_EXISTANT, BITMRC_DB_TABLE_CREATE_FAILED, BITMRC_DB_NO_CONFIG, BITMRC_DB_INSERT_FAILED, BITMRC_DB_NO_QUERY,
 		BITMRC_SOME_ERROR = 200,
 		BITMRC_BAD_PARA = 1000,
 		BITMRC_ERR_MAX } enBitMRCError;

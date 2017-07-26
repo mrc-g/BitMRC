@@ -7,6 +7,8 @@
 #endif
 #include <NodeBlacklist.h>
 
+
+
 BitMRC::BitMRC()
 {
 	this->load("save");
@@ -15,7 +17,7 @@ BitMRC::BitMRC()
 void BitMRC::init()
 {
 	int dns = 2;
-
+	bool bret = false;
 	addrinfo *result = NULL, hints;
 	sockaddr_in  *sockaddr_ipv4;
 
@@ -24,11 +26,19 @@ void BitMRC::init()
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 #endif
 
-
 	ZeroMemory(&hints, sizeof(hints));
 
 	NodeBlacklist bl;
+	strg = new Storage_mysql();
 
+	if (strg != NULL) {
+		printf("storage created\n");
+		bret = strg->open("bitmrc","bitmrc","BitMRC");
+		printf("storage open: %u\n",bret);
+		bret = strg->create_tables();
+		printf("create table: %u\n",bret);
+
+	}
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
@@ -94,6 +104,7 @@ void BitMRC::init()
 		this->connectNode(new NodeConnection("198.244.103.16", "8445", this));
 		this->connectNode(new NodeConnection("127.0.0.1", "8444", this));
 	}
+
 }
 
 BitMRC::~BitMRC()
@@ -141,14 +152,18 @@ BitMRC::~BitMRC()
 	this->PubAddresses.clear();
 	this->PrivAddresses.clear();
 }
-
+Storage_mysql * BitMRC::getStorage() {
+	return strg;
+}
 void BitMRC::start()
 {
-	this->running = true;
+	init();
+
 	this->thread_new_packets = thread(&BitMRC::listen_packets, this);
 	this->thread_new_inv = thread(&BitMRC::listen_inv, this);
-	this->thread_init = thread(&BitMRC::init, this);
+	// this->thread_init = thread(&BitMRC::init, this);
 	this->thread_object_pow = thread(&BitMRC::processPOW, this);
+	this->running = true;
 }
 
 void BitMRC::processObj(object obj)
@@ -196,9 +211,11 @@ void BitMRC::processObj(object obj)
 				if (!this->PubAddresses[i].waitingPubKey())
 					continue;
 				ustring tag = this->PubAddresses[i].getTag();
-				if (pubkey.tag == tag)
-				{
-					this->PubAddresses[i].decodeFromObj(pubkey);
+				if (pubkey.tag == tag) {
+					if(this->PubAddresses[i].decodeFromObj(pubkey) == true) {
+						this->PubAddresses[i].set_storage(getStorage());
+						this->PubAddresses[i].store(); /* store if valid */
+					}
 				}
 			}
 

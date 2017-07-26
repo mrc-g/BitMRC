@@ -30,6 +30,7 @@ public:
 
 	// convert to hex dump
 	string toHexString();
+	string toHexString(unsigned char *, uint16_t count);
 
 	//append from string
 	void fromString(string from);
@@ -431,7 +432,7 @@ public:
 		std::unique_lock<shared_timed_mutex> mlock(this->mutex_);
 		Dim = 100771;
 		this->Table = new linked_node*[this->Dim];
-		memset(this->Table, NULL, sizeof(linked_node*) * this->Dim);
+		memset(this->Table, 0, sizeof(linked_node*) * this->Dim);
 		mlock.unlock();
 	}
 

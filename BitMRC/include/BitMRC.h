@@ -6,7 +6,7 @@
 #include <random>
 
 #include "Addr.h"
-
+#include <Storage/Storage_mysql.h>
 class BitMRC;
 
 #include "NodeConnection.h"
@@ -52,7 +52,7 @@ public:
 	Queue<object> objects;
 
 	hash_table<message> messages;
-	
+
 	hash_table<ustring> sharedObj;
 
 	std::shared_timed_mutex mutex_priv;
@@ -93,6 +93,8 @@ public:
 	void addAddr(Addr address);
 	void addSubscription(PubAddr address);
 
+	Storage_mysql * getStorage();
+
 	void connectNode(NodeConnection *node);
 
 	thread thread_new_packets;
@@ -109,6 +111,8 @@ public:
 
 	void load(string path);
 	void save(string path);
+
+	Storage_mysql * strg = NULL;
 
 };
 

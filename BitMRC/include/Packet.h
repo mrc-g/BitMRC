@@ -25,6 +25,8 @@
 #include <osrng.h>
 #include <asn.h>
 #include <oids.h>
+#include <Storage/Storable.h>
+#include <Storage/Unique_Key.h>
 
 
 using namespace CryptoPP::ASN1;
@@ -33,10 +35,15 @@ using namespace CryptoPP;
 using namespace std;
 
 const int32_t Version = 3;
-
+#if 0
+// PyBitMessage 0.4.4
 const char User_Agent[]= {0x2f, 0x50, 0x79, 0x42, 0x69, 0x74, 0x6d,
 	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x3a, 0x30,
 	0x2e, 0x34, 0x2e, 0x34, 0x2f};
+#endif
+// BitMRCVersion0.0.1
+const char User_Agent[]={0x2F, 0x42, 0x69, 0x74, 0x4D, 0x52, 0x43, 0x56, 0x65, 0x72,
+						0x73, 0x69, 0x6F, 0x6E, 0x30, 0x2E, 0x30, 0x2E, 0x31, 0x2F};
 
 enum EncodingType
 {
@@ -76,7 +83,7 @@ struct sTag
 
 const uint32_t Magic = {0xE9BEB4D9};
 
-class Packet
+class Packet : public Storable
 {
 public:
 	Packet(){}
@@ -90,7 +97,7 @@ public:
 	char command[12];
 
 	//lenght of payload in bytes
-	uint32_t lenght;
+	uint32_t length;
 
 	//checksum: first 4 bytes of sha512(payload)
 	char checksum[4];
@@ -98,14 +105,24 @@ public:
 	//payload: can be a message or an object
 	ustring message_payload;
 
-	//gets the data until it reachs the command
+	//gets the data until it reaches the command
 	void getCommand(SOCK_TYPE socket);
 
 	//sends data
 	void sendData(SOCK_TYPE socket);
 
 	bool setChecksum_Lenght_Magic();
-
+public:
+	bool set_key(Unique_Key & key_in); // set the unique key manually
+	Unique_Key get_key();
+	bool query(Unique_Key &uq_key_in, std::string & data_out);
+	bool store();
+	bool delete_storable(Storable & object_in);
+	bool delete_storable(Unique_Key & key_in);
+	bool find_by_key(Unique_Key &);
+	bool set_storage(Storage*);
+	char * get_update_query();
+	char * get_load_query();
 };
 
 class packet_version : public Packet
@@ -117,7 +134,7 @@ public:
 	{
 		this->magic = packet.magic;
 		strncpy(this->command, packet.command,12);
-		this->lenght = packet.lenght;
+		this->length = packet.length;
 		strncpy(this->checksum, packet.checksum,4);
 		this->message_payload = packet.message_payload;
 		this->decodeData();
@@ -205,7 +222,7 @@ public:
 	{
 		this->magic = packet.magic;
 		strncpy(this->command, packet.command,12);
-		this->lenght = packet.lenght;
+		this->length = packet.length;
 		strncpy(this->checksum, packet.checksum,4);
 		this->message_payload = packet.message_payload;
 	}
@@ -220,7 +237,7 @@ public:
 	{
 		this->magic = packet.magic;
 		strncpy(this->command, packet.command,12);
-		this->lenght = packet.lenght;
+		this->length = packet.length;
 		strncpy(this->checksum, packet.checksum,4);
 		this->message_payload = packet.message_payload;
 		this->decodeData();
@@ -274,7 +291,7 @@ public:
 	{
 		this->magic = packet.magic;
 		strncpy(this->command, packet.command,12);
-		this->lenght = packet.lenght;
+		this->length = packet.length;
 		strncpy(this->checksum, packet.checksum,4);
 		this->message_payload = packet.message_payload;
 		this->decodeData();
@@ -321,7 +338,7 @@ public:
 	{
 		this->magic = packet.magic;
 		strncpy(this->command, packet.command,12);
-		this->lenght = packet.lenght;
+		this->length = packet.length;
 		strncpy(this->checksum, packet.checksum,4);
 		this->message_payload = packet.message_payload;
 		this->decodeData();
@@ -370,7 +387,7 @@ public:
 	{
 		this->magic = packet.magic;
 		strncpy(this->command, packet.command,12);
-		this->lenght = packet.lenght;
+		this->length = packet.length;
 		strncpy(this->checksum, packet.checksum,4);
 		this->message_payload = packet.message_payload;
 		this->decodeData();
@@ -427,7 +444,7 @@ public:
 	{
 		this->magic = obj.magic;
 		strncpy(this->command, obj.command,12);
-		this->lenght = obj.lenght;
+		this->length = obj.length;
 		strncpy(this->checksum, obj.checksum,4);
 		this->message_payload = obj.message_payload;
 		this->nonce = obj.nonce;
@@ -467,52 +484,27 @@ public:
 class packet_pubkey : public object
 {
 public:
-	packet_pubkey(){}
-
-	packet_pubkey(object obj)
-	{
-		this->magic = obj.magic;
-		strncpy(this->command, obj.command,12);
-		this->lenght = obj.lenght;
-		strncpy(this->checksum, obj.checksum,4);
-		this->message_payload = obj.message_payload;
-		this->nonce = obj.nonce;
-		this->Time = obj.Time;
-		this->objectType = obj.objectType;
-		this->version = obj.version;
-		this->stream = obj.stream;
-		this->objectPayload = obj.objectPayload;
-		this->decodeObject();
-	}
-
+	packet_pubkey();
+	packet_pubkey(object obj);
 	//version 4
-
 	//tag 32 byte
 	ustring tag;
 	//encrypted data
 	ustring encrypted;
-
-
 	//decodes data
-	void decodeObject()
-	{
-		if (this->version == 4)
-		{
-			unsigned int i = 0;
-			this->tag = this->objectPayload.getUstring(32, i);
-			this->encrypted = this->objectPayload.getRest(i);
-		}
-	}
-
-	void encodeObject()
-	{
-		if (this->version == 4)
-		{
-			this->objectPayload.clear();
-			this->objectPayload += this->tag;
-			this->objectPayload += this->encrypted;
-		}
-	}
+	void decodeObject();
+	void encodeObject();
+	// storable interface
+	bool set_key(Unique_Key & key_in);
+	Unique_Key get_key();
+	bool query(Unique_Key &uq_key_in, std::string & data_out);
+	bool store();
+	bool delete_storable(Storable & object_in);
+	bool delete_storable(Unique_Key & key_in);
+	bool find_by_key(Unique_Key &);
+	bool set_storage(Storage*);
+	char * get_update_query();
+	char * get_load_query();
 };
 
 class packet_msg : public object
@@ -524,7 +516,7 @@ public:
 	{
 		this->magic = obj.magic;
 		strncpy(this->command, obj.command,12);
-		this->lenght = obj.lenght;
+		this->length = obj.length;
 		strncpy(this->checksum, obj.checksum,4);
 		this->message_payload = obj.message_payload;
 		this->nonce = obj.nonce;
@@ -551,7 +543,7 @@ public:
 	{
 		this->magic = obj.magic;
 		strncpy(this->command, obj.command, 12);
-		this->lenght = obj.lenght;
+		this->length = obj.length;
 		strncpy(this->checksum, obj.checksum, 4);
 		this->message_payload = obj.message_payload;
 		this->nonce = obj.nonce;
