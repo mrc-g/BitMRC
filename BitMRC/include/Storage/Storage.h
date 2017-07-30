@@ -48,9 +48,9 @@ using namespace std;
 #define TEST_DB_NAME_MYSQL "bitmrc_test"
 #define DB_NAME_MYSQL "bitmrc"
 
-enum { key_unused = 0, key_used = 1 } enKeyFlags;
-enum { 	create_table = 1, insert_data = 2,
-		query_system = 3 , update_insert_delete = 4 } enSQL3QueryType;
+enum enKeyFlags { key_unused = 0, key_used = 1 };
+enum enSQL3QueryType { 	create_table = 1, insert_data = 2,
+		query_system = 3 , update_insert_delete = 4 };
 
 struct querytype {
 	char query[512];

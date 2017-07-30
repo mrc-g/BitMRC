@@ -436,4 +436,9 @@ void NodeConnection::Listener()
 			return;
 		}
 	}
+	catch (runtime_error e)
+	{
+		//printf(e.what());
+		this->Close();
+	}
 }

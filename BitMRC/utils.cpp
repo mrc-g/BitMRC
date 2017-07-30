@@ -24,7 +24,7 @@ string ustring::toHexString(unsigned char * in, uint16_t count) {
 			uint16_t idx = 0;
 
 			for(;idx < count; idx++) {
-				toBCD(in[idx], hchar);
+				toBCD(in[idx], (unsigned char*)hchar);
 				hchar[2]='\0';
 				ret.append(hchar);
 			}

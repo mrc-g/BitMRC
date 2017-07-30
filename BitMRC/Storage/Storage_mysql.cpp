@@ -39,7 +39,7 @@
 #include <iostream>
 #include <mutex>
 #include <stdint.h>
-#include <mysql/mysql.h>
+
 //#include <Exceptions/BitMRC_NoQueryConfigException.h>
 
 vector<Storable *> Storage_mysql::storable_list;
@@ -212,7 +212,7 @@ QueryResult * Storage_mysql::sql_exec(StorableQueryConfig * cfg)
 	if (iret != 0) {
 		ret->setError(BITMRC_DB_EXEC_FAILED);
 		ret->setNativeError(mysql_errno(db));
-		ret->setErrorString(mysql_error(db));
+		ret->setErrorString((char*)mysql_error(db));
 		LOG_DB(("%s: exit. exec result %d (%s)\n",__func__, ret->getNativeError(), ret->getErrorString()));
 	} else {
 		res = mysql_use_result(db);
@@ -294,7 +294,7 @@ uint32_t Storage_mysql::query_system_table(bitmrc_sysinfo_t * s_info) {
 
 	int mret = mysql_real_query(db, query, strlen(query));
 	if (mret != 0) {
-		errinfo = mysql_error(db);
+		errinfo = (char*)mysql_error(db);
 		if(mysql_errno(db) == 1146)
 			ret = BITMRC_DB_TABLE_NOT_EXISTANT;
 		LOG_DB(("%s : Err %d (%s)\n",__func__ , mysql_errno(db), errinfo));

@@ -244,14 +244,14 @@ bool Storage_sqlite3::prepareResultRow(sqlite3_stmt *pStmt, QueryResult * qr) {
 			case SQLITE_NULL:
 				qr->addElement(new QueryResultElement()); break;
 			case SQLITE3_TEXT:
-				el = new QueryResultElement(sqlite3_column_text(pStmt, i), (uint32_t)strlen(sqlite3_column_text(pStmt, i)));
+				el = new QueryResultElement((const char *)sqlite3_column_text(pStmt, i), (uint32_t)strlen((const char *)sqlite3_column_text(pStmt, i)));
 				break;
 			default:
 				LOG_DB(("%s : default type %d\n",__func__, ctype ));
 				break;
 		}
 		if(el != NULL) {
-			el->setName(sqlite3_column_name(pStmt, i));
+			el->setName((char *)sqlite3_column_name(pStmt, i));
 			qr->addElement(el);
 		}
 		el = NULL;
@@ -291,7 +291,8 @@ QueryResult * Storage_sqlite3::sql_exec(StorableQueryConfig * cfg)
 
 	/* (cfg->getType() != SQC_UPDATE && cfg->getType() != SQC_INSERT) */
 	/* currently implementing... use ColumnSpec/Rowspec in Storable to generate the answer automatically */
-	sret = sqlite3_prepare_v2(db, cfg->getQuery(), -1, &l_pStmt, &pzTail);
+
+	sret = sqlite3_prepare_v2(db, cfg->getQuery(), -1, &l_pStmt, (const char**)&pzTail);
 	if (sret == SQLITE_OK) {
 		sret = sqlite3_step(l_pStmt);
 		while(sret == SQLITE_ROW) {
@@ -338,7 +339,7 @@ uint32_t Storage_sqlite3::query_system_table(bitmrc_sysinfo_t * s_info) {
 		return BITMRC_BAD_PARA;
 	}
 	char query[] = "select node_id, working_mode, networking_flags,stream_id1, stream_id2, stream_id3, stream_id4, last_startup_timestamp, last_startup_result, database_version from system;";
-	StorableQueryConfig cfg(query_system, 1, query, NULL);
+	StorableQueryConfig cfg(query_system, query, 1, NULL);
 
 	/* keep track of last startup, so re-start loops can be avoided */
 	int sret = sqlite3_exec(db, cfg.getQuery(), q_callback,(void*)&cfg, &errinfo);

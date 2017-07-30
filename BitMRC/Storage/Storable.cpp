@@ -29,7 +29,7 @@
 #include <utils.h>
 #include <iostream>
 
-static char Storable::no_query[] = "undefined query";
+char Storable::no_query[] = "undefined query";
 
 Storable::Storable() {
 #ifdef LINUX
@@ -90,6 +90,7 @@ Unique_Key Storable::calc_key() {
  */
 bool Storable::set_storage(Storage * st) {
 	this->strg = st;
+	return true;//there wasnt a return value so I added it true
 }
 char *  Storable::get_update_query() {
 	return no_query;

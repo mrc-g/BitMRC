@@ -19,7 +19,7 @@ using namespace std;
 #define QR_DEBUG(a)
 #endif
 
-enum { QR_TYPE_NONE = 0, QR_TYPE_UPDATE, QR_TYPE_SELECT, QR_TYPE_INSERT, QR_TYPE_CREATE, QR_TYPE_MAX} enQueryType;
+enum enQueryType { QR_TYPE_NONE = 0, QR_TYPE_UPDATE, QR_TYPE_SELECT, QR_TYPE_INSERT, QR_TYPE_CREATE, QR_TYPE_MAX};
 
 class QueryResult {
 public:

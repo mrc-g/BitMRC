@@ -4,21 +4,22 @@
  *  Created on: 01.06.2016
  *      Author: steady286
  */
+#ifndef STORAGE_SQLITE3_H_
+#define STORAGE_SQLITE3_H_
+
 #include <sqlite3.h>
 #include <Storage/Storable.h>
 #include <Storage/Storage.h>
 #include <Storage/StorableQueryConfig.h>
 #include <types.h>
 #include <shared_mutex>
-#ifndef STORAGE_SQLITE3_H_
-#define STORAGE_SQLITE3_H_
 
 using namespace std;
 
 #if 0
-enum { key_unused = 0, key_used = 1 } enKeyFlags;
-enum { 	create_table = 1, insert_data = 2,
-		query_system = 3 , update_insert_delete = 4 } enSQL3QueryType;
+enum enKeyFlags { key_unused = 0, key_used = 1 };
+enum enSQL3QueryType { 	create_table = 1, insert_data = 2,
+		query_system = 3 , update_insert_delete = 4 };
 
 struct querytype {
 	char query[512];

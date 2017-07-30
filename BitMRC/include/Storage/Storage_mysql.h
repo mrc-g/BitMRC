@@ -4,14 +4,20 @@
  *  Created on: 22.12.2016
  *      Author: steady286
  */
+#ifndef STORAGE_MYSQL_H_
+#define STORAGE_MYSQL_H_
+
+#ifdef LINUX
 #include <mysql/mysql.h>
+#else
+#include <mysql.h>
+#endif
+
 #include <Storage/Storable.h>
 #include <Storage/Storage.h>
 #include <Storage/StorableQueryConfig.h>
 #include <types.h>
 #include <shared_mutex>
-#ifndef STORAGE_MYSQL_H_
-#define STORAGE_MYSQL_H_
 
 using namespace std;
 

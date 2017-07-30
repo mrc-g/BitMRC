@@ -6,7 +6,8 @@
 * to deal in the Software without restriction, including without limitation
 * the rights to use, copy, modify, merge, publish, distribute, sublicense,
 * and/or sell copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following conditions:
+* Software is furnished to do so, subject to the follo
+g conditions:
 *
 * The above copyright notice and this permission notice shall be included
 * in all copies or substantial portions of the Software.
@@ -45,7 +46,7 @@
 #include <Storage/Storage_mysql.h>
 #include <Storage/RowSpec.h>
 #include <Configuration.h>
-#include <sys/time.h>
+//#include <sys/time.h>
 #include <sha3.h>
 #include <utils.h>
 #include <Addr.h>
@@ -181,8 +182,8 @@ char * StorableConfiguration::get_update_query_sqlite3() {
 	sprintf(query, "insert into system "
 			"(node_id, working_mode, networking_flags, stream_id1, stream_id2, stream_id3, stream_id4, last_startup_timestamp, last_startup_result, database_version,config_name) "
 			"values (%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,\"DEFAULT_CONFIG\");",
-			this->get_working_mode(), this->get_networking_flags(), this->get_stream_id1(), this->get_stream_id2(),
-			this->get_stream_id3(), this->get_stream_id4(),
+			this->get_node_id(), this->get_working_mode(), this->get_networking_flags(),
+			this->get_stream_id1(), this->get_stream_id2(),	this->get_stream_id3(), this->get_stream_id4(),
 			this->get_last_startup_time(), this->get_last_startup_result(),
 			this->get_database_version());
 	return query;

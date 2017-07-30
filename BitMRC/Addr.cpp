@@ -743,11 +743,11 @@ char * PubAddr::get_update_query() {
 	size_t b58sz = 128;
 
 	ustring tmp = getPubSigningKey();
-	char * src = tmp.toString().c_str();
+	char * src = (char*)tmp.toString().c_str();
 	b58enc(b58pubSkey, &b58sz, src, tmp.length());
 
 	tmp = getPubEncryptionKey();
-	src = tmp.toString().c_str();
+	src = (char*)tmp.toString().c_str();
 	b58enc(b58pubEkey, &b58sz, src, tmp.length());
 
 	ustring addr = buildAddressFromKeys(getPubSigningKey(), getPubEncryptionKey(), getStream(), getVersion());

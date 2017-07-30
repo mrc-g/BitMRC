@@ -1,5 +1,10 @@
 ﻿#pragma once
+#ifdef LINUX
 #include <QWidget>
+#else
+#include <QtWidgets\qwidget.h>
+#endif
+
 #include "ui_class.h"
 
 class Class : public QWidget {

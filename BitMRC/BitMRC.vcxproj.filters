@@ -60,6 +60,30 @@
     <ClCompile Include="Storage\Unique_Key.cpp">
       <Filter>File di origine\storage</Filter>
     </ClCompile>
+    <ClCompile Include="Storage\ColumnSpec.cpp">
+      <Filter>File di origine\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="Storage\QueryResult.cpp">
+      <Filter>File di origine\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="Storage\QueryResultElement.cpp">
+      <Filter>File di origine\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="Storage\RowSpec.cpp">
+      <Filter>File di origine\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="Storage\StorableConfiguration.cpp">
+      <Filter>File di origine\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="Storage\StorableQueryConfig.cpp">
+      <Filter>File di origine\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="Storage\Storage_mysql.cpp">
+      <Filter>File di origine\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="Configuration.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\NodeBlacklist.h">
@@ -109,6 +133,33 @@
     </ClInclude>
     <ClInclude Include="include\Storage\Unique_Key.h">
       <Filter>File di intestazione\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Storage\ColumnSpec.h">
+      <Filter>File di intestazione\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Storage\QueryResult.h">
+      <Filter>File di intestazione\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Storage\QueryResultElement.h">
+      <Filter>File di intestazione\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Storage\RowSpec.h">
+      <Filter>File di intestazione\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Storage\SQLiteLinux.h">
+      <Filter>File di intestazione\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Storage\StorableConfiguration.h">
+      <Filter>File di intestazione\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Storage\StorableQueryConfig.h">
+      <Filter>File di intestazione\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Storage\Storage_mysql.h">
+      <Filter>File di intestazione\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Configuration.h">
+      <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
